@@ -28,7 +28,7 @@ export default function PreviousSessions(props: PreviousSessionsProps) {
       </div>
       <div className="self-stretch flex-col justify-start items-start gap-8 flex">
         {sortedSessions.map((session) => (
-          <div className="self-stretch h-[133px] px-6 pt-5 pb-6 bg-tunnel-snake-black rounded-sm flex-col justify-start items-start gap-2 flex">
+          <div key={session.id} className="self-stretch h-[133px] px-6 pt-5 pb-6 bg-tunnel-snake-black rounded-sm flex-col justify-start items-start gap-2 flex">
             <div className="self-stretch justify-between items-center inline-flex">
               <div className="text-tunnel-snake-green text-base font-semibold font-['Montserrat']">
                 {session?.date?.toLocaleDateString("en-GB", {

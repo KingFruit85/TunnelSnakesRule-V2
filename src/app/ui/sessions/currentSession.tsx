@@ -58,7 +58,7 @@ export default function CurrentSession(props: currentSessionProps) {
         </div>
         <div className="self-stretch flex-col justify-start items-center gap-3 flex">
           {session?.gameResults?.map((gameResult: GameResults) => (
-            <div className="self-stretch justify-start items-center gap-2 inline-flex">
+            <div key={gameResult.id} className="self-stretch justify-start items-center gap-2 inline-flex">
               <div className="justify-start items-center gap-2 flex">
                 <div className="text-white text-xl font-medium font-['Montserrat'] inline-flex">
                   <Image
