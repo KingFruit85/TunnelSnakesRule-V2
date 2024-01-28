@@ -49,7 +49,7 @@ export async function addNewPlayer(formData: FormData) {
 export async function addNewGameSession(formData: FormData) {
   const players = formData.getAll("player");
   const sessionName = formData.get("sessionName")?.toString();
-  const gameResults = "";
+  const gameResults = null;
   const active = true;
   const date = new Date().toISOString();
 
@@ -84,33 +84,52 @@ export async function addNewBoardGame(formData: FormData) {
 }
 
 export async function addNewGameResult(formData: FormData) {
-
-  console.log(formData);
-
-  const winCondition = formData.get("winConditions")?.toString();
+  const sessionId = formData.get("sessionId")?.toString();
+  const winCondition = formData.get("winCondition")?.toString();
   const scoringDirection = formData.get("scoringDirection")?.toString();
+  const gameName = formData.get("gameName")?.toString();
   let playerScores = [];
 
-
   for (const pair of formData.entries()) {
-
     const isPlayer = pair[0].toString().split("_")[0] === "player";
     const playedGame = pair[1].toString().split(",")[0] === "true";
 
-    if ( isPlayer && playedGame ) {
-
-    const playerScore = {
-      playerId: pair[0].toString().split("_")[1],
-      score: pair[1].toString().split(",")[1]
-    };
-    playerScores.push(playerScore);
+    if (isPlayer && playedGame) {
+      const playerScore = {
+        playerId: pair[0].toString().split("_")[1],
+        score: pair[1].toString().split(",")[1],
+      };
+      playerScores.push(playerScore);
     }
   }
-  
-  const result = {
+
+  const newResult = {
+    gameName: gameName,
     winCondition: winCondition,
     scoringDirection: scoringDirection,
-    playerScores: playerScores
-  }
-  // console.log(formData);
+    playerScores: playerScores,
+  };
+
+  // Retrieve existing gameResults
+  const existingResults = await sql`
+   SELECT gameResults FROM sessions WHERE id = ${sessionId}`;
+
+  // Parse existing gameResults to get an array
+  const existingResultsArray =
+    existingResults.rows[0].gameresults !== null
+      ? JSON.parse(existingResults?.rows[0].gameresults)
+      : [];
+
+  // Add the new result to the array
+  existingResultsArray.push(newResult);
+
+  // Convert the updated array back to JSON string
+  const updatedResultsJson = JSON.stringify(existingResultsArray);
+
+  // Update the gameResults column in the database
+  await sql`
+     UPDATE sessions SET gameResults = ${updatedResultsJson} WHERE id = ${sessionId}`;
+
+  revalidatePath("/sessions/");
+  redirect("/sessions/");
 }

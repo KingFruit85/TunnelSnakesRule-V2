@@ -13,6 +13,8 @@ const config: Config = {
         "tunnel-snake-green": "#96C431",
         "tunnel-snake-orange": "#FE8A1F",
         "tunnel-snake-grey": "#141813",
+        "tunnel-snake-red": "#de0202",
+
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",

@@ -1,7 +1,7 @@
 "use server";
 
 import { sql } from "@vercel/postgres";
-import { BoardGame, GameSession, Player } from "./definitions";
+import { BoardGame, GameSession, Player, GameResults } from "./definitions";
 import { unstable_noStore as noStore } from "next/cache";
 
 export async function getPlayerById(id: string): Promise<Player> {
@@ -20,7 +20,7 @@ export async function getPlayerById(id: string): Promise<Player> {
   
     return player;
   }
-  
+ 
   export async function getAllActiveSessions() {
     noStore();
     const result = await sql`
@@ -32,7 +32,24 @@ export async function getPlayerById(id: string): Promise<Player> {
       date: new Date(session.date),
       active: Boolean(session.active),
       playerIds: session.playerids.split(","),
-      gameResults: String(session.gameResults),
+      gameResults: JSON.parse(session.gameresults) as GameResults[],
+    }));
+  
+    return sessions;
+  }
+
+  export async function getAllInactiveSessions() {
+    noStore();
+    const result = await sql`
+    SELECT * FROM Sessions WHERE active = false`;
+
+    const sessions: GameSession[] = result.rows.map((session) => ({
+      id: String(session.id),
+      name: String(session.name),
+      date: new Date(session.date),
+      active: Boolean(session.active),
+      playerIds: session.playerids.split(","),
+      gameResults: session.gameresults !== null && session.gameresults !== '' ? JSON.parse(session.gameresults) as GameResults[] : [],
     }));
   
     return sessions;

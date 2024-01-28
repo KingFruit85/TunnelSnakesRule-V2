@@ -1,9 +1,13 @@
-import { getAllActiveSessions } from "@/app/lib/data";
+import { getAllActiveSessions, getAllInactiveSessions } from "@/app/lib/data";
 import CurrentSession from "@/app/ui/sessions/currentSession";
 import PreviousSessions from "@/app/ui/sessions/previousSessions";
 
 export default async function Page() {
   const activeSessions = await getAllActiveSessions();
+  const previousSessions = await getAllInactiveSessions();
+
+  console.log(previousSessions);
+  
   return (
 
     <div className="flex-col space-items items-center m-10">
@@ -19,7 +23,7 @@ export default async function Page() {
       </div>
 
       <div className="flex flex-col space-items items-center">
-        <PreviousSessions />
+        <PreviousSessions sessions={previousSessions}/>
       </div>
 
     </div >

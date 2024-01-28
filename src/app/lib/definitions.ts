@@ -10,16 +10,22 @@ export type GameSession = {
     id: string;
     name: string;
     date: Date;
-    playerIds: string[];
-    gameResults: string;
     active: boolean;
+    playerIds: string[];
+    gameResults: GameResults[];
 }
 
-export type Results = {
-    gameName: BoardGame;
+export type GameResults = {
     id: string;
-    playerId: string;
-    sessionId: string;
+    gameName: string;
+    winCondition: string;
+    scoringDirection: string;
+    playerScores: PlayerScore[];
+}
+
+export type PlayerScore = {
+    id: string;
+    player: Player;
     score: number;
 }
 
