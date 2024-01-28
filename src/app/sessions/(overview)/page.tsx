@@ -1,17 +1,21 @@
+import { getAllActiveSessions } from "@/app/lib/data";
 import CurrentSession from "@/app/ui/sessions/currentSession";
 import PreviousSessions from "@/app/ui/sessions/previousSessions";
-import { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Sessions",
-};
-
-export default function Page() {
+export default async function Page() {
+  const activeSessions = await getAllActiveSessions();
   return (
-    <div className="flex-col space-items items-center m-10">
 
+    <div className="flex-col space-items items-center m-10">
       <div className="flex flex-col space-items items-center m-10">
-      <CurrentSession />
+      <div className="text-white text-[32px] font-semibold font-['Montserrat']">
+        Active Sessions
+      </div>
+        { activeSessions.map((session) => (
+          <div key={session.id}>
+            <CurrentSession session={session} />
+          </div>
+        ))}
       </div>
 
       <div className="flex flex-col space-items items-center">
@@ -22,5 +26,3 @@ export default function Page() {
   );
 }
 
-
-// style={{width: '100%', height: '100%', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'center', gap: 48, display: 'inline-flex'}}

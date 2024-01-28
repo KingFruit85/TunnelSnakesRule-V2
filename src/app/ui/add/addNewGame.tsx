@@ -1,19 +1,11 @@
-"use client";
-import { useState } from "react";
+import { addNewBoardGame } from "@/app/lib/actions";
 
 export default function AddNewGame() {
-  const [winCondition, setWinCondition] = useState("teamBased");
-  const [gameName, setGameName] = useState("");
-  const [coverArtUrl, setCoverArtUrl] = useState("");
 
-  console.log(gameName);
-
-  const handleRadioChange = (value:any) => {
-    setWinCondition(value);
-  };
 
   return (
-    <div className=" p-12 bg-tunnel-snake-black border border-white flex-col justify-start items-start gap-8 inline-flex">
+    <form action={addNewBoardGame}>
+      <div className=" p-12 bg-tunnel-snake-black border border-white flex-col justify-start items-start gap-8 inline-flex">
       <div className="text-white text-[32px] font-semibold font-['Montserrat']">
         Add New Game
       </div>
@@ -22,13 +14,13 @@ export default function AddNewGame() {
           <div className="text-white text-sm font-medium font-['Montserrat']">
             Name
           </div>
-          <input onChange={(e) => setGameName(e.target.value)}  className=" self-stretch px-3 py-2.5 bg-tunnel-snake-grey rounded-sm border border-white justify-start items-start gap-2.5 inline-flex" />
+          <input id="gameName" name="gameName" type="text"  className=" self-stretch px-3 py-2.5 bg-tunnel-snake-grey rounded-sm border border-white justify-start items-start gap-2.5 inline-flex" />
         </div>
         <div className="h-[65px] flex-col justify-start items-start gap-2 flex">
           <div className="text-white text-sm font-medium font-['Montserrat']">
             Cover art URL
           </div>
-          <input onChange={(e) => setCoverArtUrl(e.target.value)} className="self-stretch px-3 py-2.5 bg-tunnel-snake-grey rounded-sm border border-white justify-start items-start gap-2.5 inline-flex" />
+          <input id="gameArt" name="gameArt" type="text"  className="self-stretch px-3 py-2.5 bg-tunnel-snake-grey rounded-sm border border-white justify-start items-start gap-2.5 inline-flex" />
         </div>
         <div className="flex-col justify-start items-start gap-4 flex">
           <div className="text-white text-sm font-medium font-['Montserrat']">
@@ -41,8 +33,6 @@ export default function AddNewGame() {
                 name="winCondition"
                 id="teamBased"
                 value="teamBased"
-                onChange={() => handleRadioChange("teamBased")}
-                checked={winCondition === "teamBased"}
                 className="w-6 h-6 relative bg-tunnel-snake-grey rounded-sm border border-white"
               />
               <div className="text-white text-base font-normal font-['Montserrat']">
@@ -55,8 +45,6 @@ export default function AddNewGame() {
                 name="winCondition"
                 id="cooperative"
                 value="cooperative"
-                checked={winCondition === "cooperative"}
-                onChange={() => handleRadioChange("cooperative")}
                 className="w-6 h-6 relative bg-tunnel-snake-grey rounded-sm border border-white"
               />
               <div className="text-white text-base font-normal font-['Montserrat']">
@@ -69,8 +57,6 @@ export default function AddNewGame() {
                 name="winCondition"
                 id="leaderBoard"
                 value="leaderBoard"
-                checked={winCondition === "leaderBoard"}
-                onChange={() => handleRadioChange("leaderBoard")}
                 className="w-6 h-6 relative bg-tunnel-snake-green rounded-sm"
               />
               <div className="text-white text-base font-normal font-['Montserrat']">
@@ -93,5 +79,6 @@ export default function AddNewGame() {
         </button>
       </div>
     </div>
+    </form>
   );
 }
