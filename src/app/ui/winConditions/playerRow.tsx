@@ -26,7 +26,7 @@ export default function PlayerRow(props: PlayerRowProps) {
           type="checkbox"
           id={player.id}
           checked={checked}
-          value={checked}
+          value={checked ? "true" : "false"}
           onChange={handleCheckboxChange}
           className="w-6 h-6 relative text-white rounded-sm"
         />
