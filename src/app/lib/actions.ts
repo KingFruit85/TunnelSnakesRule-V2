@@ -64,9 +64,12 @@ export async function addNewGameSession(formData: FormData) {
   redirect("/sessions/");
 }
 
-export async function endSession(id: string) {
+export async function endSession(id: string, notes: string) {
   await sql`
-  UPDATE Sessions SET active = false WHERE id = ${id}`;
+  UPDATE Sessions 
+    SET active = false,
+        notes = ${notes} 
+    WHERE id = ${id}`;
 
   revalidatePath("/sessions/");
 }
@@ -84,13 +87,14 @@ export async function addNewBoardGame(formData: FormData) {
 }
 
 export async function addNewGameResult(formData: FormData) {
-
   console.log(formData);
 
   const sessionId = formData.get("sessionId")?.toString();
   const winCondition = formData.get("winCondition")?.toString();
   const scoringDirection = formData.get("scoringDirection")?.toString();
   const gameName = formData.get("gameName")?.toString();
+  const notes = formData.get("gameResultNotes")?.toString();
+
   let playerScores = [];
 
   for (const pair of formData.entries()) {
@@ -111,6 +115,7 @@ export async function addNewGameResult(formData: FormData) {
     winCondition: winCondition,
     scoringDirection: scoringDirection,
     playerScores: playerScores,
+    gameResultNotes: notes,
   };
 
   // Retrieve existing gameResults

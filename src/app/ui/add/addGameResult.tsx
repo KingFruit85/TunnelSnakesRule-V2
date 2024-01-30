@@ -16,7 +16,6 @@ export default async function AddGameResult(props: AddGameResultProps) {
       <input type="hidden" name="sessionId" value={sessionId} />
       <div className="p-12  bg-tunnel-snake-black border border-white flex-col items-center gap-8 inline-flex">
         <div className="flex-row items-center gap-5 flex">
-          <img src={"/Camera.svg"} alt={"Camera icon"} />
           <div className="text-white text-[32px] font-semibold font-['Montserrat']">
             Add Result
           </div>

@@ -4,6 +4,7 @@ import { endSession } from "@/app/lib/actions";
 import { GameSession, GameResults } from "@/app/lib/definitions";
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 export interface currentSessionProps {
   session: GameSession;
@@ -12,6 +13,16 @@ export interface currentSessionProps {
 export default function CurrentSession(props: currentSessionProps) {
   const { session } = props;
 
+  const [showNotes, setShowNotes] = useState<boolean>(false);
+  const [notes, setNotes] = useState<string>("");
+
+  useEffect(() => {
+    const notes = localStorage.getItem("sessionNotes");
+    if (notes) {
+      setNotes(notes);
+    }
+  }, []);
+
   const formattedDate = session?.date?.toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "2-digit",
@@ -19,7 +30,22 @@ export default function CurrentSession(props: currentSessionProps) {
   });
 
   const handleEndSession = () => {
-    endSession(session.id);
+    localStorage.setItem("sessionNotes", notes);
+    endSession(session.id, notes);
+  };
+
+  const handleShowNotes = () => {
+    setShowNotes(!showNotes);
+  };
+
+  const recordNotes = (note: string) => {
+    setNotes(note);
+  
+    // Clear the specific item related to notes
+    localStorage.removeItem("sessionNotes");
+  
+    // Append the new note
+    localStorage.setItem("sessionNotes", note);
   };
 
   return (
@@ -27,12 +53,20 @@ export default function CurrentSession(props: currentSessionProps) {
       <div className="self-stretch px-6 py-5 bg-tunnel-snake-black border border-tunnel-snake-orange flex-col justify-start items-start gap-[27px] flex">
         <div className="self-stretch justify-between items-start inline-flex">
           <div className="justify-start items-center gap-4 inline-flex ">
-          <Image
-                  src={"/Camera.svg"}
-                  width={25}
-                  height={25}
-                  alt={"number of players in session icon"}
-                />
+            <Image
+              src={"/Camera.svg"}
+              width={25}
+              height={25}
+              alt={"add photo icon"}
+            />
+            <button type="button" onClick={handleShowNotes}>
+              <Image
+                src={"/Paper.svg"}
+                width={25}
+                height={25}
+                alt={"add notes icon"}
+              />
+            </button>
             <div className="text-white text-2xl font-semibold font-['Montserrat'] flex">
               {formattedDate}
             </div>
@@ -56,9 +90,20 @@ export default function CurrentSession(props: currentSessionProps) {
             </div>
           </div>
         </div>
+        {showNotes && (
+          <textarea
+            name="sessionNotes"
+            value={notes}
+            onChange={(e) => recordNotes(e.target.value)}
+            className="mb-4 bg-tunnel-snake-grey border rounded-sm border-tunnel-snake-green text-tunnel-snake-orange w-[20pc] h-[5pc]"
+          />
+        )}
         <div className="self-stretch flex-col justify-start items-center gap-3 flex">
           {session?.gameResults?.map((gameResult: GameResults) => (
-            <div key={gameResult.id} className="self-stretch justify-start items-center gap-2 inline-flex">
+            <div
+              key={gameResult.id}
+              className="self-stretch justify-start items-center gap-2 inline-flex"
+            >
               <div className="justify-start items-center gap-2 flex">
                 <div className="text-white text-xl font-medium font-['Montserrat'] inline-flex">
                   <Image
@@ -92,11 +137,11 @@ export default function CurrentSession(props: currentSessionProps) {
             }}
           >
             <Image
-                  src={"/Trophy.svg"}
-                  width={20}
-                  height={20}
-                  alt={"number of players in session icon"}
-                />
+              src={"/Trophy.svg"}
+              width={20}
+              height={20}
+              alt={"number of players in session icon"}
+            />
             <div className="text-tunnel-snake-green text-base font-medium font-['Montserrat']">
               Add result
             </div>
@@ -106,7 +151,6 @@ export default function CurrentSession(props: currentSessionProps) {
             onClick={handleEndSession}
             className="px-5 py-2.5 bg-black rounded-sm border border-tunnel-snake-red justify-start items-center gap-3 flex"
           >
-
             <div className="text-tunnel-snake-red text-base font-medium font-['Montserrat'] inline-flex">
               End session
             </div>
