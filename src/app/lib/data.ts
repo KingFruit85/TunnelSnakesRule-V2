@@ -86,6 +86,7 @@ export async function getPlayerById(id: string): Promise<Player> {
   }
 
   export async function getAllBoardgames() {
+    noStore();
     const result = await sql`
     SELECT * FROM boardgames`;
 

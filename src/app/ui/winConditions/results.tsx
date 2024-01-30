@@ -3,56 +3,60 @@
 import { BoardGame, Player } from "@/app/lib/definitions";
 import { useState } from "react";
 import Leaderboard from "./leaderboard";
-import TeamBased from "./teambased";
-import { set } from "zod";
 
 export interface ResultsProps {
   games: BoardGame[];
   players: Player[];
 }
 
-export default function Results(props: ResultsProps) {
-  const { games } = props;
+export default function Results({ games, players }: ResultsProps) {
 
-  const placeholderGame = {
-      id: 0,
-      name: "Select game",
-      winCondition: "leaderBoard",
-      picture: ""
-  } as unknown as BoardGame;
+  const [game, setGame] = useState<BoardGame>(games[0]);
 
-  const [game, setGame] = useState<BoardGame>(placeholderGame);
   const [winCondition, setWinCondition] = useState<string>("leaderBoard");
 
   const handleGameChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedGameId = e.target.value;
+    console.log(selectedGameId)
 
     const selectedGame = games.find(
-      (game) => String(game.id) === selectedGameId
+      (game) => game.name === selectedGameId
     );
 
-    setGame(selectedGame!);
+    if (!selectedGame) {
+      // Handle the case where selectedGame is undefined
+      // For example, you might want to set a default value or show an error message
+      console.error("Selected game not found");
+      return;
+    }
+
+    setGame(selectedGame);
+
+    console.log(selectedGame);
 
     switch (selectedGame?.winCondition) {
       case "leaderBoard":
-        setWinCondition("leaderBoard");
+        setWinCondition(selectedGame?.winCondition);
         break;
       case "teamBased":
-        setWinCondition("teamBased");
+        setWinCondition(selectedGame?.winCondition);
+        break;
+      case "cooperative":
+        setWinCondition(selectedGame?.winCondition);
         break;
     }
   };
 
   return (
-    <div>
+    <div className="items-center flex-col">
       <select
         id="boardgame"
-        value={game.name}
+        value={game?.name}
         onChange={handleGameChange}
         className="text-tunnel-snake-green bg-tunnel-snake-black text-2xl font-semibold font-['Montserrat']"
       >
         {games.map((game) => (
-          <option key={game.id} value={game.id}>
+          <option key={game.id} value={game.name}>
             {game.name}
           </option>
         ))}
@@ -66,10 +70,7 @@ export default function Results(props: ResultsProps) {
         value={game?.winCondition || ""}
       />
 
-      {winCondition === "leaderBoard" && (
-        <Leaderboard players={props.players} />
-      )}
-      {winCondition === "teamBased" && <TeamBased />}
+      <Leaderboard players={players} winCondition={winCondition} />
     </div>
   );
 }

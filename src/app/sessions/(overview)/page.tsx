@@ -6,13 +6,11 @@ export default async function Page() {
   const activeSessions = await getAllActiveSessions();
   const previousSessions = await getAllInactiveSessions();
 
-  console.log(previousSessions);
-  
   return (
 
     <div className="flex-col space-items items-center m-10">
       <div className="flex flex-col space-items items-center m-10">
-      <div className="text-white text-[32px] font-semibold font-['Montserrat']">
+      <div className="text-white text-[32px] font-semibold font-['Montserrat'] mb-2">
         Active Sessions
       </div>
         { activeSessions.map((session) => (

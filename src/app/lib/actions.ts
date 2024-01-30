@@ -84,6 +84,9 @@ export async function addNewBoardGame(formData: FormData) {
 }
 
 export async function addNewGameResult(formData: FormData) {
+
+  console.log(formData);
+
   const sessionId = formData.get("sessionId")?.toString();
   const winCondition = formData.get("winCondition")?.toString();
   const scoringDirection = formData.get("scoringDirection")?.toString();
