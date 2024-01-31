@@ -4,6 +4,7 @@ import { z } from "zod";
 import { sql } from "@vercel/postgres";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { v4 as uuidv4 } from 'uuid';
 
 const FormSchema = z.object({
   id: z.string(),
@@ -111,6 +112,7 @@ export async function addNewGameResult(formData: FormData) {
   }
 
   const newResult = {
+    id: uuidv4(),
     gameName: gameName,
     winCondition: winCondition,
     scoringDirection: scoringDirection,
@@ -133,6 +135,8 @@ export async function addNewGameResult(formData: FormData) {
 
   // Convert the updated array back to JSON string
   const updatedResultsJson = JSON.stringify(existingResultsArray);
+
+  console.log(updatedResultsJson);
 
   // Update the gameResults column in the database
   await sql`

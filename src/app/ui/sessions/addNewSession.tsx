@@ -1,5 +1,6 @@
 import { Player } from "@/app/lib/definitions";
 import { addNewGameSession } from "@/app/lib/actions";
+import CancelButton from "../Common/cancelButton";
 
 export interface AddNewSessionProps {
   players: Player[];
@@ -58,11 +59,8 @@ export default function AddNewSession(props: AddNewSessionProps) {
             Create session
           </div>
         </button>
-        <button className="w-[400px] px-5 py-2.5 bg-tunnel-snake-black rounded-sm border border-tunnel-snake-orange justify-center items-center gap-3 inline-flex">
-          <div className="text-tunnel-snake-orange text-base font-medium font-['Montserrat']">
-            Cancel
-          </div>
-        </button>
+        <CancelButton width={400} />
+
       </div>
     </div>
     </form>

@@ -13,6 +13,8 @@ export interface currentSessionProps {
 export default function CurrentSession(props: currentSessionProps) {
   const { session } = props;
 
+  console.log(session);
+
   const [showNotes, setShowNotes] = useState<boolean>(false);
   const [notes, setNotes] = useState<string>("");
 
@@ -100,7 +102,8 @@ export default function CurrentSession(props: currentSessionProps) {
         )}
         <div className="self-stretch flex-col justify-start items-center gap-3 flex">
           {session?.gameResults?.map((gameResult: GameResults) => (
-            <div
+            console.log(gameResult.id),
+            gameResult.id && (<div
               key={gameResult.id}
               className="self-stretch justify-start items-center gap-2 inline-flex"
             >
@@ -122,7 +125,7 @@ export default function CurrentSession(props: currentSessionProps) {
               <div className="text-white text-xl font-normal font-['Montserrat']">
                 {gameResult.gameName}
               </div>
-            </div>
+            </div>)
           ))}
         </div>
         <div className="justify-start items-start gap-6 inline-flex">

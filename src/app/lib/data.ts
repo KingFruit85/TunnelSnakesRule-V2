@@ -87,7 +87,7 @@ export async function getAllPlayersBySessionId(id: string) {
     const player = await getPlayerById(playerid);
     players.push(player);
   });
-
+  console.log('getAllPlayersBySessionId players: ',players);
   return players;
 }
 

@@ -1,6 +1,7 @@
 import { getAllBoardgames, getAllPlayersBySessionId } from "@/app/lib/data";
 import { addNewGameResult } from "@/app/lib/actions";
 import Results from "../winConditions/results";
+import CancelButton from "../Common/cancelButton";
 
 export interface AddGameResultProps {
   sessionId: string;
@@ -9,6 +10,7 @@ export interface AddGameResultProps {
 export default async function AddGameResult(props: AddGameResultProps) {
   const { sessionId } = props;
   const players = await getAllPlayersBySessionId(sessionId);
+  console.log('addGameResult players: ', players);
   const boardGames = await getAllBoardgames();
 
   return (
@@ -33,13 +35,11 @@ export default async function AddGameResult(props: AddGameResultProps) {
               Add result
             </div>
           </button>
-          <button className="self-stretch px-5 py-2.5 bg-tunnel-snake-black rounded-sm border border-tunnel-snake-orange justify-center items-center gap-3 inline-flex">
-            <div className="text-tunnel-snake-orange text-base font-medium font-['Montserrat']">
-              Cancel
-            </div>
-          </button>
+          <CancelButton width={0} />
         </div>
       </div>
     </form>
   );
 }
+
+// going to have to move the buttons down into results so i can disable the button after it's pressed.

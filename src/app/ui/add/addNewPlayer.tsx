@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { addNewPlayer } from "@/app/lib/actions";
+import CancelButton from "../Common/cancelButton";
 
 export default function AddNewPlayer() {
   const [playerName, setPlayerName] = useState("");
@@ -28,11 +29,7 @@ export default function AddNewPlayer() {
               Add player
             </div>
           </button>
-          <button className="w-[400px] px-5 py-2.5 bg-tunnel-snake-black rounded-sm border border-tunnel-snake-orange justify-center items-center gap-3 inline-flex hover:bg-tunnel-snake-orange">
-            <div className="text-tunnel-snake-orange text-base font-medium font-['Montserrat']">
-              Cancel
-            </div>
-          </button>
+          <CancelButton width={400} />
         </div>
       </div>
     </form>

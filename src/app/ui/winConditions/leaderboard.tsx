@@ -11,6 +11,8 @@ export interface LeaderboardProps {
 export default function Leaderboard(props: LeaderboardProps) {
   const { players, winCondition } = props;
 
+  console.log('leaderboard players: ',players);
+
   return (
     <div className="flex-col justify-start items-center gap-3 flex mt-4">
       {winCondition === "leaderBoard" && (

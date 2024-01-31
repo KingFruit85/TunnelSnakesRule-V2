@@ -3,6 +3,7 @@
 import { BoardGame, Player } from "@/app/lib/definitions";
 import { useState } from "react";
 import Leaderboard from "./leaderboard";
+import { redirect } from "next/navigation";
 
 export interface ResultsProps {
   games: BoardGame[];
@@ -20,9 +21,13 @@ export default function Results({ games, players }: ResultsProps) {
     setShowNotes(!showNotes);
   };
 
+  const handleClose = () => {
+    redirect("/sessions/");
+  };
+
   const handleGameChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedGameId = e.target.value;
-    console.log(selectedGameId);
+    console.log('results players',players);
 
     const selectedGame = games.find((game) => game.name === selectedGameId);
 
@@ -49,7 +54,7 @@ export default function Results({ games, players }: ResultsProps) {
   };
 
   return (
-    <div className="flex flex-col ">
+    <div className="flex flex-col stretch">
       <div className="flex justify-center">
         {showNotes && (
           <textarea
