@@ -41,5 +41,3 @@ export default async function AddGameResult(props: AddGameResultProps) {
     </form>
   );
 }
-
-// going to have to move the buttons down into results so i can disable the button after it's pressed.
