@@ -86,7 +86,7 @@ export default function CurrentSession(props: currentSessionProps) {
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-        <ImageUploadPage />
+        <ImageUploadPage id={session.id} />
 
         </Box>
       </Modal>

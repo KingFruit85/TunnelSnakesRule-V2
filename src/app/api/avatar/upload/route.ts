@@ -5,15 +5,13 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request): Promise<NextResponse> {
   const body = (await request.json()) as HandleUploadBody;
 
-  console.log('REQUEST:', request)
- 
   try {
     const jsonResponse = await handleUpload({
       body,
       request,
       onBeforeGenerateToken: async (
-        pathname: string,
-        /* clientPayload?: string, */
+        // pathname: string,
+        // clientPayload?: string,
       ) => {
         // Generate a client token for the browser to upload the file
         // ⚠️ Authenticate and authorize users before generating the token.
@@ -32,9 +30,16 @@ export async function POST(request: Request): Promise<NextResponse> {
         // ⚠️ This will not work on `localhost` websites,
         // Use ngrok or similar to get the full upload flow
 
-        // await addImageToSession(blob.url, tokenPayload.sessionId)
- 
         console.log('blob upload completed', blob, tokenPayload);
+        const clientPayload = 'clientPayload' in body.payload ? body.payload.clientPayload : null;
+        if (clientPayload) {
+          await addImageToSession(blob.url, clientPayload);
+          console.log('added image to session', blob.url, clientPayload)
+        } else {
+          console.log('no client payload')
+          throw new Error('No id provided, image is not associated with a session, result or player');
+        }
+        
  
         try {
           // Run any logic after the file upload completed

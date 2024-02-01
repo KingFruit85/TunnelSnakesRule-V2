@@ -14,10 +14,14 @@ const FormSchema = z.object({
 const AddNewPlayer = FormSchema.omit({ id: true });
 
 export async function addImageToSession(link:string, sessionId:string) {
+
+  console.log(`adding image ${link} to session ${sessionId}`)
   await sql`
   UPDATE sessions 
     SET imageurl = ${link}
     WHERE id = ${sessionId}`; 
+
+    revalidatePath("/sessions/");
 }
 
 export async function addNewPlayer(formData: FormData) {
