@@ -6,6 +6,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   const body = (await request.json()) as HandleUploadBody;
   const clientPayload =
       "clientPayload" in body.payload ? body.payload.clientPayload : null;
+  console.log(`clientPayload is ${clientPayload} at the top` );
 
   try {
     const jsonResponse = await handleUpload({
@@ -15,19 +16,23 @@ export async function POST(request: Request): Promise<NextResponse> {
         pathname: string
         /* clientPayload?: string, */
       ) => {
+  console.log(`clientPayload is ${clientPayload} in handleUpload` );
+
         // Generate a client token for the browser to upload the file
         // ⚠️ Authenticate and authorize users before generating the token.
         // Otherwise, you're allowing anonymous uploads.
 
         return {
           allowedContentTypes: ["image/jpeg", "image/png", "image/gif"],
-          tokenPayload: JSON.stringify({
+          tokenPayload: JSON.stringify({clientPayload
             // optional, sent to your server on upload completion
             // you could pass a user id from auth, or a value from clientPayload
           }),
         };
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {
+  console.log(`clientPayload is ${clientPayload} in onUploadCompleted and token payload is ${tokenPayload}` );
+
         // Get notified of client upload completion
         // ⚠️ This will not work on `localhost` websites,
         // Use ngrok or similar to get the full upload flow
