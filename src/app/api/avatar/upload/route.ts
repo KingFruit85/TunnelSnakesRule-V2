@@ -31,7 +31,8 @@ export async function POST(request: Request): Promise<NextResponse> {
         };
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {
-  console.log(`clientPayload is ${clientPayload} in onUploadCompleted and token payload is ${tokenPayload}` );
+        const tp = JSON.parse(tokenPayload!);
+  console.log(`clientPayload is ${clientPayload} in onUploadCompleted and token payload is ${tp.clientPayload}` );
 
         // Get notified of client upload completion
         // ⚠️ This will not work on `localhost` websites,
@@ -40,9 +41,9 @@ export async function POST(request: Request): Promise<NextResponse> {
         console.log("blob upload completed", blob, tokenPayload);
 
         try {
-          if (clientPayload) {
-            await addImageToSession(blob.url, clientPayload);
-            console.log("added image to session", blob.url, clientPayload);
+          if (tp) {
+            await addImageToSession(blob.url, tp.clientPayload);
+            console.log("added image to session", blob.url, tp.clientPayload);
           } else {
             console.log("no client payload");
             throw new Error(
