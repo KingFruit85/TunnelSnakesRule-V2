@@ -12,6 +12,8 @@ export async function POST(request: Request): Promise<NextResponse> {
         pathname: string,
         /* clientPayload?: string, */
       ) => {
+        console.log(body);
+        console.log(request);
         // Generate a client token for the browser to upload the file
         // ⚠️ Authenticate and authorize users before generating the token.
         // Otherwise, you're allowing anonymous uploads.
