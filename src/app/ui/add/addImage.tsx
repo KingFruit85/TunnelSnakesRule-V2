@@ -2,11 +2,18 @@
 
 import { type PutBlobResult } from "@vercel/blob";
 import { upload } from "@vercel/blob/client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
-export default function Page() {
+interface ImageUploadPageProps {
+  id: string;
+}
+
+export default function ImageUploadPage(props: ImageUploadPageProps) {
+  const { id } = props;
   const inputFileRef = useRef<HTMLInputElement>(null);
   const [blob, setBlob] = useState<PutBlobResult | null>(null);
+
+  console.log(id);
 
   return (
     <div className="p-12 bg-tunnel-snake-black border border-white flex-col items-center gap-8 inline-flex">
@@ -27,6 +34,7 @@ export default function Page() {
           const newBlob = await upload(file.name, file, {
             access: "public",
             handleUploadUrl: "/api/avatar/upload",
+            clientPayload: id || "",
           });
 
           setBlob(newBlob);

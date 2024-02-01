@@ -5,9 +5,9 @@ import { GameSession, GameResults } from "@/app/lib/definitions";
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import ImageUploadPage from "@/app/add/avatar/upload/page";
 import { Box, Button, Modal, Typography } from "@mui/material";
 import style from "styled-jsx/style";
+import ImageUploadPage from "../add/addImage";
 
 export interface currentSessionProps {
   session: GameSession;
