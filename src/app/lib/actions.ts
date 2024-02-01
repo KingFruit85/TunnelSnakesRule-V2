@@ -13,6 +13,13 @@ const FormSchema = z.object({
 
 const AddNewPlayer = FormSchema.omit({ id: true });
 
+export async function addImageToSession(link:string, sessionId:string) {
+  await sql`
+  UPDATE sessions 
+    SET imageurl = ${link}
+    WHERE id = ${sessionId}`; 
+}
+
 export async function addNewPlayer(formData: FormData) {
   const e = `${formData.get("playerName")}@test.com`;
   const p = "123";

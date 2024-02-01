@@ -1,8 +1,11 @@
+import { addImageToSession } from '@/app/lib/actions';
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
 import { NextResponse } from 'next/server';
  
 export async function POST(request: Request): Promise<NextResponse> {
   const body = (await request.json()) as HandleUploadBody;
+
+  console.log('REQUEST:', request)
  
   try {
     const jsonResponse = await handleUpload({
@@ -12,8 +15,6 @@ export async function POST(request: Request): Promise<NextResponse> {
         pathname: string,
         /* clientPayload?: string, */
       ) => {
-        console.log(body);
-        console.log(request);
         // Generate a client token for the browser to upload the file
         // ⚠️ Authenticate and authorize users before generating the token.
         // Otherwise, you're allowing anonymous uploads.
@@ -30,6 +31,8 @@ export async function POST(request: Request): Promise<NextResponse> {
         // Get notified of client upload completion
         // ⚠️ This will not work on `localhost` websites,
         // Use ngrok or similar to get the full upload flow
+
+        // await addImageToSession(blob.url, tokenPayload.sessionId)
  
         console.log('blob upload completed', blob, tokenPayload);
  

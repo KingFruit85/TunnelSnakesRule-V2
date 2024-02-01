@@ -5,6 +5,9 @@ import { GameSession, GameResults } from "@/app/lib/definitions";
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import ImageUploadPage from "@/app/add/avatar/upload/page";
+import { Box, Button, Modal, Typography } from "@mui/material";
+import style from "styled-jsx/style";
 
 export interface currentSessionProps {
   session: GameSession;
@@ -13,10 +16,15 @@ export interface currentSessionProps {
 export default function CurrentSession(props: currentSessionProps) {
   const { session } = props;
 
-  console.log(session);
+  // console.log(session);
 
   const [showNotes, setShowNotes] = useState<boolean>(false);
+  const [showImageUpload, setShowImageUpload] = useState<boolean>(false);
   const [notes, setNotes] = useState<string>("");
+
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
   useEffect(() => {
     const notes = localStorage.getItem("sessionNotes");
@@ -40,6 +48,10 @@ export default function CurrentSession(props: currentSessionProps) {
     setShowNotes(!showNotes);
   };
 
+  const handleShowImageUpload = () => {
+    setShowImageUpload(!showImageUpload);
+  };
+
   const recordNotes = (note: string) => {
     setNotes(note);
   
@@ -50,17 +62,44 @@ export default function CurrentSession(props: currentSessionProps) {
     localStorage.setItem("sessionNotes", note);
   };
 
+  const style = {
+    position: 'absolute' as 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'tunnel-snake-black',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+  };
+
   return (
     <div className="w-[60em] self-stretch flex-col justify-start items-start gap-6 inline-flex">
       <div className="self-stretch px-6 py-5 bg-tunnel-snake-black border border-tunnel-snake-orange flex-col justify-start items-start gap-[27px] flex">
         <div className="self-stretch justify-between items-start inline-flex">
+        <div>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+        <ImageUploadPage />
+
+        </Box>
+      </Modal>
+    </div>
           <div className="justify-start items-center gap-4 inline-flex ">
+            <Button type="button" onClick={handleOpen}>
             <Image
               src={"/Camera.svg"}
               width={25}
               height={25}
               alt={"add photo icon"}
             />
+            </Button>
             <button type="button" onClick={handleShowNotes}>
               <Image
                 src={"/Paper.svg"}
