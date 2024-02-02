@@ -12,7 +12,6 @@ export default function CurrentSessionGames({
     <div className="mt-3 mb-4 ml-4 mr-4">
       {session?.gameResults?.map(
         (gameResult: GameResults) => (
-          console.log(gameResult.id),
           gameResult.id && (
             <div key={gameResult.id} className="flex gap-2">
               <Image

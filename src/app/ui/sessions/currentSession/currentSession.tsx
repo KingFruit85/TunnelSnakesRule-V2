@@ -59,6 +59,9 @@ export default function CurrentSession({ session }: currentSessionProps) {
         handleShowNotes={handleShowNotes}
         formattedDate={formattedDate}
         session={session}
+        recordNotes={recordNotes}
+        notes={notes}
+        showNotes={showNotes}
       />
       <CurrentSessionGames session={session} />
       <div className="flex-row gap-4">

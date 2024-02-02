@@ -1,5 +1,6 @@
 "use client";
 
+import { redirectBackToSessions } from "@/app/lib/actions";
 import { type PutBlobResult } from "@vercel/blob";
 import { upload } from "@vercel/blob/client";
 import { useState, useRef } from "react";
@@ -9,12 +10,15 @@ export default function Page() {
   const [blob, setBlob] = useState<PutBlobResult | null>(null);
 
   return (
-    <div className="p-12 bg-tunnel-snake-black border border-white flex-col items-center gap-8 inline-flex">
-      <div className="text-white text-[32px] font-semibold font-['Montserrat']">
-        <h1>Upload Your Image</h1>
-      </div>
+    <div className="flex flex-col border border-tunnel-snake-orange bg-black items-center mt-4 mr-4 ml-4">
+      <h1
+        className="text-3xl md:text-2xl lg:text-2xl xl:text-2xl 
+      text-center font-montserrat flex items-center text-tunnel-snake-green mb-4 flex-col"
+      >
+        Upload Your Image
+      </h1>
 
-      <form
+      <form className="items-center flex flex-col"
         onSubmit={async (event) => {
           event.preventDefault();
 
@@ -33,27 +37,27 @@ export default function Page() {
         }}
       >
         <input
-          className="mb-8"
+          className="mb-4 items-center flex p-2 gap-2"
           name="file"
           ref={inputFileRef}
           type="file"
           required
         />
 
-        <div className="flex-col justify-start items-start gap-5 flex">
-          <button
-            type="submit"
-            className="w-[400px] px-5 py-2.5 bg-tunnel-snake-black rounded-sm border border-tunnel-snake-green justify-center items-center gap-3 inline-flex "
-          >
-            <div className="text-tunnel-snake-green text-base font-medium font-['Montserrat']">
-              Upload
-            </div>
-          </button>
-        </div>
+        <button
+          type="submit"
+          className="text-tunnel-snake-green flex border 
+                     border-tunnel-snake-green rounded-sm 
+                     p-2 gap-2 items-center justify-center w-[50%] mb-4"
+        >
+          Upload
+        </button>
       </form>
+
       {blob && (
         <div>
-          Blob url: <a href={blob.url}>{blob.url}</a>
+          {redirectBackToSessions()};
+          {/* Blob url: <a href={blob.url}>{blob.url}</a> */}
         </div>
       )}
     </div>

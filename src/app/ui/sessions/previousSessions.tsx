@@ -20,7 +20,9 @@ export default function PreviousSessions(props: PreviousSessionsProps) {
 
       {sortedSessions.map((session) => (
         <div key={session.id} className="mb-4 bg-black flex-col">
-          <div className="flex flex-row gap-2 pl-4 pt-4 ">
+
+          <div className="flex flex-row gap-2 pl-4 pt-2 place-content-between pr-4">
+
             <div className="text-tunnel-snake-green">
               {session?.date?.toLocaleDateString("en-GB", {
                 day: "2-digit",
@@ -35,8 +37,8 @@ export default function PreviousSessions(props: PreviousSessionsProps) {
             </div>
           </div>
 
-          <div className="pl-4 pt-4 ">{session?.name}</div>
-          <div className="flex  gap-2 pl-4 pt-4 pb-2 text-tunnel-snake-orange underline-offset-4">
+          <div className="pl-4 pt-2 ">{session?.name}</div>
+          <div className="flex  gap-2 pl-4 pt-2 pb-2 text-tunnel-snake-orange underline-offset-4">
             <u>View session</u>{" "}
             <img
               src={"/RightArrow.svg"}

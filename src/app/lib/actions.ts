@@ -13,6 +13,10 @@ const FormSchema = z.object({
 
 const AddNewPlayer = FormSchema.omit({ id: true });
 
+export const redirectBackToSessions = () => {
+  redirect("/sessions/");
+};
+
 export async function addImageToSession(blobUri: string, sessionId: string) {
   console.log(`adding image ${blobUri} to session ${sessionId}`);
   await sql`
@@ -21,6 +25,7 @@ export async function addImageToSession(blobUri: string, sessionId: string) {
     WHERE id = ${sessionId}`;
 
   revalidatePath("/sessions/");
+  redirect("/sessions/");
 }
 
 export async function addNewPlayer(formData: FormData) {
