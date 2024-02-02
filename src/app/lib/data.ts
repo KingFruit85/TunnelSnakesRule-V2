@@ -34,6 +34,8 @@ export async function getAllActiveSessions() {
     active: Boolean(session.active),
     playerIds: session.playerids.split(","),
     gameResults: JSON.parse(session.gameresults) as GameResults[],
+    notes: String(session.notes),
+    imageurl: session.imageurl || undefined,
   }));
 
   return sessions;
@@ -54,6 +56,8 @@ export async function getAllInactiveSessions() {
       session.gameresults !== null && session.gameresults !== ""
         ? (JSON.parse(session.gameresults) as GameResults[])
         : [],
+    notes: String(session.notes),
+    imageurl: String(session.imageurl) || undefined,
   }));
 
   return sessions;
@@ -87,7 +91,7 @@ export async function getAllPlayersBySessionId(id: string) {
     const player = await getPlayerById(playerid);
     players.push(player);
   });
-  console.log('getAllPlayersBySessionId players: ',players);
+  console.log("getAllPlayersBySessionId players: ", players);
   return players;
 }
 

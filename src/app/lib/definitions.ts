@@ -13,6 +13,8 @@ export type GameSession = {
     active: boolean;
     playerIds: string[];
     gameResults: GameResults[];
+    notes?: string | undefined;
+    imageurl?: string | undefined;
 }
 
 export type GameResults = {

@@ -6,17 +6,15 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Box, Button, Modal, Typography } from "@mui/material";
-import style from "styled-jsx/style";
 import ImageUploadPage from "../add/addImage";
 
 export interface currentSessionProps {
   session: GameSession;
 }
 
-export default function CurrentSession(props: currentSessionProps) {
-  const { session } = props;
+export default function CurrentSession({session}: currentSessionProps) {
 
-  // console.log(session);
+  console.log("session: ",session);
 
   const [showNotes, setShowNotes] = useState<boolean>(false);
   const [showImageUpload, setShowImageUpload] = useState<boolean>(false);
@@ -197,6 +195,14 @@ export default function CurrentSession(props: currentSessionProps) {
               End session
             </div>
           </button>
+          {session.imageurl && (
+            <Image
+            src={session.imageurl}
+            width={25}
+            height={25}
+            alt={"add photo icon"}
+          />
+          )}
         </div>
       </div>
     </div>
