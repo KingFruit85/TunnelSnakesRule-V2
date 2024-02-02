@@ -4,7 +4,7 @@ import { z } from "zod";
 import { sql } from "@vercel/postgres";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 const FormSchema = z.object({
   id: z.string(),
@@ -13,15 +13,14 @@ const FormSchema = z.object({
 
 const AddNewPlayer = FormSchema.omit({ id: true });
 
-export async function addImageToSession(link:string, sessionId:string) {
-
-  console.log(`adding image ${link} to session ${sessionId}`)
+export async function addImageToSession(blobUri: string, sessionId: string) {
+  console.log(`adding image ${blobUri} to session ${sessionId}`);
   await sql`
   UPDATE sessions 
-    SET imageurl = ${link}
-    WHERE id = ${sessionId}`; 
+    SET imageurl = ${blobUri}
+    WHERE id = ${sessionId}`;
 
-    revalidatePath("/sessions/");
+  revalidatePath("/sessions/");
 }
 
 export async function addNewPlayer(formData: FormData) {

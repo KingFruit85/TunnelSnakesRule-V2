@@ -5,8 +5,12 @@ import { GameSession, GameResults } from "@/app/lib/definitions";
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { Box, Button, Modal } from "@mui/material";
+import { Box, Button, Grid, Modal, Paper, styled } from "@mui/material";
 import ImageUploadPage from "../add/addImage";
+import CurrentSessionHeader from "../currentSession/currentSessionHeader";
+import CurrentSessionGames from "./currentSessionGames";
+import CurrentSessionButtons from "./currentSessionButton";
+import CurrentSessionImages from "./currentSessionImages";
 
 export interface currentSessionProps {
   session: GameSession;
@@ -19,9 +23,6 @@ export default function CurrentSession({ session }: currentSessionProps) {
   const [showImageUpload, setShowImageUpload] = useState<boolean>(false);
   const [notes, setNotes] = useState<string>("");
 
-  const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
 
   useEffect(() => {
     const notes = localStorage.getItem("sessionNotes");
@@ -71,149 +72,48 @@ export default function CurrentSession({ session }: currentSessionProps) {
     p: 4,
   };
 
+  const Item = styled(Paper)(({ theme }) => ({
+    backgroundColor: theme.palette.mode === "dark" ? "#000000" : "#000000",
+    ...theme.typography.body2,
+    padding: theme.spacing(1),
+    textAlign: "center",
+    color: theme.palette.text.secondary,
+  }));
+
   return (
-    <div className="w-[60em] self-stretch flex-col justify-start items-start gap-6 inline-flex">
-      <div className="self-stretch px-6 py-5 bg-tunnel-snake-black border border-tunnel-snake-orange flex-col justify-start items-start gap-[27px] flex">
-        <div className="self-stretch justify-between items-start inline-flex">
-          <div>
-            <Modal
-              open={open}
-              onClose={handleClose}
-              aria-labelledby="modal-modal-title"
-              aria-describedby="modal-modal-description"
-            >
-              <Box sx={style}>
-                <ImageUploadPage id={session.id} />
-              </Box>
-            </Modal>
-          </div>
-          <div className="justify-start items-center gap-4 inline-flex ">
-            <Button type="button" onClick={handleOpen}>
-              <Image
-                src={"/Camera.svg"}
-                width={25}
-                height={25}
-                alt={"add photo icon"}
-              />
-            </Button>
-            <button type="button" onClick={handleShowNotes}>
-              <Image
-                src={"/Paper.svg"}
-                width={25}
-                height={25}
-                alt={"add notes icon"}
-              />
-            </button>
-            <div className="text-white text-2xl font-semibold font-['Montserrat'] flex">
-              {formattedDate}
-            </div>
-            <div className="text-tunnel-snake-green text-2xl font-normal font-['Montserrat']">
-              {session?.name}
-            </div>
-          </div>
-          <div className="justify-start items-start gap-8 flex">
-            <div className="justify-start items-center gap-2 flex">
-              <div className="text-white text-xl font-medium font-['Montserrat'] flex">
-                <Image
-                  className="pb-1"
-                  src={"/Dice.svg"}
-                  width={25}
-                  height={25}
-                  alt={"number of players in session icon"}
-                />
-
-                <div className="pl-4">{session.gameResults?.length || 0}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        {showNotes && (
-          <textarea
-            name="sessionNotes"
-            value={notes}
-            onChange={(e) => recordNotes(e.target.value)}
-            className="mb-4 bg-tunnel-snake-grey border rounded-sm border-tunnel-snake-green text-tunnel-snake-orange w-[20pc] h-[5pc]"
-          />
-        )}
-        <div className="self-stretch flex-col justify-start items-center gap-3 flex">
-          {session?.gameResults?.map(
-            (gameResult: GameResults) => (
-              console.log(gameResult.id),
-              gameResult.id && (
-                <div
-                  key={gameResult.id}
-                  className="self-stretch justify-start items-center gap-2 inline-flex"
-                >
-                  <div className="justify-start items-center gap-2 flex">
-                    <div className="text-white text-xl font-medium font-['Montserrat'] inline-flex">
-                      <Image
-                        className="pb-1"
-                        src={"/Players.svg"}
-                        width={25}
-                        height={25}
-                        alt={"number of players in game icon"}
-                      />
-                      <div className="pl-4">
-                        {gameResult.playerScores.length}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-white text-xl font-normal font-['Montserrat']">
-                    -
-                  </div>
-                  <div className="text-white text-xl font-normal font-['Montserrat']">
-                    {gameResult.gameName}
-                  </div>
-                </div>
-              )
-            )
-          )}
-        </div>
-
-        <div className="flex flex-row ">
-        <div className="justify-start items-start gap-6 inline-flex items-center">
-          <Link
-            className="px-5 py-2.5 bg-black rounded-sm border border-tunnel-snake-green justify-start items-center gap-3 flex"
-            href={{
-              pathname: "/add/result/",
-              query: {
-                sessionId: session.id,
-                playerIds: session.playerIds.toString(),
-              },
-            }}
-          >
-            <Image
-              src={"/Trophy.svg"}
-              width={20}
-              height={20}
-              alt={"number of players in session icon"}
+    <Box sx={{ flexGrow: 1 }} className="bg-black w-[50em]  ">
+      <Grid container  spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }}>
+        <Grid item xs={12}>
+          <Item>
+            <CurrentSessionHeader
+              handleShowNotes={handleShowNotes}
+              formattedDate={formattedDate}
+              session={session}
             />
-            <div className="text-tunnel-snake-green text-base font-medium font-['Montserrat']">
-              Add result
-            </div>
-          </Link>
-
-          <button
-            onClick={handleEndSession}
-            className="px-5 py-2.5 bg-black rounded-sm border border-tunnel-snake-red justify-start items-center gap-3 flex"
-          >
-            <div className="text-tunnel-snake-red text-base font-medium font-['Montserrat'] inline-flex">
-              End session
-            </div>
-          </button>
-        </div>
-        <div className="ml-10">
-          {session.imageurl && (
-            <Image
-              src={session.imageurl}
-              width={100}
-              height={100}
-              alt={"add photo icon"}
+          </Item>
+        </Grid>
+        <Grid item xs={12}>
+          <Item>
+            <CurrentSessionGames session={session} />
+          </Item>
+        </Grid>
+        <Grid item xs={6}>
+          <Item>
+            <CurrentSessionButtons
+              session={session}
+              handleEndSession={handleEndSession}
             />
-          )}
-        </div>
-        </div>
-      </div>
-    </div>
+          </Item>
+        </Grid>
+        <Grid item xs={6}>
+          <Item>
+            <CurrentSessionImages
+              session={session}
+              handleEndSession={handleEndSession}
+            />
+          </Item>
+        </Grid>
+      </Grid>
+    </Box>
   );
 }

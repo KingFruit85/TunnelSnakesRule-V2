@@ -12,7 +12,7 @@ export default function PreviousSessions(props: PreviousSessionsProps) {
   const sortedSessions = [...sessions].sort((a, b) => b.date.getTime() - a.date.getTime());
 
   return (
-    <div className="w-[60em] h-[692px] flex-col justify-start items-start gap-6 inline-flex">
+    <div className="w-[50em] flex-col justify-center gap-6 inline-flex">
       <div className="self-stretch justify-between items-start inline-flex">
         <div className="text-white text-[32px] font-semibold font-['Montserrat']">
           History
@@ -26,7 +26,7 @@ export default function PreviousSessions(props: PreviousSessionsProps) {
           </Link>
         </div>
       </div>
-      <div className="self-stretch flex-col justify-start items-start gap-8 flex">
+      <div className="">
         {sortedSessions.map((session) => (
           <div key={session.id} className="self-stretch h-[133px] px-6 pt-5 pb-6 bg-tunnel-snake-black rounded-sm flex-col justify-start items-start gap-2 flex">
             <div className="self-stretch justify-between items-center inline-flex">
