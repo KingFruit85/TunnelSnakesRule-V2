@@ -59,7 +59,7 @@ export default function AddNewSession(props: AddNewSessionProps) {
             Create session
           </div>
         </button>
-        <CancelButton width={400} />
+        <CancelButton />
 
       </div>
     </div>

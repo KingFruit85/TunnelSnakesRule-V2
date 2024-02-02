@@ -73,7 +73,7 @@ export default function AddNewGame() {
             Add game
           </div>
         </button>
-        <CancelButton width={400} />
+        <CancelButton/>
       </div>
     </div>
     </form>

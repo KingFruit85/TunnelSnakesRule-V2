@@ -29,7 +29,7 @@ export default function AddNewPlayer() {
               Add player
             </div>
           </button>
-          <CancelButton width={400} />
+          <CancelButton />
         </div>
       </div>
     </form>
