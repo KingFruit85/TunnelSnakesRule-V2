@@ -12,13 +12,12 @@ type Team = {
 };
 
 export const teams = [
-  {id: 1, name: "Team 1"},
-  {id: 2, name: "Team 2"},
-  {id: 3, name: "Team 3"},
+  { id: 1, name: "Team 1" },
+  { id: 2, name: "Team 2" },
+  { id: 3, name: "Team 3" },
 ] as Team[];
 
 export default function PlayerRow({ player, winCondition }: PlayerRowProps) {
-
   const [score, setScore] = useState(0);
   const [checked, setChecked] = useState(true);
   const [team, setTeam] = useState<Team>(teams[0]);
@@ -38,55 +37,58 @@ export default function PlayerRow({ player, winCondition }: PlayerRowProps) {
     team ? setTeam(team) : console.error("Team not found");
   };
 
-
   return (
-    <div className="h-8 relative pb-4">
-      <div className="content-center gap-3 inline-flex pt-2">
+    <div className="flex gap-6">
+      <input
+        type="hidden"
+        name={`player_${player.id}`}
+        value={[
+          checked ? "true" : "false",
+          score.toString(),
+          team ? team.name : "",
+        ]}
+      />
+
+      <div className="">
         <input
           type="checkbox"
           id={player.id}
           checked={checked}
           value={checked ? "true" : "false"}
           onChange={handleCheckboxChange}
-          className="w-6 h-6 relative text-white rounded-sm"
+          className="mr-2"
         />
+        {/* <img src={player.avatar} alt={player.name} /> */}
 
-        <input
-          type="hidden"
-          name={`player_${player.id}`}
-          value={[checked ? "true" : "false", score.toString(), team ? team.name : ""]}
-        />
-
-        <label className="text-white text-base font-normal font-['Montserrat']">
-          {player.name}
-        </label>
+        <label className="">{player.name}</label>
       </div>
-      <div className="w-[72px] h-8 left-[195px] top-0 absolute flex-col justify-start items-start gap-5 inline-flex">
+
+      <div className="flex border rounded-sm">
         <input
           type="number"
           id="score"
           onChange={handleScoreChange}
-          className="w-[72px] grow shrink basis-0 px-3 py-1.5 bg-tunnel-snake-grey rounded-sm border border-white justify-start items-center gap-2.5 inline-flex"
+          className="bg-tunnel-snake-grey text-tunnel-snake-orange text-center  "
         />
       </div>
-      <div className="w-[72px] h-8 left-[350px] top-0 absolute flex-col justify-start items-start gap-5 inline-flex">
+
+      <div className="flex">
         {winCondition === "teamBased" && (
           <select
-          id="team"
-          value={team?.name}
-          onChange={handleTeamChange}
-          className="text-tunnel-snake-green bg-tunnel-snake-black text-2xl font-semibold font-['Montserrat']"
-        >
-          {teams.map((team) => (
-            <option key={team.id} value={team.name}>
-              {team.name}
-            </option>
-          ))}
-        </select>
+            id="team"
+            value={team?.name}
+            onChange={handleTeamChange}
+            className="bg-tunnel-snake-grey text-tunnel-snake-orange text-center"
+          >
+            {teams.map((team) => (
+              <option key={team.id} value={team.name}>
+                {team.name}
+              </option>
+            ))}
+          </select>
         )}
       </div>
+      
     </div>
   );
 }
-
-

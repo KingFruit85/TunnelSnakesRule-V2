@@ -27,7 +27,7 @@ export default function Results({ games, players }: ResultsProps) {
 
   const handleGameChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedGameId = e.target.value;
-    console.log('results players',players);
+    console.log("results players", players);
 
     const selectedGame = games.find((game) => game.name === selectedGameId);
 
@@ -54,14 +54,14 @@ export default function Results({ games, players }: ResultsProps) {
   };
 
   return (
-    <div className="flex flex-col stretch">
-      <div className="flex justify-center">
+    <div className="flex flex-col items-center">
+      <div className="border">
         {showNotes && (
           <textarea
             name="resultNotes"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="mb-4 bg-tunnel-snake-grey border rounded-sm border-tunnel-snake-green text-tunnel-snake-orange w-[20pc] h-[5pc]"
+            className=""
           />
         )}
       </div>
@@ -70,7 +70,7 @@ export default function Results({ games, players }: ResultsProps) {
           id="boardgame"
           value={game?.name}
           onChange={handleGameChange}
-          className="text-tunnel-snake-green bg-tunnel-snake-black text-2xl font-semibold font-['Montserrat']"
+          className="text-tunnel-snake-green bg-tunnel-snake-black text-2xl sm:text-1xl md:text-3xl lg:text-3xl xl:text-3xl font-semibold font-['Montserrat']"
         >
           {games.map((game) => (
             <option key={game.id} value={game.name}>
@@ -78,11 +78,12 @@ export default function Results({ games, players }: ResultsProps) {
             </option>
           ))}
         </select>
+
         <button type="button">
-          <img src={"/Camera.svg"} alt={"Camera icon"} width={35} />
+          <img src={"/Camera.svg"} alt={"Camera icon"} width={20} />
         </button>
         <button type="button" onClick={handleShowNotes}>
-          <img src={"/Paper.svg"} alt={"Paper icon"} width={35} />
+          <img src={"/Paper.svg"} alt={"Paper icon"} width={20} />
         </button>
       </div>
 
