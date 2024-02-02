@@ -5,16 +5,15 @@ import { GameSession, GameResults } from "@/app/lib/definitions";
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { Box, Button, Modal, Typography } from "@mui/material";
+import { Box, Button, Modal } from "@mui/material";
 import ImageUploadPage from "../add/addImage";
 
 export interface currentSessionProps {
   session: GameSession;
 }
 
-export default function CurrentSession({session}: currentSessionProps) {
-
-  console.log("session: ",session);
+export default function CurrentSession({ session }: currentSessionProps) {
+  console.log("session: ", session);
 
   const [showNotes, setShowNotes] = useState<boolean>(false);
   const [showImageUpload, setShowImageUpload] = useState<boolean>(false);
@@ -52,22 +51,22 @@ export default function CurrentSession({session}: currentSessionProps) {
 
   const recordNotes = (note: string) => {
     setNotes(note);
-  
+
     // Clear the specific item related to notes
     localStorage.removeItem("sessionNotes");
-  
+
     // Append the new note
     localStorage.setItem("sessionNotes", note);
   };
 
   const style = {
-    position: 'absolute' as 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
+    position: "absolute" as "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
     width: 400,
-    bgcolor: 'tunnel-snake-black',
-    border: '2px solid #000',
+    bgcolor: "tunnel-snake-black",
+    border: "2px solid #000",
     boxShadow: 24,
     p: 4,
   };
@@ -76,27 +75,26 @@ export default function CurrentSession({session}: currentSessionProps) {
     <div className="w-[60em] self-stretch flex-col justify-start items-start gap-6 inline-flex">
       <div className="self-stretch px-6 py-5 bg-tunnel-snake-black border border-tunnel-snake-orange flex-col justify-start items-start gap-[27px] flex">
         <div className="self-stretch justify-between items-start inline-flex">
-        <div>
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-        <Box sx={style}>
-        <ImageUploadPage id={session.id} />
-
-        </Box>
-      </Modal>
-    </div>
+          <div>
+            <Modal
+              open={open}
+              onClose={handleClose}
+              aria-labelledby="modal-modal-title"
+              aria-describedby="modal-modal-description"
+            >
+              <Box sx={style}>
+                <ImageUploadPage id={session.id} />
+              </Box>
+            </Modal>
+          </div>
           <div className="justify-start items-center gap-4 inline-flex ">
             <Button type="button" onClick={handleOpen}>
-            <Image
-              src={"/Camera.svg"}
-              width={25}
-              height={25}
-              alt={"add photo icon"}
-            />
+              <Image
+                src={"/Camera.svg"}
+                width={25}
+                height={25}
+                alt={"add photo icon"}
+              />
             </Button>
             <button type="button" onClick={handleShowNotes}>
               <Image
@@ -138,34 +136,42 @@ export default function CurrentSession({session}: currentSessionProps) {
           />
         )}
         <div className="self-stretch flex-col justify-start items-center gap-3 flex">
-          {session?.gameResults?.map((gameResult: GameResults) => (
-            console.log(gameResult.id),
-            gameResult.id && (<div
-              key={gameResult.id}
-              className="self-stretch justify-start items-center gap-2 inline-flex"
-            >
-              <div className="justify-start items-center gap-2 flex">
-                <div className="text-white text-xl font-medium font-['Montserrat'] inline-flex">
-                  <Image
-                    className="pb-1"
-                    src={"/Players.svg"}
-                    width={25}
-                    height={25}
-                    alt={"number of players in game icon"}
-                  />
-                  <div className="pl-4">{gameResult.playerScores.length}</div>
+          {session?.gameResults?.map(
+            (gameResult: GameResults) => (
+              console.log(gameResult.id),
+              gameResult.id && (
+                <div
+                  key={gameResult.id}
+                  className="self-stretch justify-start items-center gap-2 inline-flex"
+                >
+                  <div className="justify-start items-center gap-2 flex">
+                    <div className="text-white text-xl font-medium font-['Montserrat'] inline-flex">
+                      <Image
+                        className="pb-1"
+                        src={"/Players.svg"}
+                        width={25}
+                        height={25}
+                        alt={"number of players in game icon"}
+                      />
+                      <div className="pl-4">
+                        {gameResult.playerScores.length}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-white text-xl font-normal font-['Montserrat']">
+                    -
+                  </div>
+                  <div className="text-white text-xl font-normal font-['Montserrat']">
+                    {gameResult.gameName}
+                  </div>
                 </div>
-              </div>
-              <div className="text-white text-xl font-normal font-['Montserrat']">
-                -
-              </div>
-              <div className="text-white text-xl font-normal font-['Montserrat']">
-                {gameResult.gameName}
-              </div>
-            </div>)
-          ))}
+              )
+            )
+          )}
         </div>
-        <div className="justify-start items-start gap-6 inline-flex">
+
+        <div className="flex flex-row ">
+        <div className="justify-start items-start gap-6 inline-flex items-center">
           <Link
             className="px-5 py-2.5 bg-black rounded-sm border border-tunnel-snake-green justify-start items-center gap-3 flex"
             href={{
@@ -195,14 +201,17 @@ export default function CurrentSession({session}: currentSessionProps) {
               End session
             </div>
           </button>
+        </div>
+        <div className="ml-10">
           {session.imageurl && (
             <Image
-            src={session.imageurl}
-            width={100}
-            height={100}
-            alt={"add photo icon"}
-          />
+              src={session.imageurl}
+              width={100}
+              height={100}
+              alt={"add photo icon"}
+            />
           )}
+        </div>
         </div>
       </div>
     </div>
