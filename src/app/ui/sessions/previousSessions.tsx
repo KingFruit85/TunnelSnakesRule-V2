@@ -13,17 +13,14 @@ export default function PreviousSessions(props: PreviousSessionsProps) {
   );
 
   return (
-    <div className="w-[95%] max-w-screen-95 mx-auto">
-      <div className="text-2xl md:text-3xl lg:text-3xl xl:text-3xl text-center font-montserrat">
-        History
+    <div className="w-[95%] md:w-[35%] lg:w-[35%] xl:w-[35%] sm:w-[95%]">
+      <div className="text-2xl md:text-3xl lg:text-3xl xl:text-3xl text-center font-montserrat mb-2 mt-2">
+        Previous Sessions
       </div>
 
       {sortedSessions.map((session) => (
-        <div
-          key={session.id}
-          className="mb-4 bg-black flex-col"
-        >
-          <div className="flex flex-row gap-2 ml-2 mt-2 mr-2 ">
+        <div key={session.id} className="mb-4 bg-black flex-col">
+          <div className="flex flex-row gap-2 pl-4 pt-4 ">
             <div className="text-tunnel-snake-green">
               {session?.date?.toLocaleDateString("en-GB", {
                 day: "2-digit",
@@ -38,8 +35,16 @@ export default function PreviousSessions(props: PreviousSessionsProps) {
             </div>
           </div>
 
-          <div className="ml-2">{session?.name}</div>
-          <div className="ml-2 mb-2 text-tunnel-snake-orange">View session</div>
+          <div className="pl-4 pt-4 ">{session?.name}</div>
+          <div className="flex  gap-2 pl-4 pt-4 pb-2 text-tunnel-snake-orange underline-offset-4">
+            <u>View session</u>{" "}
+            <img
+              src={"/RightArrow.svg"}
+              alt={"dice icon"}
+              width={15}
+              height={15}
+            />
+          </div>
         </div>
       ))}
     </div>
