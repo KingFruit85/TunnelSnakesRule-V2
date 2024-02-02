@@ -198,8 +198,8 @@ export default function CurrentSession({session}: currentSessionProps) {
           {session.imageurl && (
             <Image
             src={session.imageurl}
-            width={25}
-            height={25}
+            width={100}
+            height={100}
             alt={"add photo icon"}
           />
           )}
