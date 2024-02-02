@@ -2,7 +2,6 @@
 
 import { GameSession } from "@/app/lib/definitions";
 import Image from "next/image";
-import style from "styled-jsx/style";
 import ImageUploadPage from "../../add/addImage";
 import { useState } from "react";
 

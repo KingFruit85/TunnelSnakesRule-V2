@@ -1,5 +1,4 @@
 import { GameSession } from "@/app/lib/definitions";
-import Link from "next/link";
 
 export interface PreviousSessionsProps {
   sessions: GameSession[];
@@ -14,14 +13,17 @@ export default function PreviousSessions(props: PreviousSessionsProps) {
   );
 
   return (
-    <div className="">
+    <div className="w-[95%] max-w-screen-95 mx-auto">
       <div className="text-2xl md:text-3xl lg:text-3xl xl:text-3xl text-center font-montserrat">
         History
       </div>
 
       {sortedSessions.map((session) => (
-        <div key={session.id} className="mb-4 bg-black">
-          <div className="flex flex-row gap-2 ml-2 mt-2 mr-2">
+        <div
+          key={session.id}
+          className="mb-4 bg-black flex-col"
+        >
+          <div className="flex flex-row gap-2 ml-2 mt-2 mr-2 ">
             <div className="text-tunnel-snake-green">
               {session?.date?.toLocaleDateString("en-GB", {
                 day: "2-digit",
@@ -36,7 +38,7 @@ export default function PreviousSessions(props: PreviousSessionsProps) {
             </div>
           </div>
 
-          <div className="ml-2 ">{session?.name}</div>
+          <div className="ml-2">{session?.name}</div>
           <div className="ml-2 mb-2 text-tunnel-snake-orange">View session</div>
         </div>
       ))}

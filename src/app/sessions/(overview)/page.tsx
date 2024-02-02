@@ -8,7 +8,9 @@ export default async function Page() {
 
   return (
     <div className="flex flex-col gap-2 items-center  h-screen">
-      <div className="text-2xl md:text-3xl lg:text-3xl xl:text-3xl text-center font-montserrat mt-4 mb-2">Active Sessions</div>
+      <div className="text-2xl md:text-3xl lg:text-3xl xl:text-3xl text-center font-montserrat mt-4 mb-2">
+        Active Sessions
+      </div>
       {activeSessions.map((session) => (
         <div key={session.id}>
           <CurrentSession session={session} />
@@ -28,7 +30,6 @@ export default async function Page() {
 //   <div>Active Sessions</div>
 //   <div>
 //   <div className="">
-
 
 //     </div>
 //   </div>
