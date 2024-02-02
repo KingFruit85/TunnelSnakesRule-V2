@@ -12,9 +12,9 @@ export default function CurrentSessionButtons({
   handleEndSession,
 }: CurrentSessionButtonsProps) {
   return (
-    <div className="justify-start items-start gap-6 inline-flex items-center">
+    <div className="ml-4 mb-4 flex gap-4">
       <Link
-        className="px-5 py-2.5 bg-black rounded-sm border border-tunnel-snake-green justify-start items-center gap-3 flex"
+        className="text-tunnel-snake-green flex border border-tunnel-snake-green rounded-sm p-2 gap-2 items-center justify-center"
         href={{
           pathname: "/add/result/",
           query: {
@@ -29,16 +29,16 @@ export default function CurrentSessionButtons({
           height={20}
           alt={"number of players in session icon"}
         />
-        <div className="text-tunnel-snake-green text-base font-medium font-['Montserrat']">
+        <div className="">
           Add result
         </div>
       </Link>
 
       <button
         onClick={handleEndSession}
-        className="px-5 py-2.5 bg-black rounded-sm border border-tunnel-snake-red justify-start items-center gap-3 flex"
+        className="text-tunnel-snake-red flex border border-tunnel-snake-red rounded-sm p-2 gap-2 items-center justify-center"
       >
-        <div className="text-tunnel-snake-red text-base font-medium font-['Montserrat'] inline-flex">
+        <div className="">
           End session
         </div>
       </button>

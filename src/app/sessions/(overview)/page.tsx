@@ -1,36 +1,41 @@
 import { getAllActiveSessions, getAllInactiveSessions } from "@/app/lib/data";
-import CurrentSession from "@/app/ui/sessions/currentSession";
+import CurrentSession from "@/app/ui/sessions/currentSession/currentSession";
 import PreviousSessions from "@/app/ui/sessions/previousSessions";
-import { Box, Divider, Paper, Stack, styled } from "@mui/material";
-import Grid from "@mui/material/Unstable_Grid2"; // Grid version 2
 
 export default async function Page() {
   const activeSessions = await getAllActiveSessions();
   const previousSessions = await getAllInactiveSessions();
 
   return (
-    <Stack
-      direction="column"
-      divider={<Divider orientation="vertical" flexItem />}
-      spacing={2}
-    >
-      <div>Active Sessions</div>
-      <div>
-      <div className="">
-
-          {activeSessions.map((session) => (
-            <div key={session.id}>
-              <CurrentSession session={session} />
-            </div>
-          ))}
+    <div className="flex flex-col gap-2 items-center  h-screen">
+      <div className="text-2xl md:text-3xl lg:text-3xl xl:text-3xl text-center font-montserrat mt-4 mb-2">Active Sessions</div>
+      {activeSessions.map((session) => (
+        <div key={session.id}>
+          <CurrentSession session={session} />
         </div>
-      </div>
-      <div>
-        <PreviousSessions sessions={previousSessions} />
-      </div>
-    </Stack>
+      ))}
+      <PreviousSessions sessions={previousSessions} />
+    </div>
   );
 }
+
+// <Stack
+//   direction="column"
+//   divider={<Divider orientation="vertical" flexItem />}
+//   spacing={2}
+//   alignItems={"center"} // this seems to fuck things up
+// >
+//   <div>Active Sessions</div>
+//   <div>
+//   <div className="">
+
+
+//     </div>
+//   </div>
+//   <div>
+//     <PreviousSessions sessions={previousSessions} />
+//   </div>
+// </Stack>
 
 // <Box sx={{ flexGrow: 1 }} className="bg-black">
 

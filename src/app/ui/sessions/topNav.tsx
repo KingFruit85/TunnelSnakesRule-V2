@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from "next/navigation";
@@ -9,6 +9,46 @@ const TopNav: React.FC = () => {
   const [isPopoverVisible, setIsPopoverVisible] = useState(false);
   const [popoverPosition, setPopoverPosition] = useState({ top: 0, left: 0 });
   const buttonRef = useRef<HTMLImageElement>(null);
+
+  const [screenSize, setScreenSize] = useState('md'); // Default size
+
+  useEffect(() => {
+    const handleResize = () => {
+      const screenWidth = window.innerWidth;
+      if (screenWidth < 640) {
+        setScreenSize('sm');
+      } else if (screenWidth < 768) {
+        setScreenSize('md');
+      } else if (screenWidth < 1024) {
+        setScreenSize('lg');
+      } else {
+        setScreenSize('xl');
+      }
+    };
+
+    handleResize(); // Initial call to set the initial size
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  const getTextContent = () => {
+    switch (screenSize) {
+      case 'sm':
+        return 'TunnelSnakesRule';
+      case 'md':
+        return 'Tunnel Snakes Rule';
+      case 'lg':
+        return 'Tunnel Snakes Rule';
+      case 'xl':
+        return 'Tunnel Snakes Rule';
+      default:
+        return 'Tunnel Snakes Rule';
+    }
+  };
 
   const router = useRouter();
 
@@ -33,13 +73,13 @@ const TopNav: React.FC = () => {
         <Image
           src="/Menu.svg"
           alt="Nav menu button"
-          width={40}
-          height={40}
+          width={20}
+          height={20}
           onClick={handlePopoverToggle}
           className="cursor-pointer"
           ref={buttonRef}
         />
-        <div className="text-white text-3xl font-medium font-montserrat">
+        <div className="text-2xl md:text-3xl lg:text-3xl xl:text-3xl text-center font-montserrat">
           Menu
         </div>
       </div>
@@ -95,15 +135,15 @@ const TopNav: React.FC = () => {
         </div>
       )}
 
-      <div className="grow shrink basis-0 h-14 pr-5 justify-center items-center gap-5 flex ">
-        <div className="text-white text-5xl font-bold font-montserrat">🐍</div>
+      <div className="grow shrink basis-0 h-14 pr-5 justify-center items-center gap-2 flex ">
+        <div className="text-2xl md:text-5xl lg:text-5xl xl:text-5xl text-center font-montserrat">🐍</div>
         <Link
           href="/sessions/"
-          className="text-white text-5xl font-bold font-montserrat"
+          className="text-2xl md:text-5xl lg:text-5xl xl:text-5xl text-center font-montserrat"
         >
-          Tunnel Snakes Rule
+           {getTextContent()}
         </Link>
-        <div className="text-white text-5xl font-bold font-montserrat">🐍</div>
+        <div className="text-2xl md:text-5xl lg:text-5xl xl:text-5xl text-center font-montserrat">🐍</div>
       </div>
     </div>
   );

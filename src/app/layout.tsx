@@ -16,7 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="bg-tunnel-snake-grey ${inter.className} h-[100em]" >{children}</body>
+      <body className="bg-tunnel-snake-grey ${inter.className} h-screen" >{children}</body>
     </html>
   );
 }
