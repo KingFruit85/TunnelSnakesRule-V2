@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useState } from "react";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export interface CurrentSessionHeaderProps {
   handleShowNotes: () => void;
@@ -28,7 +29,15 @@ export default function CurrentSessionHeader({
   return (
     <div className="flex-col items-center ">
       <div className="gap-4 flex mt-2 ml-2 mr-2 items-center mb-2">
-        <button type="button" onClick={() => router.push("/add/avatar/upload")}>
+        <Link
+          className=""
+          href={{
+            pathname: "/add/session/upload/",
+            query: {
+              sessionId: session?.id as string,
+            },
+          }}
+        >
           <Image
             className="flex items-center gap-2"
             src={"/Camera.svg"}
@@ -36,7 +45,8 @@ export default function CurrentSessionHeader({
             height={20}
             alt={"add photo icon"}
           />
-        </button>
+        </Link>
+
         <button type="button" onClick={handleShowNotes}>
           <Image
             className="flex items-center gap-2"
@@ -66,15 +76,15 @@ export default function CurrentSessionHeader({
       </div>
       {showNotes && (
         <div className="flex flex-col bg-black items-center mt-4 mr-4 ml-4">
-        <textarea
-          name="sessionNotes"
-          value={notes}
-          onChange={(e) => recordNotes(e.target.value)}
-          className="bg-tunnel-snake-grey border rounded-sm 
+          <textarea
+            name="sessionNotes"
+            value={notes}
+            onChange={(e) => recordNotes(e.target.value)}
+            className="bg-tunnel-snake-grey border rounded-sm 
                      border-tunnel-snake-green text-tunnel-snake-orange 
-                     w-[20pc] h-[5pc] pl-2 pt-2 pb-2 pr-2" 
-        />
-      </div>
+                     w-[20pc] h-[5pc] pl-2 pt-2 pb-2 pr-2"
+          />
+        </div>
       )}
     </div>
   );

@@ -31,7 +31,7 @@ export default function CurrentSession({ session }: currentSessionProps) {
   });
 
   const handleEndSession = () => {
-    localStorage.setItem("sessionNotes", notes);
+    localStorage.setItem("sessionNotes", "");
     endSession(session.id, notes);
   };
 

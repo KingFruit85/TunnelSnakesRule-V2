@@ -14,6 +14,7 @@ const FormSchema = z.object({
 const AddNewPlayer = FormSchema.omit({ id: true });
 
 export const redirectBackToSessions = () => {
+  revalidatePath("/sessions/");
   redirect("/sessions/");
 };
 
@@ -24,20 +25,34 @@ export async function addImageToSession(blobUri: string, sessionId: string) {
     SET imageurl = ${blobUri}
     WHERE id = ${sessionId}`;
 
+
   revalidatePath("/sessions/");
   redirect("/sessions/");
 }
 
+export async function addImageToPlayer(blobUri: string, playerId: string) {
+  console.log(`adding image ${blobUri} to player ${playerId}`);
+  await sql`
+  UPDATE players 
+    SET avatar = ${blobUri}
+    WHERE id = ${playerId}`;
+
+  
+}
+
 export async function addNewPlayer(formData: FormData) {
-  const e = `${formData.get("playerName")}@test.com`;
-  const p = "123";
-  const a = "123";
+
+  console.log(formData);
+
+  const email = `${formData.get("playerName")}@test.com`;
+  const password = "123";
+  const avatar = "123";
 
   const { name } = AddNewPlayer.parse({
     name: formData.get("playerName"),
-    email: e,
-    password: p,
-    avatar: a,
+    email: email,
+    password: password,
+    avatar: avatar,
   });
 
   // check if user already exists
@@ -46,19 +61,25 @@ export async function addNewPlayer(formData: FormData) {
   `;
 
   if (existingUser.rows.length > 0) {
-    throw new Error("User already exists");
+    throw new Error("User with that name already exists");
   }
 
   try {
     await sql`
         Insert into players (name, email, password, avatar )
-        VALUES (${name} , ${e}, ${p}, ${a})
+        VALUES (${name} , ${email}, ${password}, ${avatar})
         `;
-    revalidatePath("/sessions/");
   } catch (err) {
     return { message: err };
   }
 
+  const newPlayerId = await sql`
+        Select id from players where name = ${name}
+        `;
+
+  return newPlayerId.rows[0].id as string;
+
+  revalidatePath("/sessions/");
   redirect("/sessions/");
 }
 

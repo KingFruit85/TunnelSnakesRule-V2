@@ -3,11 +3,15 @@
 import { redirectBackToSessions } from "@/app/lib/actions";
 import { type PutBlobResult } from "@vercel/blob";
 import { upload } from "@vercel/blob/client";
+import { useSearchParams } from "next/navigation";
 import { useState, useRef } from "react";
 
 export default function Page() {
+  const sessionId = useSearchParams().get("sessionId");
   const inputFileRef = useRef<HTMLInputElement>(null);
   const [blob, setBlob] = useState<PutBlobResult | null>(null);
+
+  console.log("in session upload page")
 
   return (
     <div className="flex flex-col border border-tunnel-snake-orange bg-black items-center mt-4 mr-4 ml-4">
@@ -21,7 +25,7 @@ export default function Page() {
       <form className="items-center flex flex-col"
         onSubmit={async (event) => {
           event.preventDefault();
-
+          
           if (!inputFileRef.current?.files) {
             throw new Error("No file selected");
           }
@@ -30,7 +34,8 @@ export default function Page() {
 
           const newBlob = await upload(file.name, file, {
             access: "public",
-            handleUploadUrl: "/api/avatar/upload",
+            handleUploadUrl: "/api/session/upload",
+            clientPayload: sessionId || "",
           });
 
           setBlob(newBlob);

@@ -10,7 +10,7 @@ export default function SubmitButton({ label }: SubmitButtonProps) {
       <button
         type="submit"
         className="text-tunnel-snake-green flex border 
-        border-tunnel-snake-green rounded-sm 
+        border-tunnel-snake-green rounded-sm  py-2 px-4
         "
       >
         {label}

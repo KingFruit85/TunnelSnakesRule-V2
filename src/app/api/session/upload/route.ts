@@ -1,4 +1,4 @@
-import { addImageToPlayer } from "@/app/lib/actions";
+import { addImageToSession } from "@/app/lib/actions";
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { NextResponse } from "next/server";
 
@@ -6,17 +6,16 @@ export async function POST(request: Request): Promise<NextResponse> {
   const body = (await request.json()) as HandleUploadBody;
   const clientPayload =
       "clientPayload" in body.payload ? body.payload.clientPayload : null;
-  console.log(`clientPayload is ${clientPayload} at the top` );
 
   try {
     const jsonResponse = await handleUpload({
       body,
       request,
       onBeforeGenerateToken: async (
-        pathname: string
-        /* clientPayload?: string, */
+        // pathname: string
+        // /* clientPayload?: string,
       ) => {
-  console.log(`clientPayload is ${clientPayload} in handleUpload` );
+  console.log(`session clientPayload is ${clientPayload} in handleUpload` );
 
         // Generate a client token for the browser to upload the file
         // ⚠️ Authenticate and authorize users before generating the token.
@@ -32,7 +31,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {
         const tp = JSON.parse(tokenPayload!);
-  console.log(`clientPayload is ${clientPayload} in onUploadCompleted and token payload is ${tp.clientPayload}` );
+  console.log(`session clientPayload is ${clientPayload} in onUploadCompleted and token payload is ${tp.clientPayload}` );
 
         // Get notified of client upload completion
         // ⚠️ This will not work on `localhost` websites,
@@ -42,8 +41,8 @@ export async function POST(request: Request): Promise<NextResponse> {
 
         try {
           if (tp) {
-            await addImageToPlayer(blob.url, tp.clientPayload);
-            console.log("added image to player", blob.url, tp.clientPayload);
+            await addImageToSession(blob.url, tp.clientPayload);
+            console.log("added image to session", blob.url, tp.clientPayload);
           } else {
             console.log("no client payload");
             throw new Error(

@@ -17,7 +17,7 @@ export default function CancelButton() {
     <button
       type="button"
       onClick={handleCancel}
-      className=" text-tunnel-snake-orange bg-tunnel-snake-black rounded-sm border border-tunnel-snake-orange "
+      className=" text-tunnel-snake-orange bg-tunnel-snake-black rounded-sm border border-tunnel-snake-orange py-2 px-4"
     >
       Cancel
     </button>
