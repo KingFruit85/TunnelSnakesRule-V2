@@ -1,6 +1,10 @@
 "use client";
 import { useRef, useState } from "react";
-import { addImageToPlayer, addNewPlayer, redirectBackToSessions } from "@/app/lib/actions";
+import {
+  addImageToPlayer,
+  addNewPlayer,
+  redirectBackToSessions,
+} from "@/app/lib/actions";
 import CancelButton from "../Common/cancelButton";
 import SubmitButton from "../Common/submitButton";
 import { PutBlobResult } from "@vercel/blob";
@@ -11,10 +15,9 @@ export default function AddNewPlayer() {
   const inputFileRef = useRef<HTMLInputElement>(null);
   const [blob, setBlob] = useState<PutBlobResult | null>(null);
 
-
   return (
     <form
-      action={ async (event) => {
+      action={async (event) => {
         const newPlayerId = await addNewPlayer(event);
 
         if (!inputFileRef.current?.files) {
@@ -26,7 +29,7 @@ export default function AddNewPlayer() {
         const newBlob = await upload(file.name, file, {
           access: "public",
           handleUploadUrl: "/api/avatar/upload",
-          clientPayload: newPlayerId as string || "",
+          clientPayload: (newPlayerId as string) || "",
         });
 
         setBlob(newBlob);
@@ -34,25 +37,33 @@ export default function AddNewPlayer() {
         await addImageToPlayer(newBlob.url, newPlayerId as string);
 
         redirectBackToSessions();
-        
       }}
-      className="border p-4 bg-black flex flex-col items-center"
+      className="border p-4 bg-black flex flex-col items-start w-[95%] md:w-[95%] lg:w-[95%] xl:w-[95%] sm:w-[95%]"
     >
-      <div className="text-3xl md:text-3xl lg:text-4xl xl:text-4xl text-center font-montserrat flex items-center text-tunnel-snake-white">
+      <div
+        className="p-4 text-3xl md:text-3xl lg:text-4xl xl:text-4xl 
+      text-center font-['Montserrat'] font-semibold flex items-center text-tunnel-snake-white"
+      >
         Add New Player
       </div>
 
-      <div className="mb-1 mt-1">Player name</div>
+      <div className="p-4">
+        <div className="mb-1 mt-1 font-['Montserrat']">Player name</div>
 
-      <input
-        id="playerName"
-        name="playerName"
-        onChange={(e) => setPlayerName(e.target.value)}
-        className="bg-tunnel-snake-grey border rounded-sm mb-4 mt-1 p-1 text-tunnel-snake-orange"
-      />
+        <input
+          id="playerName"
+          name="playerName"
+          required
+          onChange={(e) => setPlayerName(e.target.value)}
+          className="p-2 bg-tunnel-snake-grey border rounded-sm mb-4 mt-1 p-1 text-tunnel-snake-orange"
+        />
+      </div>
 
-      <div className="flex flex-col items-center mt-1">
-        <label htmlFor="file" className="mb-2 text-gray-400">
+      <div className="p-4 flex flex-col items-start mt-1">
+        <label
+          htmlFor="file"
+          className="mb-2 text-gray-400 font-['Montserrat']"
+        >
           Choose a file
         </label>
 
@@ -67,17 +78,18 @@ export default function AddNewPlayer() {
           />
           <label
             htmlFor="file"
-            className="cursor-pointer bg-tunnel-snake-grey border rounded-sm p-2"
+            className="cursor-pointer bg-tunnel-snake-grey border rounded-sm p-2 font-['Montserrat']"
           >
             Player image
           </label>
-          <span className="ml-2" id="fileName">
+          <span className="ml-2" id="fileName font-['Montserrat']">
             No file chosen
           </span>
         </div>
       </div>
 
-      <div className="flex gap-4 p-2">
+      <div className="mt-4 mb-4 w-[95%] md:w-[95%] lg:w-[95%] xl:w-[95%] sm:w-[95%] flex flex-col gap-4 items-center">
+
         <SubmitButton label={"Add Player"} />
         <CancelButton />
       </div>

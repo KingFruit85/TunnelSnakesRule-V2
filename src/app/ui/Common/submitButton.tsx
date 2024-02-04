@@ -6,15 +6,12 @@ export interface SubmitButtonProps {
 
 export default function SubmitButton({ label }: SubmitButtonProps) {
   return (
-    <div>
       <button
         type="submit"
-        className="text-tunnel-snake-green flex border 
-        border-tunnel-snake-green rounded-sm  py-2 px-4
-        "
+        className="w-[95%] md:w-[95%] lg:w-[95%] xl:w-[95%] sm:w-[95%] text-tunnel-snake-green bg-tunnel-snake-black rounded-sm border border-tunnel-snake-green py-2 px-4"
+    
       >
         {label}
       </button>
-    </div>
   );
 }

@@ -2,7 +2,6 @@ import { getAllActiveSessions, getAllInactiveSessions } from "@/app/lib/data";
 import NewSessionButton from "@/app/ui/Common/newSessionButton";
 import CurrentSession from "@/app/ui/sessions/currentSession/currentSession";
 import PreviousSessions from "@/app/ui/sessions/previousSessions";
-import { redirect } from "next/navigation";
 
 export default async function Page() {
   const activeSessions = await getAllActiveSessions();

@@ -1,81 +1,77 @@
 import { addNewBoardGame } from "@/app/lib/actions";
 import CancelButton from "../Common/cancelButton";
+import SubmitButton from "../Common/submitButton";
 
 export default function AddNewGame() {
-
-
   return (
-    <form action={addNewBoardGame}>
-      <div className=" p-12 bg-tunnel-snake-black border border-white flex-col justify-start items-start gap-8 inline-flex">
-      <div className="text-white text-[32px] font-semibold font-['Montserrat']">
+    <form
+      action={addNewBoardGame}
+      className="border p-4 bg-black flex flex-col items-start w-[95%] md:w-[95%] lg:w-[95%] xl:w-[95%] sm:w-[95%]"
+    >
+      <div className="p-4 text-3xl md:text-3xl lg:text-4xl xl:text-4xl text-center font-semibold font-['Montserrat'] flex items-center text-tunnel-snake-white">
         Add New Game
       </div>
-      <div className="flex-col justify-start items-start gap-5 flex">
-        <div className="h-[65px] flex-col justify-start items-start gap-2 flex">
-          <div className="text-white text-sm font-medium font-['Montserrat']">
-            Name
-          </div>
-          <input id="gameName" name="gameName" type="text"  className=" self-stretch px-3 py-2.5 bg-tunnel-snake-grey rounded-sm border border-white justify-start items-start gap-2.5 inline-flex" />
+
+      <div className="p-4">
+        <div className="flex flex-col gap-2">
+          <div className="font-['Montserrat']">Name</div>
+          <input
+            id="gameName"
+            name="gameName"
+            type="text"
+            required
+            className="bg-tunnel-snake-grey border p-2"
+          />
+          <div className="font-['Montserrat']">Cover art URL</div>
+          <input
+            id="gameArt"
+            name="gameArt"
+            type="text"
+            className="bg-tunnel-snake-grey border p-2"
+          />
         </div>
-        <div className="h-[65px] flex-col justify-start items-start gap-2 flex">
-          <div className="text-white text-sm font-medium font-['Montserrat']">
-            Cover art URL
+
+        <div className=" pt-4 pb-2 flex flex-col gap-2">
+          <div className="font-['Montserrat']">Win conditions</div>
+
+          <div className="flex gap-2 font-['Montserrat']">
+            <input
+              type="radio"
+              name="winCondition"
+              id="teamBased"
+              value="teamBased"
+              className=""
+            />
+            <div className="">Team based</div>
           </div>
-          <input id="gameArt" name="gameArt" type="text"  className="self-stretch px-3 py-2.5 bg-tunnel-snake-grey rounded-sm border border-white justify-start items-start gap-2.5 inline-flex" />
-        </div>
-        <div className="flex-col justify-start items-start gap-4 flex">
-          <div className="text-white text-sm font-medium font-['Montserrat']">
-            Win conditions
+          <div className="flex gap-2 font-['Montserrat']">
+            <input
+              type="radio"
+              name="winCondition"
+              id="cooperative"
+              value="cooperative"
+              className=""
+            />
+            <div className="">Co-operative</div>
           </div>
-          <div className="flex-col justify-start items-start gap-5 flex">
-            <div className="justify-start items-center gap-3 inline-flex">
-              <input
-                type="radio"
-                name="winCondition"
-                id="teamBased"
-                value="teamBased"
-                className="w-6 h-6 relative bg-tunnel-snake-grey rounded-sm border border-white"
-              />
-              <div className="text-white text-base font-normal font-['Montserrat']">
-                Team based
-              </div>
-            </div>
-            <div className="justify-start items-center gap-3 inline-flex">
-              <input
-                type="radio"
-                name="winCondition"
-                id="cooperative"
-                value="cooperative"
-                className="w-6 h-6 relative bg-tunnel-snake-grey rounded-sm border border-white"
-              />
-              <div className="text-white text-base font-normal font-['Montserrat']">
-                Co-operative
-              </div>
-            </div>
-            <div className="justify-start items-center gap-3 inline-flex">
-              <input
-                type="radio"
-                name="winCondition"
-                id="leaderBoard"
-                value="leaderBoard"
-                className="w-6 h-6 relative bg-tunnel-snake-green rounded-sm"
-              />
-              <div className="text-white text-base font-normal font-['Montserrat']">
-                Leader board
-              </div>
-            </div>
+
+          <div className="flex gap-2 font-['Montserrat']">
+            <input
+              type="radio"
+              name="winCondition"
+              id="leaderBoard"
+              value="leaderBoard"
+              className=""
+            />
+            <div className="">Leader board</div>
           </div>
         </div>
       </div>
-      <div className="flex-col justify-start items-start gap-5 flex">
-        <button className="w-[400px] px-5 py-2.5 bg-tunnel-snake-black rounded-sm border border-tunnel-snake-green justify-center items-center gap-3 inline-flex">
-          <div className="text-tunnel-snake-green text-base font-medium font-['Montserrat']">
-            Add game
-          </div>
-        </button>
-        <CancelButton/>
+
+      <div className="mt-4 mb-4 w-[95%] md:w-[95%] lg:w-[95%] xl:w-[95%] sm:w-[95%] flex flex-col gap-4 items-center">
+        <SubmitButton label={"Add Game"} />
+        <CancelButton />
       </div>
-    </div>
     </form>
   );
 }
