@@ -14,10 +14,12 @@ export default function AddNewPlayer() {
   const [playerName, setPlayerName] = useState("");
   const inputFileRef = useRef<HTMLInputElement>(null);
   const [blob, setBlob] = useState<PutBlobResult | null>(null);
+  const [saving, setSaving] = useState(false);
 
   return (
     <form
       action={async (event) => {
+        setSaving(true);
         const newPlayerId = await addNewPlayer(event);
 
         if (!inputFileRef.current?.files) {
@@ -89,10 +91,11 @@ export default function AddNewPlayer() {
       </div>
 
       <div className="mt-4 mb-4 w-[95%] md:w-[95%] lg:w-[95%] xl:w-[95%] sm:w-[95%] flex flex-col gap-4 items-center">
-
-        <SubmitButton label={"Add Player"} />
-        <CancelButton />
+        <SubmitButton label={"Add Player"} disabled={saving} />
+        <CancelButton disabled={saving} />
       </div>
+
+      {saving && <label className="font-['Montserrat'] pl-4">saving ...</label>}
     </form>
   );
 }
