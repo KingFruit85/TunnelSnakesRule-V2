@@ -7,7 +7,11 @@ import { useSearchParams } from "next/navigation";
 import { useState, useRef } from "react";
 
 export default function Page() {
-  const sessionId = useSearchParams().get("sessionId");
+  
+  const session = useSearchParams();
+
+  const sessionId = session.get("sessionId");
+
   const inputFileRef = useRef<HTMLInputElement>(null);
   const [blob, setBlob] = useState<PutBlobResult | null>(null);
 
@@ -31,7 +35,7 @@ export default function Page() {
           }
 
           const file = inputFileRef.current.files[0];
-
+          
           const newBlob = await upload(file.name, file, {
             access: "public",
             handleUploadUrl: "/api/session/upload",
