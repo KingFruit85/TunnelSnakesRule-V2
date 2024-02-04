@@ -49,7 +49,7 @@ export default function PlayerRow({ player, winCondition }: PlayerRowProps) {
         ]}
       />
 
-      <div className="">
+      <div className="flex gap-1">
         <input
           type="checkbox"
           id={player.id}
@@ -58,7 +58,7 @@ export default function PlayerRow({ player, winCondition }: PlayerRowProps) {
           onChange={handleCheckboxChange}
           className="mr-2"
         />
-        {/* <img src={player.avatar} alt={player.name} /> */}
+        <img src={player.avatar} alt={player.name} width={25} height={25} className="rounded-full"/>
 
         <label className="">{player.name}</label>
       </div>
@@ -88,7 +88,6 @@ export default function PlayerRow({ player, winCondition }: PlayerRowProps) {
           </select>
         )}
       </div>
-      
     </div>
   );
 }
