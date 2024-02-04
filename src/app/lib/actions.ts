@@ -31,6 +31,9 @@ export async function addImageToSession(blobUri: string, sessionId: string) {
 }
 
 export async function addImageToPlayer(blobUri: string, playerId: string) {
+
+  
+
   console.log(`adding image ${blobUri} to player ${playerId}`);
   await sql`
   UPDATE players 
