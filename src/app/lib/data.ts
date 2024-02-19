@@ -81,17 +81,23 @@ export async function getAllPlayers() {
 
 export async function getAllPlayersBySessionId(id: string) {
   noStore();
+  console.log("Getting players for session: ", id);
   const result = await sql`
       SELECT PlayerIds FROM sessions WHERE id = ${id}`;
 
-  const playerIds = result.rows[0].playerids.split(",");
-  let players = [] as Player[];
+      const playerIds = result.rows[0].playerids.split(",") as string[];
 
-  playerIds.map(async (playerid: string) => {
-    const player = await getPlayerById(playerid);
-    players.push(player);
-  });
-  console.log("getAllPlayersBySessionId players: ", players);
+    // Use map instead of forEach to map each ID to a promise of getPlayerById
+    const playerPromises = playerIds.map(async (id) => {
+      const player = await getPlayerById(id);
+      return player;
+    });
+  
+    // Wait for all promises to resolve using Promise.all
+    const players = await Promise.all(playerPromises);
+  
+    console.log("Players: ", players);
+
   return players;
 }
 

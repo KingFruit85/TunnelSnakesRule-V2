@@ -27,7 +27,6 @@ export default function Results({ games, players }: ResultsProps) {
 
   const handleGameChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedGameId = e.target.value;
-    console.log("results players", players);
 
     const selectedGame = games.find((game) => game.name === selectedGameId);
 

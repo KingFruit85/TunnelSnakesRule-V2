@@ -38,7 +38,7 @@ export default function PlayerRow({ player, winCondition }: PlayerRowProps) {
   };
 
   return (
-    <div className="flex gap-6">
+    <div className="flex gap-6 p-2 bg-tunnel-snake-grey rounded-sm ">
       <input
         type="hidden"
         name={`player_${player.id}`}

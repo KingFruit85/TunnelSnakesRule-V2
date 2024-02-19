@@ -6,7 +6,7 @@ export default function AddNewGame() {
   return (
     <form
       action={addNewBoardGame}
-      className="border p-4 bg-black flex flex-col items-start w-[95%] md:w-[95%] lg:w-[95%] xl:w-[95%] sm:w-[95%]"
+      className="border p-4 bg-black flex flex-col items-start w-[95%] md:w-[40%] lg:w-[40%] xl:w-[40%] sm:w-[95%]"
     >
       <div className="p-4 text-3xl md:text-3xl lg:text-4xl xl:text-4xl text-center font-semibold font-['Montserrat'] flex items-center text-tunnel-snake-white">
         Add New Game

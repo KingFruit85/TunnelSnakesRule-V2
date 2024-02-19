@@ -18,9 +18,12 @@ export default function AddNewPlayer() {
 
   return (
     <form
-      action={async (event) => {
+      onSubmit={async (event) => {
 
-        const newPlayerId = await addNewPlayer(event);
+        console.log(event)
+        debugger;
+        // const newPlayerId = await addNewPlayer(event);
+        const newPlayerId = "123";
 
         if (!inputFileRef.current?.files) {
           throw new Error("No file selected");
@@ -36,7 +39,7 @@ export default function AddNewPlayer() {
 
         redirectBackToSessions();
       }}
-      className="border p-4 bg-black flex flex-col items-start w-[95%] md:w-[95%] lg:w-[95%] xl:w-[95%] sm:w-[95%]"
+      className="border p-4 bg-black flex flex-col items-start w-[95%] md:w-[40%] lg:w-[40%] xl:w-[40%] sm:w-[95%]"
     >
       <div
         className="p-4 text-3xl md:text-3xl lg:text-4xl xl:text-4xl 
@@ -69,7 +72,7 @@ export default function AddNewPlayer() {
           <input
             id="file"
             name="file"
-            ref={inputFileRef}
+            // ref={inputFileRef}
             type="file"
             className="hidden"
             required

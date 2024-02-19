@@ -11,13 +11,14 @@ export interface AddGameResultProps {
 export default async function AddGameResult(props: AddGameResultProps) {
   const { sessionId } = props;
   const players = await getAllPlayersBySessionId(sessionId);
+  console.log("Players in game results: ", players);
   const boardGames = await getAllBoardgames();
 
   return (
     <form action={addNewGameResult}>
       <input type="hidden" name="sessionId" value={sessionId} />
 
-      <div className="bg-tunnel-snake-black flex-col items-center flex">
+      <div className="p-4 bg-black flex flex-col items-center w-[95%] md:w-[40%] lg:w-[40%] xl:w-[40%] sm:w-[95%]">
         <div className=" text-center font-montserrat flex items-center text-tunnel-snake-green">
           Add Result
         </div>

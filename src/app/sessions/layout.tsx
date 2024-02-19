@@ -1,4 +1,5 @@
 import TopNav from "../ui/sessions/topNav";
+import { Analytics } from '@vercel/analytics/react';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
     return (
@@ -6,6 +7,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
         <TopNav />
         <div>{children}</div>
+        <Analytics />
       </div>
     );
   }
