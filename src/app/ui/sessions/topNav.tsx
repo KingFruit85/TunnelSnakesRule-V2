@@ -1,9 +1,10 @@
 "use client"
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from "next/navigation";
+import { ClubContext } from '@/app/sessions/Contexts';
 
 const TopNav: React.FC = () => {
   const [isPopoverVisible, setIsPopoverVisible] = useState(false);
@@ -98,14 +99,14 @@ const TopNav: React.FC = () => {
         >
           <button
             onClick={() => {
-              router.push("/sessions/")
+              router.push("/")
               handlePopoverClose();
             }}
             className="border block w-full text-left px-4 py-2 text-white text-base font-normal font-['Montserrat'] hover:bg-tunnel-snake-orange"
           >
             <div className='flex pl-2 gap-2'>
             <img src={"/TrophyWhite.svg"} alt={"home icon"} />
-            <label>Home</label>
+            <label>Groups</label>
             </div>
           </button>
           <button

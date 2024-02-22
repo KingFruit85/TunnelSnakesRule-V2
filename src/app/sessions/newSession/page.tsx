@@ -1,13 +1,15 @@
-import { getAllPlayers } from "@/app/lib/data";
+import { getAllPlayersInClub } from "@/app/lib/data";
 import AddNewSession from "@/app/ui/sessions/addNewSession";
 
-export default async function Page() {
+export default async function Page({searchParams}: {searchParams: Record<string, string>}) {
+    const clubId = searchParams.clubId;
+    const players = await getAllPlayersInClub(clubId);
 
-    const playerNames = await getAllPlayers();
+    console.log(players);
 
     return (
         <div className="w-full flex flex-col space-items items-center py-5">
-        <AddNewSession players={playerNames}  />
+        <AddNewSession players={players} clubId={clubId}  />
         </div>
     );
   }

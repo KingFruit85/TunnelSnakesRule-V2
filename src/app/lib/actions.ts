@@ -5,6 +5,11 @@ import { sql } from "@vercel/postgres";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
+import { UUID } from "crypto";
+import { getClubDetails } from "./data";
+import { User } from "@clerk/nextjs/server";
+import { Club } from "./definitions";
+import { unstable_noStore as noStore } from "next/cache";
 
 const FormSchema = z.object({
   id: z.string(),
@@ -25,26 +30,19 @@ export async function addImageToSession(blobUri: string, sessionId: string) {
     SET imageurl = ${blobUri}
     WHERE id = ${sessionId}`;
 
-
   revalidatePath("/sessions/");
   redirect("/sessions/");
 }
 
 export async function addImageToPlayer(blobUri: string, playerId: string) {
-
-  
-
   console.log(`adding image ${blobUri} to player ${playerId}`);
   await sql`
   UPDATE players 
     SET avatar = ${blobUri}
     WHERE id = ${playerId}`;
-
-  
 }
 
 export async function addNewPlayer(formData: FormData) {
-
   console.log(formData);
 
   const email = `${formData.get("playerName")}@test.com`;
@@ -82,13 +80,12 @@ export async function addNewPlayer(formData: FormData) {
 
   return newPlayerId.rows[0].id as string;
 
-  revalidatePath("/sessions/");
-  redirect("/sessions/");
 }
 
 export async function addNewGameSession(formData: FormData) {
   const players = formData.getAll("player");
   const sessionName = formData.get("sessionName")?.toString();
+  const clubId = formData.get("clubId")?.toString();
   const gameResults = null;
   const active = true;
   const date = new Date().toISOString();
@@ -96,12 +93,12 @@ export async function addNewGameSession(formData: FormData) {
   const playerIds = players.join(",");
 
   await sql`
-        Insert into Sessions (name, date, active, playerIds, gameResults)
-        VALUES (${sessionName} , ${date}, ${active}, ${playerIds}, ${gameResults})
+        Insert into Sessions (name, date, active, playerIds, gameResults, clubId)
+        VALUES (${sessionName} , ${date}, ${active}, ${playerIds}, ${gameResults}, ${clubId})
         `;
 
-  revalidatePath("/sessions/");
-  redirect("/sessions/");
+  revalidatePath(`/sessions/?clubId=${clubId}`);
+  redirect(`/sessions/?clubId=${clubId}`);
 }
 
 export async function endSession(id: string, notes: string) {
@@ -125,6 +122,83 @@ export async function addNewBoardGame(formData: FormData) {
         `;
   redirect("/sessions/");
 }
+
+export async function addNewClub(formData: FormData) {
+  const name = formData.get("clubName")?.toString();
+  const owner = formData.get("owner")?.toString();
+
+  // Execute the SQL query with the RETURNING clause
+  const result = await sql`
+  INSERT INTO clubs (club_name, owner)
+  VALUES (${name}, ${owner})
+  RETURNING *;`;
+
+  // Extract the values of the inserted row from the result
+  const insertedClub = result.rows[0];
+
+  console.log(insertedClub);
+
+  // Now you can access the values of the inserted club
+  const insertedClubId = insertedClub.id as UUID;
+
+  console.log(insertedClubId);
+
+  if (owner && insertedClubId)
+  {
+    await addPlayerToClub(owner, insertedClubId);
+  }
+
+  revalidatePath("/join/club/");
+  redirect("/");
+}
+
+export async function getAllClubs() {
+  noStore();
+  const result = await sql`
+  SELECT * FROM clubs`;
+
+  const clubPromises = result.rows.map( async (club:any) => {
+    const clubDetails = await getClubDetails(club.id);
+    return clubDetails;
+  });
+
+  const clubs = await Promise.all(clubPromises) as Club[];
+
+  return clubs;
+
+}
+
+export async function getUsersClubs(userId: string) {
+
+  const result = await sql`
+  SELECT * FROM players_clubs WHERE player_id = ${userId}`;
+  
+  const clubIds = result.rows.map((club:any) => club.club_id);
+
+  const clubPromises = clubIds.map(async (clubId) => {
+    const club = await getClubDetails(clubId);
+    return club;
+  });
+
+  const clubs = await Promise.all(clubPromises);
+
+  return clubs;
+}
+
+export async function addPlayerToClub(playerId: string, clubId: UUID) {
+  await sql`
+        INSERT INTO players_clubs (player_id, club_id)
+        VALUES (${playerId}, ${clubId})`;
+}
+
+export async function createNewPlayerRecord(user: User) {
+
+
+  await sql`
+        Insert into players (externalid, name, avatar)
+        VALUES (${user.id}, ${user.firstName}, ${user.imageUrl})
+        `;
+};
 
 export async function addNewGameResult(formData: FormData) {
   console.log(formData);

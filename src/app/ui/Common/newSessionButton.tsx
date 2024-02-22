@@ -1,12 +1,17 @@
 "use client";
 
+import { ClubContext } from "@/app/sessions/Contexts";
 import { useRouter } from "next/navigation";
+import { useContext } from "react";
 
 export default function NewSessionButton() {
   const router = useRouter();
 
+  const clubId = useContext(ClubContext);
+  console.log("clubId in newsession: ", clubId);
+
   const handleNewSession = () => {
-    router.push("/sessions/newSession/");
+    router.push(`/sessions/newSession/?clubId=${clubId}`);
   };
 
   return (

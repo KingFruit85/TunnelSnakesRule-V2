@@ -1,9 +1,7 @@
 "use client";
 
-import { use, useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
-  addImageToPlayer,
-  addNewPlayer,
   redirectBackToSessions,
 } from "@/app/lib/actions";
 import CancelButton from "../Common/cancelButton";

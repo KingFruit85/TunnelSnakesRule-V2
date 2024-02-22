@@ -15,8 +15,6 @@ export default function Page() {
   const inputFileRef = useRef<HTMLInputElement>(null);
   const [blob, setBlob] = useState<PutBlobResult | null>(null);
 
-  console.log("in session upload page")
-
   return (
     <div className="flex flex-col border border-tunnel-snake-orange bg-black items-center mt-4 mr-4 ml-4">
       <h1

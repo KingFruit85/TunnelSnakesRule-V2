@@ -11,7 +11,6 @@ export interface AddGameResultProps {
 export default async function AddGameResult(props: AddGameResultProps) {
   const { sessionId } = props;
   const players = await getAllPlayersBySessionId(sessionId);
-  console.log("Players in game results: ", players);
   const boardGames = await getAllBoardgames();
 
   return (

@@ -1,8 +1,7 @@
 export type Player = {
     id: string;
+    externalId: string;
     name: string;
-    email: string;
-    password: string;
     avatar: string;
 }
 
@@ -36,4 +35,17 @@ export type BoardGame = {
     name: string;
     winCondition: string;
     picture: string;
+}
+
+export type Club = {
+    id: string;
+    name: string;
+    createdDate: Date;
+    owner: string;
+}
+
+export enum Destination {
+    AddNewClub,
+    JoinExistingClub,
+    ClubSessions
 }

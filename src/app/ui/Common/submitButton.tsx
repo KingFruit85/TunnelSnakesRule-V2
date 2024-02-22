@@ -16,7 +16,7 @@ export default function SubmitButton({ label }: SubmitButtonProps) {
       type="submit"
       disabled={pending}
       className={`w-[95%] md:w-[95%] lg:w-[95%] xl:w-[95%] sm:w-[95%] 
-                  text-tunnel-snake-green bg-tunnel-snake-black 
+                  text-tunnel-snake-green bg-tunnel-snake-black hover:bg-tunnel-snake-green hover:text-tunnel-snake-black
                   rounded-sm border border-tunnel-snake-green 
                   py-2 px-4 ${pending ? 'opacity-50 cursor-not-allowed' : ''}`}
     >
