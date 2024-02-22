@@ -12,15 +12,10 @@ export default function AddNewPlayer() {
   const [playerName, setPlayerName] = useState("");
   const inputFileRef = useRef<HTMLInputElement>(null);
 
-  
-
   return (
     <form
       onSubmit={async (event) => {
 
-        console.log(event)
-        debugger;
-        // const newPlayerId = await addNewPlayer(event);
         const newPlayerId = "123";
 
         if (!inputFileRef.current?.files) {

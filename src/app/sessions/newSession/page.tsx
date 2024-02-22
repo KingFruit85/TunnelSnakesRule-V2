@@ -5,8 +5,6 @@ export default async function Page({searchParams}: {searchParams: Record<string,
     const clubId = searchParams.clubId;
     const players = await getAllPlayersInClub(clubId);
 
-    console.log(players);
-
     return (
         <div className="w-full flex flex-col space-items items-center py-5">
         <AddNewSession players={players} clubId={clubId}  />

@@ -3,11 +3,28 @@
 import { sql } from "@vercel/postgres";
 import { BoardGame, GameSession, Player, GameResults, Club } from "./definitions";
 import { unstable_noStore as noStore } from "next/cache";
+import { redirect } from "next/navigation";
 
 export async function getPlayerById(id: string): Promise<Player> {
   noStore();
   const result = await sql`
-    SELECT * FROM Players WHERE externalId = ${id}`;
+    SELECT * FROM Players WHERE id = ${id}`;
+
+  const playerRow = result.rows[0];
+
+  const player = {
+    id: String(playerRow.id),
+    name: String(playerRow.name),
+    avatar: String(playerRow.avatar),
+  } as Player;
+
+  return player;
+}
+
+export async function getPlayerByExternalId(id: string): Promise<Player> {
+  noStore();
+  const result = await sql`
+    SELECT * FROM Players WHERE Externalid = ${id}`;
 
   const playerRow = result.rows[0];
 
@@ -30,6 +47,11 @@ export async function checkIfUserHasPlayerProfile(externalId: string) {
 
 export async function getAllActiveSessions(clubId: string) {
   noStore();
+  
+  if (!clubId) {
+    redirect("/");
+  }
+
   const result = await sql`
     SELECT * FROM Sessions WHERE active = true AND clubId = ${clubId}`;
 
@@ -79,7 +101,7 @@ export async function getAllPlayersInClub(clubId: string) {
   const playerIds = result.rows.map((row) => row.player_id as string);
 
   const playerPromises = playerIds.map(async (id) => {
-    const player = await getPlayerById(id);
+    const player = await getPlayerByExternalId(id);
     return player;
   });
 

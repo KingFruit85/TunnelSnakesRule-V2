@@ -5,11 +5,13 @@ import { GameSession } from "@/app/lib/definitions";
 export interface CurrentSessionButtonsProps {
   session: GameSession;
   handleEndSession: () => void;
+  clubId: string;
 }
 
 export default function CurrentSessionButtons({
   session,
   handleEndSession,
+  clubId,
 }: CurrentSessionButtonsProps) {
   return (
     <div className="ml-4 mb-4 flex gap-4">
@@ -20,6 +22,7 @@ export default function CurrentSessionButtons({
           query: {
             sessionId: session.id,
             playerIds: session.playerIds.toString(),
+            clubId: clubId,
           },
         }}
       >

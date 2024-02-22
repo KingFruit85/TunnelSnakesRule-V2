@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export interface CancelButtonProps {
   disabled?: boolean;
@@ -9,8 +9,10 @@ export interface CancelButtonProps {
 export default function CancelButton({ disabled }: CancelButtonProps) {
   const router = useRouter();
 
+  const clubId = useSearchParams().get("clubId") || "" as string;
+
   const handleCancel = () => {
-    router.push("/sessions/");
+    router.push(`/sessions?clubId=${clubId}`);
   };
 
   return (

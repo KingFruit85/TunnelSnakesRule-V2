@@ -43,8 +43,6 @@ export async function addImageToPlayer(blobUri: string, playerId: string) {
 }
 
 export async function addNewPlayer(formData: FormData) {
-  console.log(formData);
-
   const email = `${formData.get("playerName")}@test.com`;
   const password = "123";
   const avatar = "123";
@@ -136,12 +134,8 @@ export async function addNewClub(formData: FormData) {
   // Extract the values of the inserted row from the result
   const insertedClub = result.rows[0];
 
-  console.log(insertedClub);
-
   // Now you can access the values of the inserted club
   const insertedClubId = insertedClub.id as UUID;
-
-  console.log(insertedClubId);
 
   if (owner && insertedClubId)
   {
@@ -201,13 +195,13 @@ export async function createNewPlayerRecord(user: User) {
 };
 
 export async function addNewGameResult(formData: FormData) {
-  console.log(formData);
 
   const sessionId = formData.get("sessionId")?.toString();
   const winCondition = formData.get("winCondition")?.toString();
   const scoringDirection = formData.get("scoringDirection")?.toString();
   const gameName = formData.get("gameName")?.toString();
   const notes = formData.get("gameResultNotes")?.toString();
+  const clubId = formData.get("clubId")?.toString();
 
   let playerScores = [];
 
@@ -249,12 +243,10 @@ export async function addNewGameResult(formData: FormData) {
   // Convert the updated array back to JSON string
   const updatedResultsJson = JSON.stringify(existingResultsArray);
 
-  console.log(updatedResultsJson);
-
   // Update the gameResults column in the database
   await sql`
      UPDATE sessions SET gameResults = ${updatedResultsJson} WHERE id = ${sessionId}`;
 
-  revalidatePath("/sessions/");
-  redirect("/sessions/");
+  revalidatePath(`/sessions?clubId=${clubId}`);
+  redirect(`/sessions?clubId=${clubId}`);
 }

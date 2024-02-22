@@ -7,6 +7,8 @@ import CurrentSessionHeader from "./currentSessionHeader";
 import CurrentSessionGames from "./currentSessionGames";
 import CurrentSessionButtons from "./currentSessionButton";
 import CurrentSessionImages from "./currentSessionImages";
+import { useRouter } from "next/router";
+import { useSearchParams } from "next/navigation";
 
 export interface currentSessionProps {
   session: GameSession;
@@ -17,6 +19,8 @@ export default function CurrentSession({ session }: currentSessionProps) {
   const [showImageUpload, setShowImageUpload] = useState<boolean>(false);
   const [notes, setNotes] = useState<string>("");
 
+  const clubId = useSearchParams().get("clubId") as string;
+  
   useEffect(() => {
     const notes = localStorage.getItem("sessionNotes");
     if (notes) {
@@ -67,6 +71,7 @@ export default function CurrentSession({ session }: currentSessionProps) {
       <div className="flex-row gap-4">
         <CurrentSessionButtons
           session={session}
+          clubId={clubId}
           handleEndSession={handleEndSession}
         />
         <CurrentSessionImages

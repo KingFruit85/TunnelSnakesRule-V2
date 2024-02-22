@@ -18,9 +18,6 @@ export default function SessionContextWrapper({
   previousSessions,
 }: SessionContextWrapperProps) {
 
-  console.log("clubId: ", clubId);
-
-
   return (
     <>
     <ClubContext.Provider value={clubId}>
