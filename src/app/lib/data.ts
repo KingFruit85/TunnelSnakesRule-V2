@@ -36,6 +36,7 @@ export async function getPlayerByExternalId(id: string): Promise<Player> {
 
   const player = {
     id: String(playerRow.id),
+    externalId: String(id),
     name: String(playerRow.name),
     avatar: String(playerRow.avatar),
   } as Player;
@@ -97,6 +98,14 @@ export async function getAllInactiveSessions(clubId: string) {
   return sessions;
 }
 
+export async function checkAccessRequestStatus(playerId: string, clubId: string) {
+  noStore();
+  const result = await sql`
+    SELECT * FROM joinrequests WHERE player_id = ${playerId} AND club_id = ${clubId}`;
+
+  return result.rows.length > 0;
+}
+
 export async function getAllPlayersInClub(clubId: string) {
   noStore();
 
@@ -114,6 +123,37 @@ export async function getAllPlayersInClub(clubId: string) {
   const players = await Promise.all(playerPromises);
 
   return players;
+}
+
+export async function checkIfPlayerIsClubOwner(clubId: string, userId: string) {
+  noStore();
+  const result = await sql`
+    SELECT * FROM clubs WHERE id = ${clubId} and owner = ${userId}`;
+
+  return result.rows.length > 0;
+}
+
+export async function checkForOutstandingClubAccessRequests(clubid: string) {
+  noStore();
+  const result = await sql`
+    SELECT * FROM joinrequests WHERE club_id = ${clubid}`;
+
+  return result.rows.length > 0;
+}
+
+export async function getAllAcessRequests(clubId: string) {
+  noStore();
+  const result = await sql`
+    SELECT Player_id FROM joinrequests WHERE club_id = ${clubId}`;
+
+  const requestPromises = result.rows.map(async (playerId) => {
+    const player = await getPlayerByExternalId(playerId.player_id);
+    return player;
+  });
+
+  const requests = await Promise.all(requestPromises);
+
+  return requests;
 }
 
 export async function getAllPlayersBySessionId(id: string) {

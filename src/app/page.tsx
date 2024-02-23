@@ -23,7 +23,7 @@ export default async function Home() {
       {!user && (
         
         <div className="w-full flex flex-col space-items items-center py-5">
-          <img src={"/TTTSS.svg"} alt={"Tunnel Snakes Logo"} />
+          <img src={"/TTTSS.svg"} alt={"Tunnel Snakes Logo"} width={250}  />
           <p className="pb-4">Tunnel Snakes Rule</p>
           <div className="border px-4 py-2">
             <SignInButton />

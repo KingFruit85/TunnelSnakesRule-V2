@@ -150,6 +150,22 @@ export async function addPlayerToClub(playerId: string, clubId: UUID) {
   await sql`
         INSERT INTO players_clubs (player_id, club_id)
         VALUES (${playerId}, ${clubId})`;
+
+  await removePlayerFromRequestList(playerId, clubId);
+
+  revalidatePath(`/requests?userid=${playerId}&clubid=${clubId}`);
+}
+
+export async function removePlayerFromRequestList(playerId: string, clubId: UUID) {
+  await sql`
+        DELETE FROM joinrequests
+        WHERE player_id = ${playerId} AND club_id = ${clubId}`;
+}
+
+export async function requestAccessToClub(playerId: string, clubId: UUID) {
+  await sql`
+        INSERT INTO joinrequests (player_id, club_id)
+        VALUES (${playerId}, ${clubId})`;
 }
 
 export async function createNewPlayerRecord(user: User) {

@@ -5,12 +5,14 @@ import { useRouter } from "next/navigation";
 
 export interface PageRedirectButton {
   destination: Destination;
-  userId?: string;
+  userId?: string | null;
+  clubId?: string | null;
 }
 
 export default function PageRedirectButton({
   destination,
   userId,
+  clubId,
 }: PageRedirectButton) {
   const router = useRouter();
   let buttonLabel = "";
@@ -27,6 +29,10 @@ export default function PageRedirectButton({
       break;
     case Destination.ClubSessions:
       destinationPath = "/sessions/[club_id]";
+      break;
+    case Destination.ReviewAceessRequests:
+      destinationPath = `/requests?userid=${userId}&clubid=${clubId}`;
+      buttonLabel = "! New group access requests !";
       break;
 
     default:

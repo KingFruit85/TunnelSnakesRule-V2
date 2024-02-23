@@ -47,5 +47,15 @@ export type Club = {
 export enum Destination {
     AddNewClub,
     JoinExistingClub,
-    ClubSessions
+    ClubSessions,
+    ReviewAceessRequests,
+}
+
+export type ClubAndRequestStatus = {
+    club: Club;
+    accessRequestPending: boolean;
+  };
+
+export type ClubAccessRequest = {
+    requestorName: string;
 }
