@@ -115,7 +115,7 @@ const TopNav: React.FC = () => {
               <label>Groups</label>
             </div>
           </button>
-          <button
+          {/* <button
             onClick={() => {
               router.push("/add/player");
               handlePopoverClose();
@@ -131,7 +131,7 @@ const TopNav: React.FC = () => {
               />
               <label>Add Player</label>
             </div>
-          </button>
+          </button> */}
           <button
             onClick={() => {
               router.push("/add/game");
