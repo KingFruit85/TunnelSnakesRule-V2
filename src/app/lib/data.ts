@@ -1,7 +1,13 @@
 "use server";
 
 import { sql } from "@vercel/postgres";
-import { BoardGame, GameSession, Player, GameResults, Club } from "./definitions";
+import {
+  BoardGame,
+  GameSession,
+  Player,
+  GameResults,
+  Club,
+} from "./definitions";
 import { unstable_noStore as noStore } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -47,7 +53,7 @@ export async function checkIfUserHasPlayerProfile(externalId: string) {
 
 export async function getAllActiveSessions(clubId: string) {
   noStore();
-  
+
   if (!clubId) {
     redirect("/");
   }
@@ -97,7 +103,7 @@ export async function getAllPlayersInClub(clubId: string) {
   const result = await sql`
   SELECT player_id FROM players_clubs WHERE club_id = ${clubId};
   `;
-  
+
   const playerIds = result.rows.map((row) => row.player_id as string);
 
   const playerPromises = playerIds.map(async (id) => {
@@ -157,4 +163,65 @@ export async function getClubDetails(id: string) {
     createdDate: new Date(club.created_date),
     owner: String(club.owner),
   } as Club;
+}
+
+export async function getClubsPlayerIsNotAMemberOf(userId: string) {
+  noStore();
+  const clubIdResult = await sql`
+    SELECT id FROM clubs`;
+
+  const allClubIds: string[] = clubIdResult.rows.map((row) => row.id as string);
+
+  const playersClubsResult = await sql`
+    SELECT club_id FROM players_clubs WHERE player_id = ${userId}`;
+
+  const clubsPlayerIsAMemberOf: string[] = playersClubsResult.rows.map(
+    (row) => row.club_id as string
+  );
+
+  const clubsPlayerIsNotAMemberOf = allClubIds.filter(
+    (clubId) => !clubsPlayerIsAMemberOf.includes(clubId)
+  );
+
+  const clubPromises = clubsPlayerIsNotAMemberOf.map(async (id) => {
+    const club = await getClubDetails(id);
+    return club;
+  });
+
+  const clubs = await Promise.all(clubPromises);
+
+  return clubs;
+}
+
+export async function getUsersClubs(userId: string) {
+  noStore();
+  const result = await sql`
+  SELECT * FROM players_clubs WHERE player_id = ${userId}`;
+  
+  const clubIds = result.rows.map((club:any) => club.club_id);
+
+  const clubPromises = clubIds.map(async (clubId) => {
+    const club = await getClubDetails(clubId);
+    return club;
+  });
+
+  const clubs = await Promise.all(clubPromises);
+
+  return clubs;
+}
+
+export async function getAvalibleClubs() {
+  noStore();
+  const result = await sql`
+  SELECT * FROM clubs`;
+
+  const clubPromises = result.rows.map( async (club:any) => {
+    const clubDetails = await getClubDetails(club.id);
+    return clubDetails;
+  });
+
+  const clubs = await Promise.all(clubPromises) as Club[];
+
+  return clubs;
+
 }

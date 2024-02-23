@@ -146,39 +146,6 @@ export async function addNewClub(formData: FormData) {
   redirect("/");
 }
 
-export async function getAllClubs() {
-  noStore();
-  const result = await sql`
-  SELECT * FROM clubs`;
-
-  const clubPromises = result.rows.map( async (club:any) => {
-    const clubDetails = await getClubDetails(club.id);
-    return clubDetails;
-  });
-
-  const clubs = await Promise.all(clubPromises) as Club[];
-
-  return clubs;
-
-}
-
-export async function getUsersClubs(userId: string) {
-
-  const result = await sql`
-  SELECT * FROM players_clubs WHERE player_id = ${userId}`;
-  
-  const clubIds = result.rows.map((club:any) => club.club_id);
-
-  const clubPromises = clubIds.map(async (clubId) => {
-    const club = await getClubDetails(clubId);
-    return club;
-  });
-
-  const clubs = await Promise.all(clubPromises);
-
-  return clubs;
-}
-
 export async function addPlayerToClub(playerId: string, clubId: UUID) {
   await sql`
         INSERT INTO players_clubs (player_id, club_id)
@@ -186,8 +153,6 @@ export async function addPlayerToClub(playerId: string, clubId: UUID) {
 }
 
 export async function createNewPlayerRecord(user: User) {
-
-
   await sql`
         Insert into players (externalid, name, avatar)
         VALUES (${user.id}, ${user.firstName}, ${user.imageUrl})

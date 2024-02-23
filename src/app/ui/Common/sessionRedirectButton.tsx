@@ -11,7 +11,7 @@ export interface SessionRedirectButtonProps {
   club: Club;
 }
 
-export default async function SessionRedirectButton({
+export default function SessionRedirectButton({
   label,
   destination,
   club,
@@ -53,8 +53,8 @@ export default async function SessionRedirectButton({
       className="
         flex 
         gap-2 
-        text-tunnel-snake-white 
-        border-tunnel-snake-white 
+        text-tunnel-snake-orange 
+        border-tunnel-snake-green 
         px-4 
         py-2 
         bg-tunnel-snake-black 

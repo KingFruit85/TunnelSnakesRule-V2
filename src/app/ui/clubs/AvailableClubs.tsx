@@ -1,11 +1,14 @@
-import { getAllClubs } from "@/app/lib/actions";
-import SessionRedirectButton from "../Common/sessionRedirectButton";
-import { Destination } from "@/app/lib/definitions";
 import JoinClubButton from "./joinClubButton";
+import { getClubsPlayerIsNotAMemberOf } from "@/app/lib/data";
 
-export default async function AvailableClubs() {
+export interface AvailableClubsProps {
+  userId: string;
+}
 
-  const clubs = await getAllClubs();
+
+export default async function AvailableClubs({userId}: AvailableClubsProps) {
+
+  const clubs = await getClubsPlayerIsNotAMemberOf(userId);
 
   return (
     <div className="w-[95%] md:w-[35%] lg:w-[35%] xl:w-[35%] sm:w-[95%] flex-col border p-4 rounded-sm bg-black">
