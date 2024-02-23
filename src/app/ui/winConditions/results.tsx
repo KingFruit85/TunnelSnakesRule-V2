@@ -4,6 +4,7 @@ import { BoardGame, Player } from "@/app/lib/definitions";
 import { useState } from "react";
 import Leaderboard from "./leaderboard";
 import { redirect } from "next/navigation";
+import Image from "next/image";
 
 export interface ResultsProps {
   games: BoardGame[];
@@ -79,10 +80,10 @@ export default function Results({ games, players }: ResultsProps) {
         </select>
 
         <button type="button">
-          <img src={"/Camera.svg"} alt={"Camera icon"} width={20} />
+          <Image src={"/Camera.svg"} alt={"Camera icon"} width={20} height={20}  />
         </button>
         <button type="button" onClick={handleShowNotes}>
-          <img src={"/Paper.svg"} alt={"Paper icon"} width={20} />
+          <Image src={"/Paper.svg"} alt={"Paper icon"} width={20} height={20} />
         </button>
       </div>
 

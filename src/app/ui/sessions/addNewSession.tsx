@@ -2,6 +2,7 @@ import { Player } from "@/app/lib/definitions";
 import { addNewGameSession } from "@/app/lib/actions";
 import CancelButton from "../Common/cancelButton";
 import SubmitButton from "../Common/submitButton";
+import Image from "next/image";
 
 export interface AddNewSessionProps {
   players: Player[];
@@ -46,10 +47,12 @@ export default function AddNewSession({players, clubId}: AddNewSessionProps) {
                     value={player.id}
                     className="w-6 h-6 relative text-white rounded-sm"
                   />
-                  <img
+                  <Image
                     src={player.avatar}
                     alt={player.name}
-                    className="w-12 h-12 rounded-full"
+                    width={48}
+                    height={48}
+                    className="rounded-full"
                   />
                   <div className="text-white text-base font-normal font-['Montserrat']">
                     {player.name}

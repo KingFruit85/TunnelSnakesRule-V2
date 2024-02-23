@@ -10,6 +10,11 @@ const nextConfig = {
         hostname: "n2tlbqzcitr6ajqd.public.blob.vercel-storage.com",
         port: "",
       },
+      {
+        protocol: "https",
+        hostname: "img.clerk.com",
+        port: "",
+      },
     ],
   },
 };

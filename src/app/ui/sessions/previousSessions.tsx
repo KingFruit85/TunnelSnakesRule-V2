@@ -1,4 +1,5 @@
 import { GameSession } from "@/app/lib/definitions";
+import Image from "next/image";
 
 export interface PreviousSessionsProps {
   sessions: GameSession[];
@@ -20,9 +21,7 @@ export default function PreviousSessions(props: PreviousSessionsProps) {
 
       {sortedSessions.map((session) => (
         <div key={session.id} className="mb-4 bg-black flex-col">
-
           <div className="flex flex-row gap-2 pl-4 pt-2 place-content-between pr-4">
-
             <div className="text-tunnel-snake-green">
               {session?.date?.toLocaleDateString("en-GB", {
                 day: "2-digit",
@@ -32,7 +31,7 @@ export default function PreviousSessions(props: PreviousSessionsProps) {
             </div>
 
             <div className="flex gap-2">
-              <img src={"/Dice.svg"} alt={"dice icon"} />
+              <Image src={"/Dice.svg"} alt={"dice icon"} width={20} height={20}/>
               <div className="">{session.gameResults?.length || 0}</div>
             </div>
           </div>
@@ -40,7 +39,7 @@ export default function PreviousSessions(props: PreviousSessionsProps) {
           <div className="pl-4 pt-2 ">{session?.name}</div>
           <div className="flex  gap-2 pl-4 pt-2 pb-2 text-tunnel-snake-orange underline-offset-4">
             <u>View session</u>{" "}
-            <img
+            <Image
               src={"/RightArrow.svg"}
               alt={"dice icon"}
               width={15}

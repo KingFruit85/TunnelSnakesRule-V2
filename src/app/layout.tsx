@@ -20,6 +20,7 @@ export default function RootLayout({
     <html lang="en">
       <ClerkProvider>
         <body className="bg-tunnel-snake-grey ${inter.className} h-screen">
+        <TopNav />
           {children}
         </body>
       </ClerkProvider>

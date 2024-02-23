@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Player } from "@/app/lib/definitions";
+import Image from "next/image";
 
 export interface PlayerRowProps {
   player: Player;
@@ -58,7 +59,13 @@ export default function PlayerRow({ player, winCondition }: PlayerRowProps) {
           onChange={handleCheckboxChange}
           className="mr-2"
         />
-        <img src={player.avatar} alt={player.name} width={25} height={25} className="rounded-full"/>
+        <Image
+          src={player.avatar}
+          alt={player.name}
+          width={25}
+          height={25}
+          className="rounded-full"
+        />
 
         <label className="">{player.name}</label>
       </div>

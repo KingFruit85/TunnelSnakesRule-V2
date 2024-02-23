@@ -5,6 +5,7 @@ import {
 } from "@/app/lib/actions";
 import { Player } from "@/app/lib/definitions";
 import { UUID } from "crypto";
+import Image from "next/image";
 
 export interface ClubAccessRequestsProps {
   players: Player[];
@@ -32,10 +33,12 @@ export default function ClubAccessRequests({
 
       {players.map((player: Player) => (
         <div key={player.id} className="flex gap-4 p-4 items-center">
-          <img
+          <Image
             src={player.avatar}
             alt={player.name}
-            className="w-10 h-10 rounded-full"
+            className="rounded-full"
+            width={40}
+            height={40}
           />
           <p>{player.name}</p>
           <button

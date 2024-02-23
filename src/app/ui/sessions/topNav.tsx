@@ -1,55 +1,56 @@
-"use client"
+"use client";
 
-import React, { useState, useRef, useEffect, useContext } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
+import React, { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { ClubContext } from '@/app/sessions/Contexts';
+import { SignOutButton } from "@clerk/nextjs";
+import { useAuth } from "@clerk/nextjs";
 
 const TopNav: React.FC = () => {
   const [isPopoverVisible, setIsPopoverVisible] = useState(false);
   const [popoverPosition, setPopoverPosition] = useState({ top: 0, left: 0 });
   const buttonRef = useRef<HTMLImageElement>(null);
 
-  const [screenSize, setScreenSize] = useState('md'); // Default size
+  const [screenSize, setScreenSize] = useState("md"); // Default size
+  const { isLoaded, userId } = useAuth();
 
   useEffect(() => {
     const handleResize = () => {
       const screenWidth = window.innerWidth;
       if (screenWidth < 640) {
-        setScreenSize('sm');
+        setScreenSize("sm");
       } else if (screenWidth < 768) {
-        setScreenSize('md');
+        setScreenSize("md");
       } else if (screenWidth < 1024) {
-        setScreenSize('lg');
+        setScreenSize("lg");
       } else {
-        setScreenSize('xl');
+        setScreenSize("xl");
       }
     };
 
     handleResize(); // Initial call to set the initial size
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
-  const getTextContent = () => {
-    switch (screenSize) {
-      case 'sm':
-        return 'TunnelSnakesRule';
-      case 'md':
-        return 'Tunnel Snakes Rule';
-      case 'lg':
-        return 'Tunnel Snakes Rule';
-      case 'xl':
-        return 'Tunnel Snakes Rule';
-      default:
-        return 'Tunnel Snakes Rule';
-    }
-  };
+  // const getTextContent = () => {
+  //   switch (screenSize) {
+  //     case "sm":
+  //       return "TunnelSnakesRule";
+  //     case "md":
+  //       return "Tunnel Snakes Rule";
+  //     case "lg":
+  //       return "Tunnel Snakes Rule";
+  //     case "xl":
+  //       return "Tunnel Snakes Rule";
+  //     default:
+  //       return "Tunnel Snakes Rule";
+  //   }
+  // };
 
   const router = useRouter();
 
@@ -69,7 +70,7 @@ const TopNav: React.FC = () => {
   };
 
   return (
-    <div className="w-full bg-tunnel-snake-black py-5 space-items items-center gap-5 flex-row inline-flex relative">
+    <div className="w-full bg-tunnel-snake-black p-5 space-items items-center gap-5 flex-row inline-flex relative place-content-between">
       <div className="justify-center items-center gap-2 flex pl-5">
         <Image
           src="/Menu.svg"
@@ -99,53 +100,62 @@ const TopNav: React.FC = () => {
         >
           <button
             onClick={() => {
-              router.push("/")
+              router.push("/");
               handlePopoverClose();
             }}
             className="border block w-full text-left px-4 py-2 text-white text-base font-normal font-['Montserrat'] hover:bg-tunnel-snake-orange"
           >
-            <div className='flex pl-2 gap-2'>
-            <img src={"/TrophyWhite.svg"} alt={"home icon"} />
-            <label>Groups</label>
+            <div className="flex pl-2 gap-2">
+              <Image
+                src={"/TrophyWhite.svg"}
+                alt={"home icon"}
+                height={20}
+                width={20}
+              />
+              <label>Groups</label>
             </div>
           </button>
           <button
             onClick={() => {
-              router.push("/add/player")
+              router.push("/add/player");
               handlePopoverClose();
             }}
             className="border block w-full text-left px-4 py-2 text-white text-base font-normal font-['Montserrat'] hover:bg-tunnel-snake-orange"
           >
-            <div className='flex pl-2 gap-2'>
-            <img src={"/PlayersWhite.svg"} alt={"add player icon"} />
-            <label>Add Player</label>
+            <div className="flex pl-2 gap-2">
+              <Image
+                src={"/PlayersWhite.svg"}
+                alt={"add player icon"}
+                height={20}
+                width={20}
+              />
+              <label>Add Player</label>
             </div>
           </button>
           <button
             onClick={() => {
-              router.push("/add/game")
+              router.push("/add/game");
               handlePopoverClose();
             }}
             className="border block w-full text-left px-4 py-2 text-white text-base font-normal font-['Montserrat'] hover:bg-tunnel-snake-orange"
           >
-            <div className='flex pl-2 gap-2'>
-            <img src={"/DiceWhite.svg"} alt={"add game icon"} />
-            <label>Add Boardgame</label>
+            <div className="flex pl-2 gap-2">
+              <Image
+                src={"/DiceWhite.svg"}
+                alt={"add game icon"}
+                height={20}
+                width={20}
+              />
+              <label>Add Boardgame</label>
             </div>
           </button>
         </div>
       )}
-
-      <div className="grow shrink basis-0 h-14 pr-5 justify-center items-center gap-2 flex ">
-        <div className="text-2xl md:text-5xl lg:text-5xl xl:text-5xl text-center font-montserrat">🐍</div>
-        <Link
-          href="/sessions/"
-          className="text-2xl md:text-5xl lg:text-5xl xl:text-5xl text-center font-montserrat"
-        >
-           {getTextContent()}
-        </Link>
-        <div className="text-2xl md:text-5xl lg:text-5xl xl:text-5xl text-center font-montserrat">🐍</div>
-      </div>
+      {isLoaded && userId && (
+        <div className="text-tunnel-snake-orange bg-tunnel-snake-black rounded-sm border border-tunnel-snake-orange py-2 px-4 hover:bg-red-500 hover:text-white hover:border-white">
+        <SignOutButton /> 
+        </div>
+      )}
     </div>
   );
 };
