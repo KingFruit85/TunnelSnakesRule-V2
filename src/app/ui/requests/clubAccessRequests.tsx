@@ -31,7 +31,7 @@ export default function ClubAccessRequests({
       </div>
 
       {players.map((player: Player) => (
-        <div className="flex gap-4 p-4 items-center">
+        <div key={player.id} className="flex gap-4 p-4 items-center">
           <img
             src={player.avatar}
             alt={player.name}
