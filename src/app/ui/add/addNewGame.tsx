@@ -22,13 +22,13 @@ export default function AddNewGame() {
             required
             className="bg-tunnel-snake-grey border p-2"
           />
-          <div className="font-['Montserrat']">Cover art URL</div>
+          {/* <div className="font-['Montserrat']">Cover art URL</div>
           <input
             id="gameArt"
             name="gameArt"
             type="text"
             className="bg-tunnel-snake-grey border p-2"
-          />
+          /> */}
         </div>
 
         <div className=" pt-4 pb-2 flex flex-col gap-2">

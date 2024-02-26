@@ -154,7 +154,7 @@ const TopNav: React.FC = () => {
         </div>
       )}
       {isLoaded && userId && (
-        <div className="text-tunnel-snake-orange bg-tunnel-snake-black rounded-sm border border-tunnel-snake-orange py-2 px-4 hover:bg-red-500 hover:text-white hover:border-white">
+        <div className="text-tunnel-snake-orange bg-tunnel-snake-black rounded-sm border border-tunnel-snake-orange py-2 px-4 hover:bg-tunnel-snake-orange hover:text-black hover:border-black">
           <SignOutButton />
         </div>
       )}

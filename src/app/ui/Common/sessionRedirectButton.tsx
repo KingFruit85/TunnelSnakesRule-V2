@@ -51,17 +51,20 @@ export default function SessionRedirectButton({
       type="button"
       onClick={handleNewSession}
       className="
+        w-[90%]
+        truncate
+        justify-center
         flex 
         gap-2 
-        text-tunnel-snake-orange 
-        border-tunnel-snake-green 
+        text-tunnel-snake-green 
+        border-tunnel-snake-grey 
         px-4 
         py-2 
         bg-tunnel-snake-black 
         rounded-sm 
         border 
         hover:bg-tunnel-snake-orange 
-        hover:text-tunnel-snake-black"
+        hover:text-white"
     >
       {buttonLabel}
     </button>

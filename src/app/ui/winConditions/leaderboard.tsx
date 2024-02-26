@@ -20,12 +20,7 @@ export default function Leaderboard(props: LeaderboardProps) {
       {winCondition === "leaderBoard" && <LeaderboardRadio />}
       {winCondition === "cooperative" && <CooperativeRadio />}
 
-      <div className="text-center font-montserrat flex items-center text-tunnel-snake-orange gap-4">
-        <div className="">Players</div>
-        <div className="">Score</div>
-        {winCondition === "teamBased" && <div className="">Team</div>}
-      </div>
-      <ul className="flex flex-col gap-2">
+      <ul className="flex flex-col gap-2 m-4 w-[100%]">
         {players.map((player: Player) => (
           <PlayerRow
             key={player.id}

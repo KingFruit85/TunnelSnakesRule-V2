@@ -28,7 +28,7 @@ export default function CurrentSessionHeader({
   return (
     <div className="flex-col items-center ">
       <div className="gap-4 flex mt-2 ml-2 mr-2 items-center mb-2">
-        <Link
+        {/* <Link
           className=""
           href={{
             pathname: "/add/session/upload/",
@@ -44,7 +44,7 @@ export default function CurrentSessionHeader({
             height={20}
             alt={"add photo icon"}
           />
-        </Link>
+        </Link> */}
 
         <button type="button" onClick={handleShowNotes}>
           <Image
@@ -59,7 +59,7 @@ export default function CurrentSessionHeader({
           {formattedDate}
         </div>
 
-        <div className="text-1xl md:text-2xl lg:text-2xl xl:text-2xl text-center font-montserrat flex items-center text-tunnel-snake-green">
+        <div className="text-1xl md:text-2xl lg:text-2xl xl:text-2xl text-center font-montserrat flex items-center text-tunnel-snake-green truncate">
           {session?.name}
         </div>
         <div className="flex items-center gap-2 mr-1">

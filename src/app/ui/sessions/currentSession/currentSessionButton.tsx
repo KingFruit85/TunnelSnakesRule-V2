@@ -16,7 +16,8 @@ export default function CurrentSessionButtons({
   return (
     <div className="ml-4 mb-4 flex gap-4">
       <Link
-        className="text-tunnel-snake-green flex border border-tunnel-snake-green rounded-sm p-2 gap-2 items-center justify-center"
+        className="text-tunnel-snake-green flex border border-tunnel-snake-green rounded-sm p-2 gap-2 items-center justify-center hover:bg-tunnel-snake-green 
+        hover:text-white"
         href={{
           pathname: "/add/result/",
           query: {
@@ -39,7 +40,8 @@ export default function CurrentSessionButtons({
 
       <button
         onClick={handleEndSession}
-        className="text-tunnel-snake-red flex border border-tunnel-snake-red rounded-sm p-2 gap-2 items-center justify-center"
+        className="text-tunnel-snake-red flex border border-tunnel-snake-red rounded-sm p-2 gap-2 items-center justify-center hover:bg-tunnel-snake-red 
+        hover:text-white"
       >
         <div className="">
           End session

@@ -1,4 +1,3 @@
-
 import { currentUser } from "@clerk/nextjs";
 import SessionRedirectButton from "../Common/sessionRedirectButton";
 import { Destination } from "@/app/lib/definitions";
@@ -25,9 +24,15 @@ export default async function UserClubs() {
         height={100}
       />
 
-      <div className="text-2xl md:text-3xl lg:text-3xl xl:text-3xl text-center font-montserrat mb-2 mt-2 mb-4">
-        {user?.firstName}&apos;s clubs
-      </div>
+      {user?.firstName ? (
+        <div className="text-2xl md:text-3xl lg:text-3xl xl:text-3xl text-center font-montserrat mb-2 mt-2 mb-4">
+          {user?.firstName}&apos;s clubs
+        </div>
+      ) : (
+        <div className="text-2xl md:text-3xl lg:text-3xl xl:text-3xl text-center font-montserrat mb-2 mt-2 mb-4">
+          Your clubs
+        </div>
+      )}
 
       {clubs && clubs.length > 0 ? (
         clubs.map((club) => (
@@ -51,7 +56,10 @@ export default async function UserClubs() {
           <PageRedirectButton destination={Destination.AddNewClub} />
         </div>
         <div className="items-center m-4">
-          <PageRedirectButton destination={Destination.JoinExistingClub} userId={user?.id} />
+          <PageRedirectButton
+            destination={Destination.JoinExistingClub}
+            userId={user?.id}
+          />
         </div>
       </div>
     </div>

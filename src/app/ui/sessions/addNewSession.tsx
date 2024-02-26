@@ -1,15 +1,25 @@
+"use client";
 import { Player } from "@/app/lib/definitions";
 import { addNewGameSession } from "@/app/lib/actions";
 import CancelButton from "../Common/cancelButton";
 import SubmitButton from "../Common/submitButton";
 import Image from "next/image";
+import { SetStateAction, useState } from "react";
 
 export interface AddNewSessionProps {
   players: Player[];
   clubId: string;
 }
 
-export default function AddNewSession({players, clubId}: AddNewSessionProps) {
+export default function AddNewSession({ players, clubId }: AddNewSessionProps) {
+  const [sessionName, setSessionName] = useState("");
+  const maxChars = 25;
+
+  const handleInputChange = (e: { target: { value: SetStateAction<string>; }; }) => {
+    setSessionName(e.target.value);
+  };
+
+  const charsLeft = maxChars - sessionName.length;
 
   return (
     <form action={addNewGameSession}>
@@ -27,9 +37,17 @@ export default function AddNewSession({players, clubId}: AddNewSessionProps) {
               id="sessionName"
               name="sessionName"
               type="text"
+              required
+              value={sessionName}
+              onChange={handleInputChange}
+              maxLength={maxChars}
               className=" self-stretch px-3 py-2.5 bg-tunnel-snake-grey rounded-sm border border-white justify-start items-start gap-2.5 inline-flex"
             />
+            <div className=" font-['Montserrat'] flex w-[100%] justify-end text-sm text-tunnel-snake-orange">
+              {charsLeft} / {maxChars}
+            </div>
           </div>
+
           <div className="flex-col justify-start items-start gap-4 flex">
             <div className="text-white text-sm font-medium font-['Montserrat']">
               Players
@@ -45,13 +63,14 @@ export default function AddNewSession({players, clubId}: AddNewSessionProps) {
                     name="player"
                     id={player.id}
                     value={player.id}
-                    className="w-6 h-6 relative text-white rounded-sm"
+                    required
+                    className="w-8 h-8 relative text-white rounded-sm accent-tunnel-snake-green"
                   />
                   <Image
                     src={player.avatar}
                     alt={player.name}
-                    width={48}
-                    height={48}
+                    width={35}
+                    height={35}
                     className="rounded-full"
                   />
                   <div className="text-white text-base font-normal font-['Montserrat']">

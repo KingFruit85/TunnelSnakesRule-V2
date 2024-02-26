@@ -16,6 +16,7 @@ export const teams = [
   { id: 1, name: "Team 1" },
   { id: 2, name: "Team 2" },
   { id: 3, name: "Team 3" },
+  { id: 3, name: "Team 4" },
 ] as Team[];
 
 export default function PlayerRow({ player, winCondition }: PlayerRowProps) {
@@ -39,7 +40,7 @@ export default function PlayerRow({ player, winCondition }: PlayerRowProps) {
   };
 
   return (
-    <div className="flex gap-6 p-2 bg-tunnel-snake-grey rounded-sm ">
+    <div className="flex gap-14 p-2 rounded-sm w-[100%] border border-tunnel-snake-grey">
       <input
         type="hidden"
         name={`player_${player.id}`}
@@ -57,7 +58,7 @@ export default function PlayerRow({ player, winCondition }: PlayerRowProps) {
           checked={checked}
           value={checked ? "true" : "false"}
           onChange={handleCheckboxChange}
-          className="mr-2"
+          className="mr-2 accent-tunnel-snake-green w-5"
         />
         <Image
           src={player.avatar}
@@ -67,15 +68,15 @@ export default function PlayerRow({ player, winCondition }: PlayerRowProps) {
           className="rounded-full"
         />
 
-        <label className="">{player.name}</label>
+        {/* <label className="border">{player.name}</label> */}
       </div>
 
-      <div className="flex border rounded-sm">
+      <div className="flex border rounded-sm w-[25%]">
         <input
           type="number"
           id="score"
           onChange={handleScoreChange}
-          className="bg-tunnel-snake-grey text-tunnel-snake-orange text-center  "
+          className="bg-tunnel-snake-grey text-tunnel-snake-green text-center w-[100%]"
         />
       </div>
 
@@ -85,7 +86,7 @@ export default function PlayerRow({ player, winCondition }: PlayerRowProps) {
             id="team"
             value={team?.name}
             onChange={handleTeamChange}
-            className="bg-tunnel-snake-grey text-tunnel-snake-orange text-center"
+            className="bg-tunnel-snake-black text-tunnel-snake-orange text-center"
           >
             {teams.map((team) => (
               <option key={team.id} value={team.name}>

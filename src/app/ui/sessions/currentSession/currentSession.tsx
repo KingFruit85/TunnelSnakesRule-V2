@@ -74,10 +74,10 @@ export default function CurrentSession({ session }: currentSessionProps) {
           clubId={clubId}
           handleEndSession={handleEndSession}
         />
-        <CurrentSessionImages
+        {/* <CurrentSessionImages
           session={session}
           handleEndSession={handleEndSession}
-        />
+        /> */}
       </div>
     </div>
   );

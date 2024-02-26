@@ -55,13 +55,15 @@ export default function Results({ games, players }: ResultsProps) {
 
   return (
     <div className="flex flex-col items-center">
-      <div className="border">
+      <div className="">
         {showNotes && (
           <textarea
             name="resultNotes"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className=""
+            className="bg-tunnel-snake-grey border rounded-sm 
+                     border-tunnel-snake-green text-tunnel-snake-orange 
+                     w-[20pc] h-[5pc] pl-2 pt-2 pb-2 pr-2"
           />
         )}
       </div>
@@ -79,9 +81,6 @@ export default function Results({ games, players }: ResultsProps) {
           ))}
         </select>
 
-        <button type="button">
-          <Image src={"/Camera.svg"} alt={"Camera icon"} width={20} height={20}  />
-        </button>
         <button type="button" onClick={handleShowNotes}>
           <Image src={"/Paper.svg"} alt={"Paper icon"} width={20} height={20} />
         </button>
