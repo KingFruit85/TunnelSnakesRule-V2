@@ -30,7 +30,7 @@ export default function AddNewPlayer() {
           clientPayload: (newPlayerId as string) || "",
         });
 
-        redirectBackToSessions();
+        redirectBackToSessions("123");
       }}
       className="border p-4 bg-black flex flex-col items-start w-[95%] md:w-[40%] lg:w-[40%] xl:w-[40%] sm:w-[95%]"
     >
