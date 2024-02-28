@@ -7,7 +7,6 @@ import CurrentSessionHeader from "./currentSessionHeader";
 import CurrentSessionGames from "./currentSessionGames";
 import CurrentSessionButtons from "./currentSessionButton";
 import CurrentSessionImages from "./currentSessionImages";
-import { useRouter } from "next/router";
 import { useSearchParams } from "next/navigation";
 
 export interface currentSessionProps {
@@ -66,6 +65,7 @@ export default function CurrentSession({ session }: currentSessionProps) {
         recordNotes={recordNotes}
         notes={notes}
         showNotes={showNotes}
+        clubId={clubId}
       />
       <CurrentSessionGames session={session} />
       <div className="flex-row gap-4">
@@ -74,10 +74,10 @@ export default function CurrentSession({ session }: currentSessionProps) {
           clubId={clubId}
           handleEndSession={handleEndSession}
         />
-        {/* <CurrentSessionImages
+        <CurrentSessionImages
           session={session}
           handleEndSession={handleEndSession}
-        /> */}
+        />
       </div>
     </div>
   );

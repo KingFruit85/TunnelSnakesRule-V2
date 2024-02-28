@@ -26,7 +26,7 @@ export default async function Home() {
         <div className="w-full flex flex-col space-items items-center py-5">
           <Image src={"/TTTSS.svg"} alt={"Tunnel Snakes Logo"} width={250} height={250}/>
           <p className="pb-4">Tunnel Snakes Rule</p>
-          <div className="border px-4 py-2">
+          <div className="text-tunnel-snake-green flex border border-tunnel-snake-green rounded-sm p-2 gap-2 items-center justify-center hover:bg-tunnel-snake-green hover:text-white" >
             <SignInButton />
             </div>
         </div>

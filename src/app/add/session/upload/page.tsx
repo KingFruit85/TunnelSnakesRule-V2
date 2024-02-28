@@ -1,22 +1,25 @@
 "use client";
 
 import { redirectBackToSessions } from "@/app/lib/actions";
+import CancelButton from "@/app/ui/Common/cancelButton";
 import { type PutBlobResult } from "@vercel/blob";
 import { upload } from "@vercel/blob/client";
 import { useSearchParams } from "next/navigation";
 import { useState, useRef } from "react";
 
 export default function Page() {
-  
   const session = useSearchParams();
 
   const sessionId = session.get("sessionId");
+  const clubId = session.get("clubId");
+
+  const payload = `${sessionId}, ${clubId}`
 
   const inputFileRef = useRef<HTMLInputElement>(null);
   const [blob, setBlob] = useState<PutBlobResult | null>(null);
 
   return (
-    <div className="flex flex-col border border-tunnel-snake-orange bg-black items-center mt-4 mr-4 ml-4">
+    <div className="flex flex-col border border-tunnel-snake-white bg-black items-center p-4 mt-4 mr-4 ml-4">
       <h1
         className="text-3xl md:text-2xl lg:text-2xl xl:text-2xl 
       text-center font-montserrat flex items-center text-tunnel-snake-green mb-4 flex-col"
@@ -24,23 +27,26 @@ export default function Page() {
         Upload Your Image
       </h1>
 
-      <form className="items-center flex flex-col"
+      <form
+        className="items-center flex flex-col"
         onSubmit={async (event) => {
           event.preventDefault();
-          
+
           if (!inputFileRef.current?.files) {
             throw new Error("No file selected");
           }
 
           const file = inputFileRef.current.files[0];
-          
+
           const newBlob = await upload(file.name, file, {
             access: "public",
             handleUploadUrl: "/api/session/upload",
-            clientPayload: sessionId || "",
+            clientPayload: payload || "",
           });
 
           setBlob(newBlob);
+
+          console.log("Blob", newBlob);
         }}
       >
         <input
@@ -59,11 +65,12 @@ export default function Page() {
         >
           Upload
         </button>
+        <CancelButton/>
       </form>
 
       {blob && (
         <div>
-          {redirectBackToSessions()};
+          {redirectBackToSessions(clubId as string)};
           {/* Blob url: <a href={blob.url}>{blob.url}</a> */}
         </div>
       )}

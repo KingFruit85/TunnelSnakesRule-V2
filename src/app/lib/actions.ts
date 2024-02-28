@@ -18,9 +18,9 @@ const FormSchema = z.object({
 
 const AddNewPlayer = FormSchema.omit({ id: true });
 
-export const redirectBackToSessions = () => {
-  revalidatePath("/sessions/");
-  redirect("/sessions/");
+export const redirectBackToSessions = (clubId:string) => {
+  revalidatePath(`/sessions/?clubId=${clubId}`);
+  redirect(`/sessions/?clubId=${clubId}`);
 };
 
 export async function addImageToSession(blobUri: string, sessionId: string) {
@@ -89,6 +89,15 @@ export async function addNewGameSession(formData: FormData) {
   const date = new Date().toISOString();
 
   const playerIds = players.join(",");
+
+  // check if session name already exists for that club
+  const existingSession = await sql`
+    SELECT * FROM sessions WHERE name = ${sessionName} AND clubId = ${clubId}
+  `;
+
+  if (existingSession.rows.length > 0) {
+    throw new Error("Session with that name already exists");
+  }
 
   await sql`
         Insert into Sessions (name, date, active, playerIds, gameResults, clubId)

@@ -52,6 +52,19 @@ export async function checkIfUserHasPlayerProfile(externalId: string) {
   return result.rowCount > 0;
 }
 
+export async function getAllClubSessionNames(clubId: string) {
+
+  noStore();
+  const result = await sql`
+    SELECT name FROM sessions WHERE clubId = ${clubId}`;
+
+    const sessionNamesPromises = result.rows.map((row) => row.name);
+    
+    const sessionNames = await Promise.all(sessionNamesPromises) as string[];
+
+  return sessionNames;
+}
+
 export async function getAllActiveSessions(clubId: string) {
   noStore();
 
@@ -192,6 +205,13 @@ export async function getAllBoardgames() {
 
 export async function getClubDetails(id: string) {
   noStore();
+
+  if (!id) {
+    redirect("/");
+  }
+
+  console.log(id);
+
   const result = await sql`
     SELECT * FROM clubs WHERE id = ${id}`;
 

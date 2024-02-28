@@ -7,6 +7,12 @@ export async function POST(request: Request): Promise<NextResponse> {
   const clientPayload =
       "clientPayload" in body.payload ? body.payload.clientPayload : null;
 
+  const sessionId = clientPayload?.split(",")[0];
+  const clubId = clientPayload?.split(",")[1];
+
+  console.log(`sessionid is ${sessionId}` );
+  console.log(`clubId is ${clubId}` );
+
   try {
     const jsonResponse = await handleUpload({
       body,
@@ -15,7 +21,6 @@ export async function POST(request: Request): Promise<NextResponse> {
         // pathname: string
         // /* clientPayload?: string,
       ) => {
-  console.log(`session clientPayload is ${clientPayload} in handleUpload` );
 
         // Generate a client token for the browser to upload the file
         // ⚠️ Authenticate and authorize users before generating the token.
@@ -31,7 +36,6 @@ export async function POST(request: Request): Promise<NextResponse> {
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {
         const tp = JSON.parse(tokenPayload!);
-  console.log(`session clientPayload is ${clientPayload} in onUploadCompleted and token payload is ${tp.clientPayload}` );
 
         // Get notified of client upload completion
         // ⚠️ This will not work on `localhost` websites,
@@ -42,7 +46,6 @@ export async function POST(request: Request): Promise<NextResponse> {
         try {
           if (tp) {
             await addImageToSession(blob.url, tp.clientPayload);
-            console.log("added image to session", blob.url, tp.clientPayload);
           } else {
             console.log("no client payload");
             throw new Error(

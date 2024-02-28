@@ -13,6 +13,7 @@ export interface CurrentSessionHeaderProps {
   showNotes: boolean;
   formattedDate: string;
   session?: GameSession;
+  clubId: string;
 }
 
 export default function CurrentSessionHeader({
@@ -22,18 +23,20 @@ export default function CurrentSessionHeader({
   showNotes,
   formattedDate,
   session,
+  clubId,
 }: CurrentSessionHeaderProps) {
   const router = useRouter();
 
   return (
     <div className="flex-col items-center ">
       <div className="gap-4 flex mt-2 ml-2 mr-2 items-center mb-2">
-        {/* <Link
+        <Link
           className=""
           href={{
-            pathname: "/add/session/upload/",
+            pathname: `/add/session/upload/`,
             query: {
               sessionId: session?.id as string,
+              clubId: clubId,
             },
           }}
         >
@@ -44,7 +47,7 @@ export default function CurrentSessionHeader({
             height={20}
             alt={"add photo icon"}
           />
-        </Link> */}
+        </Link>
 
         <button type="button" onClick={handleShowNotes}>
           <Image
