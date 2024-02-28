@@ -11,7 +11,6 @@ export default function CurrentSessionImages({
   handleEndSession,
 }: CurrentSessionImagesProps) {
 
-  console.log("session", session);
   return (
     <div className="flex gap-1 px-2 py-2 items-center flex-col">
       <div className="flex items-center ">

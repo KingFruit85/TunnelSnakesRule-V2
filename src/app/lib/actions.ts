@@ -6,10 +6,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import { UUID } from "crypto";
-import { getClubDetails } from "./data";
 import { User } from "@clerk/nextjs/server";
-import { Club } from "./definitions";
-import { unstable_noStore as noStore } from "next/cache";
 
 const FormSchema = z.object({
   id: z.string(),
@@ -23,15 +20,15 @@ export const redirectBackToSessions = (clubId:string) => {
   redirect(`/sessions/?clubId=${clubId}`);
 };
 
-export async function addImageToSession(blobUri: string, sessionId: string) {
+export async function addImageToSession(blobUri: string, sessionId: string, clubId: string) {
   console.log(`adding image ${blobUri} to session ${sessionId}`);
   await sql`
   UPDATE sessions 
     SET imageurl = ${blobUri}
     WHERE id = ${sessionId}`;
 
-  revalidatePath("/sessions/");
-  redirect("/sessions/");
+  revalidatePath(`/sessions/?clubId=${clubId}`);
+  redirect(`/sessions/?clubId=${clubId}`);
 }
 
 export async function addImageToPlayer(blobUri: string, playerId: string) {

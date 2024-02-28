@@ -7,13 +7,8 @@ export async function POST(request: Request): Promise<NextResponse> {
   const clientPayload =
       "clientPayload" in body.payload ? body.payload.clientPayload : null;
 
-  const sessionId = clientPayload?.split(",")[0];
-  const clubId = clientPayload?.split(",")[1];
-
-  console.log(`sessionid is ${sessionId}` );
-  console.log(`clubId is ${clubId}` );
-
   try {
+    console.log("handling upload");
     const jsonResponse = await handleUpload({
       body,
       request,
@@ -22,6 +17,8 @@ export async function POST(request: Request): Promise<NextResponse> {
         // /* clientPayload?: string,
       ) => {
 
+        console.log("generating token");
+        console.log("clientPayload", JSON.stringify({clientPayload}));
         // Generate a client token for the browser to upload the file
         // ⚠️ Authenticate and authorize users before generating the token.
         // Otherwise, you're allowing anonymous uploads.
@@ -35,6 +32,7 @@ export async function POST(request: Request): Promise<NextResponse> {
         };
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {
+        console.log("blob upload completed", blob, tokenPayload);
         const tp = JSON.parse(tokenPayload!);
 
         // Get notified of client upload completion
@@ -45,7 +43,11 @@ export async function POST(request: Request): Promise<NextResponse> {
 
         try {
           if (tp) {
-            await addImageToSession(blob.url, tp.clientPayload);
+            const sessionId = clientPayload?.split(",")[0];
+            console.log("sessionId", sessionId);
+            const clubId = clientPayload?.split(",")[1];
+            console.log("clubId", clubId);
+            await addImageToSession(blob.url, sessionId as string, clubId as string); // WHY IS THIS NOT BEING CALLED?? PASS IN CLUBID TO REDIRECT CORRECT:LY
           } else {
             console.log("no client payload");
             throw new Error(

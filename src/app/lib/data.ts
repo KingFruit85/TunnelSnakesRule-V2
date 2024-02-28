@@ -83,7 +83,7 @@ export async function getAllActiveSessions(clubId: string) {
     playerIds: session.playerids.split(","),
     gameResults: JSON.parse(session.gameresults) as GameResults[],
     notes: String(session.notes),
-    imageurl: session.imageurl || undefined,
+    imageurl: session.imageurl || "",
   }));
 
   return sessions;

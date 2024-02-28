@@ -45,8 +45,8 @@ export default function Page() {
           });
 
           setBlob(newBlob);
+          redirectBackToSessions(clubId as string)
 
-          console.log("Blob", newBlob);
         }}
       >
         <input
@@ -67,13 +67,6 @@ export default function Page() {
         </button>
         <CancelButton/>
       </form>
-
-      {blob && (
-        <div>
-          {redirectBackToSessions(clubId as string)};
-          {/* Blob url: <a href={blob.url}>{blob.url}</a> */}
-        </div>
-      )}
     </div>
   );
 }
