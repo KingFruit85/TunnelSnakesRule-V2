@@ -31,10 +31,12 @@ export async function POST(request: Request): Promise<NextResponse> {
 
 
         try {
-          console.log("tp", tp);
           if (tp) {
+            console.log("tp", tp);
             const sessionId = clientPayload?.split(",")[0];
             const clubId = clientPayload?.split(",")[1];
+            console.log("sessionId", sessionId);
+            console.log("clubId", clubId);
             await addImageToSession(
               blob.url,
               sessionId as string,
