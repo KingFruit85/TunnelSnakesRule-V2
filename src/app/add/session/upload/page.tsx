@@ -45,8 +45,6 @@ export default function Page() {
             clientPayload: payload || "",
           });
 
-          console.log("newBlob", newBlob);
-
           // setBlob(newBlob);
           redirectBackToSessions(clubId as string)
 

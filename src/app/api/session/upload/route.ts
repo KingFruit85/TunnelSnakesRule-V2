@@ -30,12 +30,9 @@ export async function POST(request: Request): Promise<NextResponse> {
 
         try {
           if (tp) {
-            console.log("tp", tp);
-            const parts = tp.clientPayload.split(","); // Split the clientPayload property of tp
-            const sessionId = parts[0].trim(); // Trim to remove any potential whitespace
+            const parts = tp.clientPayload.split(",");
+            const sessionId = parts[0].trim();
             const clubId = parts[1].trim();
-            console.log("sessionId", sessionId);
-            console.log("clubId", clubId);
             await addImageToSession(
               blob.url,
               sessionId as string,
