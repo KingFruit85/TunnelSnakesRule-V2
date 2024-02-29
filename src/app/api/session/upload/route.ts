@@ -15,7 +15,6 @@ export async function POST(request: Request): Promise<NextResponse> {
         // pathname: string
         // clientPayload?: string,
         {
-
           return {
             allowedContentTypes: ["image/jpeg", "image/png", "image/gif"],
             tokenPayload: JSON.stringify({ clientPayload }),
@@ -29,12 +28,12 @@ export async function POST(request: Request): Promise<NextResponse> {
         // ⚠️ This will not work on `localhost` websites,
         // Use ngrok or similar to get the full upload flow
 
-
         try {
           if (tp) {
             console.log("tp", tp);
-            const sessionId = clientPayload?.split(",")[0];
-            const clubId = clientPayload?.split(",")[1];
+            const parts = tp.clientPayload.split(","); // Split the clientPayload property of tp
+            const sessionId = parts[0].trim(); // Trim to remove any potential whitespace
+            const clubId = parts[1].trim();
             console.log("sessionId", sessionId);
             console.log("clubId", clubId);
             await addImageToSession(
@@ -50,8 +49,6 @@ export async function POST(request: Request): Promise<NextResponse> {
         } catch (error) {
           throw new Error("Could not update user");
         }
-
-
       },
     });
 
