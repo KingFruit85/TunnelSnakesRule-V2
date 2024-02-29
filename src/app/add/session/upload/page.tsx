@@ -16,7 +16,7 @@ export default function Page() {
   const payload = `${sessionId}, ${clubId}`
 
   const inputFileRef = useRef<HTMLInputElement>(null);
-  const [blob, setBlob] = useState<PutBlobResult | null>(null);
+  // const [blob, setBlob] = useState<PutBlobResult | null>(null);
 
   return (
     <div className="flex flex-col border border-tunnel-snake-white bg-black items-center p-4 mt-4 mr-4 ml-4">
@@ -40,11 +40,14 @@ export default function Page() {
 
           const newBlob = await upload(file.name, file, {
             access: "public",
+            contentType: file.type,
             handleUploadUrl: "/api/session/upload",
             clientPayload: payload || "",
           });
 
-          setBlob(newBlob);
+          console.log("newBlob", newBlob);
+
+          // setBlob(newBlob);
           redirectBackToSessions(clubId as string)
 
         }}
