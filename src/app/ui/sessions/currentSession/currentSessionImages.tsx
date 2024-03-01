@@ -15,8 +15,8 @@ export default function CurrentSessionImages({
 
   return (
       <div className="grid grid-cols-3">
-          {images.map((image: string) => (
-            <div>
+          {images.map((image: string, index: number) => (
+            <div key={index}>
               <Image
                 src={image}
                 alt="image"

@@ -8,6 +8,7 @@ export interface CurrentSessionGamesProps {
 export default function CurrentSessionGames({
   session,
 }: CurrentSessionGamesProps) {
+
   return (
     <div className="mt-3 mb-4 ml-4 mr-4">
       {session?.gameResults?.map(
