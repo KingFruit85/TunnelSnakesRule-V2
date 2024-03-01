@@ -14,9 +14,9 @@ export default function CurrentSessionImages({
   return (
     <div className="flex gap-1 px-2 py-2 items-center flex-col">
       <div className="flex items-center ">
-        {session.imageurl && (
+        {session.imageurl && session.imageurl.length > 0 && (
           <div className="flex gap-1 flex-wrap">
-            {session.imageurl.map((image, index) => (
+            {session?.imageurl?.map((image, index) => (
               <Image
                 key={index}
                 src={image}
