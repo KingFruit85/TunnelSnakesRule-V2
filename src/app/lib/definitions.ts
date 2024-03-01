@@ -13,7 +13,7 @@ export type GameSession = {
     playerIds: string[];
     gameResults: GameResults[];
     notes?: string | undefined;
-    imageurl?: string[] | undefined;
+    imageurl?: string | undefined;
 }
 
 export type GameResults = {
