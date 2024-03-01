@@ -105,7 +105,7 @@ export async function getAllInactiveSessions(clubId: string) {
         ? (JSON.parse(session.gameresults) as GameResults[])
         : [],
     notes: String(session.notes),
-    imageurl: String(session.imageurl) || undefined,
+    imageurl: session.imageurl as string[] || undefined,
   }));
 
   return sessions;
