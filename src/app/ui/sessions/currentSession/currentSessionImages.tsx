@@ -15,12 +15,18 @@ export default function CurrentSessionImages({
     <div className="flex gap-1 px-2 py-2 items-center flex-col">
       <div className="flex items-center ">
         {session.imageurl && (
-          <Image
-            src={session.imageurl}
-            width={100}
-            height={100}
-            alt={"session image"}
-          />
+          <div className="flex gap-1 flex-wrap">
+            {session.imageurl.map((image, index) => (
+              <Image
+                key={index}
+                src={image}
+                width={100}
+                height={100}
+                alt={"session image"}
+              />
+            ))}
+          </div>
+          
         )}
       </div>
     </div>

@@ -21,10 +21,34 @@ export const redirectBackToSessions = (clubId:string) => {
 };
 
 export async function addImageToSession(blobUri: string, sessionId: string, clubId: string) {
-  console.log(`adding image ${blobUri} to session ${sessionId}`);
+
+  // get current images for the session
+  const currentSession = await sql`
+    SELECT imageurl FROM sessions WHERE id = ${sessionId}`;
+
+    console.log(`imageurl: ${currentSession}`);
+
+  // parse the current images to get an array
+  const currentImagesArray =
+    currentSession.rows[0].imageurl !== null
+      ? JSON.parse(currentSession?.rows[0].imageurl)
+      : [];
+
+  console.log(`currentImagesArray: ${currentImagesArray}`);
+
+  // add the new image to the array
+  currentImagesArray.push(blobUri);
+
+  // convert the updated array back to JSON string
+  const updatedImagesJson = JSON.stringify(currentImagesArray);
+
+  console.log(`updatedImagesJson: ${updatedImagesJson}`);
+
+  // update the imageurl column in the database
+  
   await sql`
   UPDATE sessions 
-    SET imageurl = ${blobUri}
+    SET imageurl = ${updatedImagesJson}
     WHERE id = ${sessionId}`;
 
   revalidatePath(`/sessions/?clubId=${clubId}`);
