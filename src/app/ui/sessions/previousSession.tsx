@@ -103,7 +103,7 @@ export default function PreviousSessionGameResult({
           <div>
             {result.playerScores.map((playerScore: any) => {
               return (
-                <div className="flex items-left pb-1">
+                <div key={playerScore.id} className="flex items-left pb-1">
                   <div key={playerScore.id} className="text-xs">
                     {playerScore.team ? `${playerScore.team}: ` : ""}
                     {getPlayerById(playerScore.playerId).then(

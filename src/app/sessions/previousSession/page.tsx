@@ -51,7 +51,7 @@ export default async function Page({
       <div className="text-xs pb-2 text-tunnel-snake-orange">
         {sessionDetails.notes && (
           <div className="text-xs text-tunnel-snake-orange">
-            "{sessionDetails.notes}"
+            &quot;{sessionDetails.notes}&quot;
           </div>
         
         )}
@@ -73,7 +73,7 @@ export default async function Page({
 
       {gameResults &&
         gameResults.map((result) => (
-          <div className="pb-2">
+          <div key={result.id} className="pb-2">
             <PreviousSessionGameResult result={result} />
           </div>
         ))}

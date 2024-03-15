@@ -218,7 +218,7 @@ export async function getAllBoardgames() {
   const boardgames: BoardGame[] = result.rows.map((boardgame) => ({
     id: String(boardgame.id),
     name: String(boardgame.name),
-    winCondition: boardgame.wincondition as WinCondition,
+    winCondition: boardgame.wincondition as string,
     picture: String(boardgame.picture),
   }));
 
