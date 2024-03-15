@@ -19,9 +19,22 @@ export type GameSession = {
 export type GameResults = {
     id: string;
     gameName: string;
-    winCondition: string;
+    winCondition: WinCondition;
     scoringDirection: string;
     playerScores: PlayerScore[];
+    gameResultNotes?: string | undefined;
+    winner: string;
+}
+
+export enum WinCondition {
+    LeaderBoard,
+    TeamBased,
+    Coopratitive,
+}
+
+export enum ScoringDirection {
+    High,
+    Low,
 }
 
 export type PlayerScore = {

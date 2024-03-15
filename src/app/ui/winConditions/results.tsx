@@ -1,6 +1,6 @@
 "use client";
 
-import { BoardGame, Player } from "@/app/lib/definitions";
+import { BoardGame, Player, WinCondition } from "@/app/lib/definitions";
 import { useState } from "react";
 import Leaderboard from "./leaderboard";
 import { redirect } from "next/navigation";
@@ -16,7 +16,7 @@ export default function Results({ games, players }: ResultsProps) {
   const [showNotes, setShowNotes] = useState<boolean>(false);
   const [notes, setNotes] = useState<string>("");
 
-  const [winCondition, setWinCondition] = useState<string>("leaderBoard");
+  const [winCondition, setWinCondition] = useState<WinCondition>(WinCondition.LeaderBoard);
 
   const handleShowNotes = () => {
     setShowNotes(!showNotes);
@@ -31,6 +31,8 @@ export default function Results({ games, players }: ResultsProps) {
 
     const selectedGame = games.find((game) => game.name === selectedGameId);
 
+    console.log("selectedGame", selectedGame);
+
     if (!selectedGame) {
       // Handle the case where selectedGame is undefined
       // For example, you might want to set a default value or show an error message
@@ -41,15 +43,16 @@ export default function Results({ games, players }: ResultsProps) {
     setGame(selectedGame);
 
     switch (selectedGame?.winCondition) {
-      case "leaderBoard":
-        setWinCondition(selectedGame?.winCondition);
+      case WinCondition.LeaderBoard.toString():
+        setWinCondition(WinCondition.LeaderBoard);
         break;
-      case "teamBased":
-        setWinCondition(selectedGame?.winCondition);
+      case WinCondition.TeamBased.toString():
+        setWinCondition(WinCondition.TeamBased);
         break;
-      case "cooperative":
-        setWinCondition(selectedGame?.winCondition);
+      case WinCondition.Coopratitive.toString():
+        setWinCondition(WinCondition.Coopratitive);
         break;
+      default: console.log("No win condition found");
     }
   };
 

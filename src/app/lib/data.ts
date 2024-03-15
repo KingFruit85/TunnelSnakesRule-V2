@@ -7,6 +7,7 @@ import {
   Player,
   GameResults,
   Club,
+  WinCondition,
 } from "./definitions";
 import { unstable_noStore as noStore } from "next/cache";
 import { redirect } from "next/navigation";
@@ -111,6 +112,27 @@ export async function getAllInactiveSessions(clubId: string) {
   return sessions;
 }
 
+export async function getSessionDetails(id: string) {
+  noStore();
+  const result = await sql`
+    SELECT * FROM Sessions WHERE id = ${id}`;
+
+  const session = result.rows[0];
+
+  return {
+    id: String(session.id),
+    name: String(session.name),
+    date: new Date(session.date),
+    active: Boolean(session.active),
+    playerIds: session.playerids.split(","),
+    gameResults: JSON.parse(session.gameresults) as GameResults[],
+    notes: String(session.notes),
+    imageurl: session.imageurl || "",
+  } as GameSession;
+}
+
+
+
 export async function checkAccessRequestStatus(playerId: string, clubId: string) {
   noStore();
   const result = await sql`
@@ -196,7 +218,7 @@ export async function getAllBoardgames() {
   const boardgames: BoardGame[] = result.rows.map((boardgame) => ({
     id: String(boardgame.id),
     name: String(boardgame.name),
-    winCondition: String(boardgame.wincondition),
+    winCondition: boardgame.wincondition as WinCondition,
     picture: String(boardgame.picture),
   }));
 

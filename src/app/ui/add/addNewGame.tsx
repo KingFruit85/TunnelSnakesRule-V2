@@ -1,6 +1,7 @@
 import { addNewBoardGame } from "@/app/lib/actions";
 import CancelButton from "../Common/cancelButton";
 import SubmitButton from "../Common/submitButton";
+import { WinCondition } from "@/app/lib/definitions";
 
 export default function AddNewGame() {
   return (
@@ -39,7 +40,7 @@ export default function AddNewGame() {
               type="radio"
               name="winCondition"
               id="teamBased"
-              value="teamBased"
+              value={WinCondition.TeamBased}
               className=""
             />
             <div className="">Team based</div>
@@ -49,7 +50,7 @@ export default function AddNewGame() {
               type="radio"
               name="winCondition"
               id="cooperative"
-              value="cooperative"
+              value={WinCondition.Coopratitive}
               className=""
             />
             <div className="">Co-operative</div>
@@ -60,7 +61,7 @@ export default function AddNewGame() {
               type="radio"
               name="winCondition"
               id="leaderBoard"
-              value="leaderBoard"
+              value={WinCondition.LeaderBoard}
               className=""
             />
             <div className="">Leader board</div>

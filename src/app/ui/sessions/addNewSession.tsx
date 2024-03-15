@@ -64,6 +64,7 @@ export default function AddNewSession({ players, clubId }: AddNewSessionProps) {
                     id={player.id}
                     value={player.id}
                     required
+                    defaultChecked
                     className="w-8 h-8 relative text-white rounded-sm accent-tunnel-snake-green"
                   />
                   <Image

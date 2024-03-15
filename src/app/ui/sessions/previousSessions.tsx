@@ -1,5 +1,6 @@
 import { GameSession } from "@/app/lib/definitions";
 import Image from "next/image";
+import Link from "next/link";
 
 export interface PreviousSessionsProps {
   sessions: GameSession[];
@@ -37,7 +38,12 @@ export default function PreviousSessions(props: PreviousSessionsProps) {
           </div>
 
           <div className="pl-4 pt-2 ">{session?.name}</div>
-          <div className="flex  gap-2 pl-4 pt-2 pb-2 text-tunnel-snake-orange underline-offset-4">
+          <Link className="flex gap-2 pl-4 pt-2 pb-2 text-tunnel-snake-orange underline-offset-4" 
+            href={{
+              pathname: "/sessions/previousSession",
+              query: { sessionId: session.id },
+            
+            }}>
             <u>View session</u>{" "}
             <Image
               src={"/RightArrow.svg"}
@@ -45,7 +51,7 @@ export default function PreviousSessions(props: PreviousSessionsProps) {
               width={15}
               height={15}
             />
-          </div>
+          </Link>
         </div>
       ))}
     </div>

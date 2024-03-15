@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { Player } from "@/app/lib/definitions";
+import { Player, WinCondition } from "@/app/lib/definitions";
 import Image from "next/image";
 
 export interface PlayerRowProps {
   player: Player;
-  winCondition: string;
+  winCondition: WinCondition;
 }
 
 type Team = {
@@ -81,7 +81,7 @@ export default function PlayerRow({ player, winCondition }: PlayerRowProps) {
       </div>
 
       <div className="flex">
-        {winCondition === "teamBased" && (
+        {winCondition === WinCondition.TeamBased && (
           <select
             id="team"
             value={team?.name}

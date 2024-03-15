@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import { UUID } from "crypto";
 import { User } from "@clerk/nextjs/server";
+import { WinCondition } from "./definitions";
 
 const FormSchema = z.object({
   id: z.string(),
@@ -207,12 +208,15 @@ export async function createNewPlayerRecord(user: User) {
 
 export async function addNewGameResult(formData: FormData) {
 
+  console.log("formData", formData);
+
   const sessionId = formData.get("sessionId")?.toString();
   const winCondition = formData.get("winCondition")?.toString();
   const scoringDirection = formData.get("scoringDirection")?.toString();
   const gameName = formData.get("gameName")?.toString();
   const notes = formData.get("gameResultNotes")?.toString();
   const clubId = formData.get("clubId")?.toString();
+  const winner = formData.get("winner")?.toString();
 
   let playerScores = [];
 
@@ -224,6 +228,7 @@ export async function addNewGameResult(formData: FormData) {
       const playerScore = {
         playerId: pair[0].toString().split("_")[1],
         score: pair[1].toString().split(",")[1],
+        team: pair[1].toString().split(",")[2],
       };
       playerScores.push(playerScore);
     }
@@ -236,6 +241,7 @@ export async function addNewGameResult(formData: FormData) {
     scoringDirection: scoringDirection,
     playerScores: playerScores,
     gameResultNotes: notes,
+    winner: winner,
   };
 
   // Retrieve existing gameResults
