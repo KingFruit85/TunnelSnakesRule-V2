@@ -14,7 +14,7 @@ export default function CurrentSessionImages({
   const images = session.imageurl ? JSON.parse(session.imageurl) as string[] : [] as string[];
 
   return (
-      <div className="grid grid-cols-3">
+      <div className="grid grid-cols-3 p-2 items-center">
           {images.map((image: string, index: number) => (
             <div key={index}>
               <Image

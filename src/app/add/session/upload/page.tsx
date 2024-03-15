@@ -62,7 +62,8 @@ export default function Page() {
           type="submit"
           className="text-tunnel-snake-green flex border 
                      border-tunnel-snake-green rounded-sm 
-                     p-2 gap-2 items-center justify-center w-[50%] mb-4"
+                     p-2 gap-2 items-center justify-center w-[50%] mb-4
+                     hover:bg-tunnel-snake-green hover:text-tunnel-snake-black"
         >
           Upload
         </button>

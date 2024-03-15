@@ -11,6 +11,7 @@ export default function LeaderboardRadio() {
               name="scoringDirection"
               value="High"
               required
+              defaultChecked
               className=""
             />
             <label className="pl-2" htmlFor="contactChoice1">High</label>

@@ -13,6 +13,7 @@ export default function TeambasedRadio() {
               value="Team 1"
               required
               className=""
+              defaultChecked
             />
             <label htmlFor="contactChoice1">Team 1</label>
           </div>

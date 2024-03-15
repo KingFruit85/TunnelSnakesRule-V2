@@ -13,6 +13,7 @@ export default function CooperativeRadio() {
               value="Game"
               required
               className=""
+              defaultChecked
               onChange={() => console.log("Game")}
             />
             <label className="pl-2" htmlFor="contactChoice1">Game</label>
