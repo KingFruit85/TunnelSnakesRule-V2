@@ -2,10 +2,9 @@
 
 import { redirectBackToSessions } from "@/app/lib/actions";
 import CancelButton from "@/app/ui/Common/cancelButton";
-import { type PutBlobResult } from "@vercel/blob";
 import { upload } from "@vercel/blob/client";
 import { useSearchParams } from "next/navigation";
-import { useState, useRef } from "react";
+import { useRef } from "react";
 
 export default function Page() {
   const session = useSearchParams();

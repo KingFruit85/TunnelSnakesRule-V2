@@ -29,10 +29,17 @@ export async function POST(request: Request): Promise<NextResponse> {
         // Use ngrok or similar to get the full upload flow
 
         try {
+          console.log("in try block")
           if (tp) {
+          console.log("in if block")
+
             const parts = tp.clientPayload.split(",");
             const sessionId = parts[0].trim();
             const clubId = parts[1].trim();
+
+            console.log("blob.uri ", blob.url);
+            console.log("sessionId ", sessionId);
+            console.log("clubId ", clubId);
             await addImageToSession(
               blob.url,
               sessionId as string,
