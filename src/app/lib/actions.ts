@@ -22,11 +22,11 @@ export const redirectBackToSessions = (clubId: string) => {
   redirect(`/sessions/?clubId=${clubId}`);
 };
 
-export async function addImageToSession(
+export const addImageToSession = async (
   blobUri: string,
   sessionId: string,
   clubId: string
-) {
+) => {
 
   console.log("adding image to session");
   // get current images for the session
