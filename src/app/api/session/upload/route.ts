@@ -41,12 +41,14 @@ export async function POST(request: Request): Promise<NextResponse> {
             console.log("blob.uri ", blob.url);
             console.log("sessionId ", sessionId);
             console.log("clubId ", clubId);
+
             await addImageToSession(
               blob.url,
               sessionId as string,
               clubId as string
             ); // WHY IS THIS NOT BEING CALLED?? PASS IN CLUBID TO REDIRECT CORRECT:LY
           } else {
+            console.log("No id provided, image is not associated with a session, result or player");
             throw new Error(
               "No id provided, image is not associated with a session, result or player"
             );

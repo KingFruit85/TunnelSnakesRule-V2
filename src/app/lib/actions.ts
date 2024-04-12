@@ -27,9 +27,11 @@ export async function addImageToSession(
   sessionId: string,
   clubId: string
 ) {
+
+  console.log("adding image to session");
   // get current images for the session
   const currentSession = await sql`
-    SELECT imageurl FROM sessions WHERE id = ${sessionId}`;
+    SELECT image_urls FROM sessions WHERE id = ${sessionId}`;
 
   console.log(`imageurl: ${currentSession}`);
 
@@ -53,7 +55,7 @@ export async function addImageToSession(
 
   await sql`
   UPDATE sessions 
-    SET imageurl = ${updatedImagesJson}
+    SET image_urls = ${updatedImagesJson}
     WHERE id = ${sessionId}`;
 
   revalidatePath(`/sessions/?clubId=${clubId}`);
