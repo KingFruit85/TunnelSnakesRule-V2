@@ -37,21 +37,6 @@ const TopNav: React.FC = () => {
     };
   }, []);
 
-  // const getTextContent = () => {
-  //   switch (screenSize) {
-  //     case "sm":
-  //       return "TunnelSnakesRule";
-  //     case "md":
-  //       return "Tunnel Snakes Rule";
-  //     case "lg":
-  //       return "Tunnel Snakes Rule";
-  //     case "xl":
-  //       return "Tunnel Snakes Rule";
-  //     default:
-  //       return "Tunnel Snakes Rule";
-  //   }
-  // };
-
   const router = useRouter();
 
   const handlePopoverToggle = () => {
@@ -71,7 +56,7 @@ const TopNav: React.FC = () => {
 
   return (
     <div className="w-full bg-tunnel-snake-black p-5 space-items items-center gap-5 flex-row inline-flex relative place-content-between">
-      {isLoaded && userId && (
+      {/* {isLoaded && userId && (
         <div className="justify-center items-center gap-2 flex pl-5">
           <Image
             src="/Menu.svg"
@@ -86,7 +71,8 @@ const TopNav: React.FC = () => {
             Menu
           </div>
         </div>
-      )}
+      )} */}
+      
 
       {isPopoverVisible && (
         <div
@@ -117,26 +103,10 @@ const TopNav: React.FC = () => {
               <label>Groups</label>
             </div>
           </button>
-          {/* <button
-            onClick={() => {
-              router.push("/add/player");
-              handlePopoverClose();
-            }}
-            className="border block w-full text-left px-4 py-2 text-white text-base font-normal font-['Montserrat'] hover:bg-tunnel-snake-orange"
-          >
-            <div className="flex pl-2 gap-2">
-              <Image
-                src={"/PlayersWhite.svg"}
-                alt={"add player icon"}
-                height={20}
-                width={20}
-              />
-              <label>Add Player</label>
-            </div>
-          </button> */}
+
           <button
             onClick={() => {
-              router.push("/add/game");
+              router.push("/add/game/");
               handlePopoverClose();
             }}
             className="border block w-full text-left px-4 py-2 text-white text-base font-normal font-['Montserrat'] hover:bg-tunnel-snake-orange"
@@ -151,6 +121,7 @@ const TopNav: React.FC = () => {
               <label>Add Boardgame</label>
             </div>
           </button>
+
         </div>
       )}
       {isLoaded && userId && (

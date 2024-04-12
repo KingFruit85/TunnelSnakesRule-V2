@@ -1,14 +1,27 @@
+"use client";
 import { addNewBoardGame } from "@/app/lib/actions";
 import CancelButton from "../Common/cancelButton";
 import SubmitButton from "../Common/submitButton";
 import { WinCondition } from "@/app/lib/definitions";
+import { useSearchParams } from "next/navigation";
+import { useState } from "react";
+import LeaderboardRadio from "./Results/leaderboardradio";
 
 export default function AddNewGame() {
+  const searchParams = useSearchParams();
+
+  const clubId = searchParams.get("clubId");
+
+  const [leaderboardSelected, setLeaderboardSelected] =
+    useState<boolean>(false);
+
   return (
     <form
       action={addNewBoardGame}
       className="border p-4 bg-black flex flex-col items-start w-[95%] md:w-[40%] lg:w-[40%] xl:w-[40%] sm:w-[95%]"
     >
+      <input type="hidden" name={"clubId"} value={clubId || ""} />
+
       <div className="p-4 text-3xl md:text-3xl lg:text-4xl xl:text-4xl text-center font-semibold font-['Montserrat'] flex items-center text-tunnel-snake-white">
         Add New Game
       </div>
@@ -23,13 +36,6 @@ export default function AddNewGame() {
             required
             className="bg-tunnel-snake-grey border p-2"
           />
-          {/* <div className="font-['Montserrat']">Cover art URL</div>
-          <input
-            id="gameArt"
-            name="gameArt"
-            type="text"
-            className="bg-tunnel-snake-grey border p-2"
-          /> */}
         </div>
 
         <div className=" pt-4 pb-2 flex flex-col gap-2">
@@ -41,6 +47,7 @@ export default function AddNewGame() {
               name="winCondition"
               id="teamBased"
               value={WinCondition.TeamBased}
+              onClick={() => setLeaderboardSelected(false)}
               className=""
             />
             <div className="">Team based</div>
@@ -51,6 +58,7 @@ export default function AddNewGame() {
               name="winCondition"
               id="cooperative"
               value={WinCondition.Coopratitive}
+              onClick={() => setLeaderboardSelected(false)}
               className=""
             />
             <div className="">Co-operative</div>
@@ -62,10 +70,17 @@ export default function AddNewGame() {
               name="winCondition"
               id="leaderBoard"
               value={WinCondition.LeaderBoard}
+              onClick={() => setLeaderboardSelected(true)}
               className=""
             />
             <div className="">Leader board</div>
           </div>
+
+          {leaderboardSelected && (
+            <div className="flex items-center p-4 border border-tunnel-snake-orange">
+              <LeaderboardRadio />
+            </div>
+          )}
         </div>
       </div>
 

@@ -15,16 +15,13 @@ export default async function AddGameResult({
   clubId,
 }: AddGameResultProps) {
   const players = await getAllPlayersBySessionId(sessionId);
-  const boardGames = await getAllBoardgames();
+  const boardGames = await getAllBoardgames(clubId);
 
   return (
     <form action={addNewGameResult}>
       <input type="hidden" name="sessionId" value={sessionId} />
       <input type="hidden" name="clubId" value={clubId} />
 
-      <div className="flex pl-4 pt-4">
-        <BackButton>Go Back</BackButton>
-      </div>
       <div className="p-2 bg-black flex flex-col items-center w-[100%] md:w-[40%] lg:w-[40%] xl:w-[40%] sm:w-[95%]">
         <div
           className="p-4 text-3xl md:text-3xl lg:text-4xl xl:text-4xl 

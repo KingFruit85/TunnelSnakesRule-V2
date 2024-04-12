@@ -1,20 +1,49 @@
-import { GameResults, GameSession } from "@/app/lib/definitions";
+import { BoardGame, GameSession, PlayerResult } from "@/app/lib/definitions";
 import Image from "next/image";
 
 export interface CurrentSessionGamesProps {
   session: GameSession;
+  boardgames:BoardGame[];
 }
 
 export default function CurrentSessionGames({
   session,
+  boardgames,
 }: CurrentSessionGamesProps) {
 
+  interface EventSummary {
+    eventId: string;
+    numberOfPlayers: number;
+    boardgameName: string;
+    winner: string;
+  }
+  
+  const summary: EventSummary[] = session.playerResults.reduce((acc: EventSummary[], playerResult) => {
+    const existingEventIndex = acc.findIndex(event => event.eventId === playerResult.eventId);
+  
+    if (existingEventIndex !== -1) {
+      // If event already exists, update player count
+      acc[existingEventIndex].numberOfPlayers++;
+    } else {
+      // If event doesn't exist, create a new object
+      const newEvent: EventSummary = {
+        eventId: playerResult.eventId,
+        numberOfPlayers: 1,
+        boardgameName: boardgames.find(g => g.id === playerResult.gameId)?.name || "Unknown",
+        winner:""
+      };
+      acc.push(newEvent);
+    }
+  
+    return acc;
+  }, []);
+  
   return (
     <div className="mt-3 mb-4 ml-4 mr-4">
-      {session?.gameResults?.map(
-        (gameResult: GameResults) => (
-          gameResult.id && (
-            <div key={gameResult.id} className="flex gap-2">
+      {summary.map(
+        (event: EventSummary) => (
+          event.eventId && (
+            <div key={event.eventId} className="flex gap-2">
               <Image
                 className=""
                 src={"/Players.svg"}
@@ -22,9 +51,11 @@ export default function CurrentSessionGames({
                 height={20}
                 alt={"number of players in game icon"}
               />
-              <div className="">{gameResult.playerScores.length}</div>
+              <div className="">{event.numberOfPlayers}</div>
               <div className="">-</div>
-              <div className="">{gameResult.gameName}</div>
+              <div className="">{event.boardgameName}</div>
+              <div className="">  Winner:</div>
+              <div className="">{event.winner}!</div>
             </div>
           )
         )

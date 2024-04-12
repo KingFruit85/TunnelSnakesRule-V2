@@ -14,7 +14,7 @@ export default async function Page({
   const players = await getAllPlayersBySessionId(sessionId);
   const playerNamesString = players.map((player) => player.name).join(", ");
 
-  const gameResults = sessionDetails.gameResults;
+  const gameResults = sessionDetails.playerResults;
   const images = sessionDetails.imageurl
     ? (JSON.parse(sessionDetails.imageurl) as string[])
     : ([] as string[]);
@@ -35,7 +35,8 @@ export default async function Page({
                 text-tunnel-snake-white
                 border
                 m-4
-                bg-tunnel-snake-black"
+                bg-tunnel-snake-black
+                "
     >
       <BackButton>Go Back</BackButton>
 
@@ -73,7 +74,11 @@ export default async function Page({
 
       {gameResults &&
         gameResults.map((result) => (
-          <div key={result.id} className="pb-2">
+          <div key={result.id} className="
+          p-4 
+          bg-black 
+          flex 
+          flex-col ">
             <PreviousSessionGameResult result={result} />
           </div>
         ))}

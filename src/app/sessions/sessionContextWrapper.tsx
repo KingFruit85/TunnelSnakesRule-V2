@@ -1,6 +1,6 @@
 "use client";
 
-import { Destination, GameSession } from "../lib/definitions";
+import { BoardGame, Destination, GameSession } from "../lib/definitions";
 import NewSessionButton from "../ui/Common/newSessionButton";
 import CurrentSession from "../ui/sessions/currentSession/currentSession";
 import PreviousSessions from "../ui/sessions/previousSessions";
@@ -14,6 +14,7 @@ export interface SessionContextWrapperProps {
   userId: string | null;
   isClubOwner: boolean;
   accessRequestsPending: boolean;
+  boardgames:BoardGame[];
 }
 
 export default function SessionContextWrapper({
@@ -23,6 +24,7 @@ export default function SessionContextWrapper({
   userId,
   isClubOwner,
   accessRequestsPending,
+  boardgames,
 }: SessionContextWrapperProps) {
   return (
     <>
@@ -37,7 +39,7 @@ export default function SessionContextWrapper({
         {activeSessions.length === 0 && <NewSessionButton />}
         {activeSessions.map((session) => (
           <div key={session.id}>
-            <CurrentSession session={session} />
+            <CurrentSession session={session} boardgames={boardgames} />
           </div>
         ))}
         <PreviousSessions sessions={previousSessions} />

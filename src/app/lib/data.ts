@@ -8,9 +8,11 @@ import {
   GameResults,
   Club,
   WinCondition,
+  PlayerResult,
 } from "./definitions";
 import { unstable_noStore as noStore } from "next/cache";
 import { redirect } from "next/navigation";
+import { UUID } from "crypto";
 
 export async function getPlayerById(id: string): Promise<Player> {
   noStore();
@@ -54,19 +56,18 @@ export async function checkIfUserHasPlayerProfile(externalId: string) {
 }
 
 export async function getAllClubSessionNames(clubId: string) {
-
   noStore();
   const result = await sql`
     SELECT name FROM sessions WHERE clubId = ${clubId}`;
 
-    const sessionNamesPromises = result.rows.map((row) => row.name);
-    
-    const sessionNames = await Promise.all(sessionNamesPromises) as string[];
+  const sessionNamesPromises = result.rows.map((row) => row.name);
+
+  const sessionNames = (await Promise.all(sessionNamesPromises)) as string[];
 
   return sessionNames;
 }
 
-export async function getAllActiveSessions(clubId: string) {
+export async function getAllActiveSessionDetails(clubId: string) {
   noStore();
 
   if (!clubId) {
@@ -74,17 +75,41 @@ export async function getAllActiveSessions(clubId: string) {
   }
 
   const result = await sql`
-    SELECT * FROM Sessions WHERE active = true AND clubId = ${clubId}`;
+    SELECT * FROM sessions WHERE active = true AND club_id = ${clubId}`;
+
+  // get all the playerresults linked to the session
+
+  let playerResults: PlayerResult[] = [];
+
+  for (const row of result.rows) {
+    const result = await sql`
+          SELECT * FROM playerscores WHERE session_id = ${row.id}`;
+
+    for (const score of result.rows) {
+      let r: PlayerResult = {
+        id: score["id"],
+        playerId: score["player_id"],
+        gameId: score["game_id"],
+        sessionId: score["session_id"],
+        result: score["result"],
+        team: score["team"] || null,
+        eventId: score["event_id"],
+      };
+      playerResults.push(r);
+    }
+  }
+
+  // add the playerresults to the gameResults prop on the corosponding session object
 
   const sessions: GameSession[] = result.rows.map((session) => ({
     id: String(session.id),
-    name: String(session.name),
+    name: String(session["session_name"]),
     date: new Date(session.date),
     active: Boolean(session.active),
-    playerIds: session.playerids.split(","),
-    gameResults: JSON.parse(session.gameresults) as GameResults[],
+    playerIds: session["player_ids"].split(","),
+    playerResults: playerResults.filter((r) => r.sessionId === session.id),
     notes: String(session.notes),
-    imageurl: session.imageurl || "",
+    imageurl: session["image_urls"] || "",
   }));
 
   return sessions;
@@ -93,24 +118,26 @@ export async function getAllActiveSessions(clubId: string) {
 export async function getAllInactiveSessions(clubId: string) {
   noStore();
   const result = await sql`
-    SELECT * FROM Sessions WHERE active = false AND clubId = ${clubId}`;
+    SELECT * FROM sessions WHERE active = false AND club_id = ${clubId}`;
 
   const sessions: GameSession[] = result.rows.map((session) => ({
     id: String(session.id),
-    name: String(session.name),
+    name: String(session["session_name"]),
     date: new Date(session.date),
     active: Boolean(session.active),
-    playerIds: session.playerids.split(","),
-    gameResults:
-      session.gameresults !== null && session.gameresults !== ""
-        ? (JSON.parse(session.gameresults) as GameResults[])
-        : [],
+    playerIds: session["player_ids"].split(","),
+    gameResults:[],
+    playerResults:[],      
     notes: String(session.notes),
-    imageurl: session.imageurl as string || undefined,
+    imageurl: (session.imageurl as string) || undefined,
   }));
 
   return sessions;
 }
+
+// session.gameresults !== null && session.gameresults !== ""
+//         ? (JSON.parse(session.gameresults) as GameResults[])
+//         : [],
 
 export async function getSessionDetails(id: string) {
   noStore();
@@ -121,19 +148,20 @@ export async function getSessionDetails(id: string) {
 
   return {
     id: String(session.id),
-    name: String(session.name),
+    name: String(session["session_name"]),
     date: new Date(session.date),
     active: Boolean(session.active),
-    playerIds: session.playerids.split(","),
-    gameResults: JSON.parse(session.gameresults) as GameResults[],
+    playerIds: session["player_ids"].split(","),
+    playerResults: [],
     notes: String(session.notes),
     imageurl: session.imageurl || "",
   } as GameSession;
 }
 
-
-
-export async function checkAccessRequestStatus(playerId: string, clubId: string) {
+export async function checkAccessRequestStatus(
+  playerId: string,
+  clubId: string
+) {
   noStore();
   const result = await sql`
     SELECT * FROM joinrequests WHERE player_id = ${playerId} AND club_id = ${clubId}`;
@@ -194,9 +222,9 @@ export async function getAllAcessRequests(clubId: string) {
 export async function getAllPlayersBySessionId(id: string) {
   noStore();
   const result = await sql`
-      SELECT PlayerIds FROM sessions WHERE id = ${id}`;
+      SELECT player_ids FROM sessions WHERE id = ${id}`;
 
-  const playerIds = result.rows[0].playerids.split(",") as string[];
+  const playerIds = result.rows[0]["player_ids"].split(",") as string[];
 
   // Use map instead of forEach to map each ID to a promise of getPlayerById
   const playerPromises = playerIds.map(async (id) => {
@@ -210,19 +238,35 @@ export async function getAllPlayersBySessionId(id: string) {
   return players;
 }
 
-export async function getAllBoardgames() {
+export async function getAllBoardgames(clubId: string) {
   noStore();
   const result = await sql`
-    SELECT * FROM boardgames`;
+    SELECT * FROM boardgames WHERE club_id = ${clubId}`;
 
   const boardgames: BoardGame[] = result.rows.map((boardgame) => ({
-    id: String(boardgame.id),
-    name: String(boardgame.name),
-    winCondition: boardgame.wincondition as string,
-    picture: String(boardgame.picture),
+    id: boardgame.id,
+    clubId: boardgame["club_id"],
+    name: boardgame.title,
+    winCondition: boardgame["win_condition"] as string,
+    scoringDirection: boardgame["scoring_direction"] as string,
   }));
 
   return boardgames;
+}
+
+export async function getBoardgameById(id: UUID) {
+  const result = await sql`
+  SELECT * FROM boardgames WHERE id = ${id}`;
+
+  const game: BoardGame = {
+    id: result.rows[0]["id"],
+    clubId: result.rows[0]["club_id"],
+    name: result.rows[0]["title"],
+    winCondition: result.rows[0]["win_condition"],
+    scoringDirection: result.rows[0]["scoring_direction"],
+  };
+
+  return game;
 }
 
 export async function getClubDetails(id: string) {
@@ -231,8 +275,6 @@ export async function getClubDetails(id: string) {
   if (!id) {
     redirect("/");
   }
-
-  console.log(id);
 
   const result = await sql`
     SELECT * FROM clubs WHERE id = ${id}`;
@@ -279,8 +321,8 @@ export async function getUsersClubs(userId: string) {
   noStore();
   const result = await sql`
   SELECT * FROM players_clubs WHERE player_id = ${userId}`;
-  
-  const clubIds = result.rows.map((club:any) => club.club_id);
+
+  const clubIds = result.rows.map((club: any) => club.club_id);
 
   const clubPromises = clubIds.map(async (clubId) => {
     const club = await getClubDetails(clubId);
@@ -297,13 +339,12 @@ export async function getAvalibleClubs() {
   const result = await sql`
   SELECT * FROM clubs`;
 
-  const clubPromises = result.rows.map( async (club:any) => {
+  const clubPromises = result.rows.map(async (club: any) => {
     const clubDetails = await getClubDetails(club.id);
     return clubDetails;
   });
 
-  const clubs = await Promise.all(clubPromises) as Club[];
+  const clubs = (await Promise.all(clubPromises)) as Club[];
 
   return clubs;
-
 }

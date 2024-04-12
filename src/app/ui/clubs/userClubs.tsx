@@ -1,5 +1,5 @@
 import { currentUser } from "@clerk/nextjs";
-import SessionRedirectButton from "../Common/sessionRedirectButton";
+import RedirectButton from "../Common/sessionRedirectButton";
 import { Destination } from "@/app/lib/definitions";
 import PageRedirectButton from "../Common/pageRedirectButton";
 import { getUsersClubs } from "@/app/lib/data";
@@ -40,7 +40,7 @@ export default async function UserClubs() {
             key={club.id}
             className="mb-4 flex-col flex items-center rounded-sm"
           >
-            <SessionRedirectButton
+            <RedirectButton
               label={club.name}
               destination={Destination.ClubSessions}
               club={club}

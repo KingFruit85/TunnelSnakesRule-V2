@@ -27,6 +27,11 @@ export default function CurrentSessionHeader({
 }: CurrentSessionHeaderProps) {
   const router = useRouter();
 
+  const uniqueEventIds = new Set(
+    session?.playerResults?.map((playerResult) => playerResult.eventId)
+  );
+  const numberOfUniqueEvents = uniqueEventIds.size;
+
   return (
     <div className="flex-col items-center ">
       <div className="gap-4 flex mt-2 ml-2 mr-2 items-center mb-2">
@@ -73,7 +78,7 @@ export default function CurrentSessionHeader({
             alt={"number of players in session icon"}
           />
 
-          <div>{session?.gameResults?.length || 0}</div>
+          <div>{numberOfUniqueEvents}</div>
         </div>
       </div>
       {showNotes && (

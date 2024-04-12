@@ -1,6 +1,6 @@
 "use server";
 
-import { z } from "zod";
+import { number, z } from "zod";
 import { sql } from "@vercel/postgres";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from "uuid";
 import { UUID } from "crypto";
 import { User } from "@clerk/nextjs/server";
 import { WinCondition } from "./definitions";
+import { getClubDetails } from "./data";
 
 const FormSchema = z.object({
   id: z.string(),
@@ -16,18 +17,21 @@ const FormSchema = z.object({
 
 const AddNewPlayer = FormSchema.omit({ id: true });
 
-export const redirectBackToSessions = (clubId:string) => {
+export const redirectBackToSessions = (clubId: string) => {
   revalidatePath(`/sessions/?clubId=${clubId}`);
   redirect(`/sessions/?clubId=${clubId}`);
 };
 
-export async function addImageToSession(blobUri: string, sessionId: string, clubId: string) {
-
+export async function addImageToSession(
+  blobUri: string,
+  sessionId: string,
+  clubId: string
+) {
   // get current images for the session
   const currentSession = await sql`
     SELECT imageurl FROM sessions WHERE id = ${sessionId}`;
 
-    console.log(`imageurl: ${currentSession}`);
+  console.log(`imageurl: ${currentSession}`);
 
   // parse the current images to get an array
   const currentImagesArray =
@@ -46,7 +50,7 @@ export async function addImageToSession(blobUri: string, sessionId: string, club
   console.log(`updatedImagesJson: ${updatedImagesJson}`);
 
   // update the imageurl column in the database
-  
+
   await sql`
   UPDATE sessions 
     SET imageurl = ${updatedImagesJson}
@@ -99,14 +103,13 @@ export async function addNewPlayer(formData: FormData) {
         `;
 
   return newPlayerId.rows[0].id as string;
-
 }
 
 export async function addNewGameSession(formData: FormData) {
   const players = formData.getAll("player");
   const sessionName = formData.get("sessionName")?.toString();
   const clubId = formData.get("clubId")?.toString();
-  const gameResults = null;
+  const gameResults = "[]";
   const active = true;
   const date = new Date().toISOString();
 
@@ -114,7 +117,7 @@ export async function addNewGameSession(formData: FormData) {
 
   // check if session name already exists for that club
   const existingSession = await sql`
-    SELECT * FROM sessions WHERE name = ${sessionName} AND clubId = ${clubId}
+    SELECT * FROM sessions WHERE session_name = ${sessionName} AND club_id = ${clubId}
   `;
 
   if (existingSession.rows.length > 0) {
@@ -122,8 +125,8 @@ export async function addNewGameSession(formData: FormData) {
   }
 
   await sql`
-        Insert into Sessions (name, date, active, playerIds, gameResults, clubId)
-        VALUES (${sessionName} , ${date}, ${active}, ${playerIds}, ${gameResults}, ${clubId})
+        Insert into sessions (id, session_name, date, active, player_ids, game_results, club_id)
+        VALUES (${uuidv4()}, ${sessionName} , ${date}, ${active}, ${playerIds}, ${gameResults}, ${clubId})
         `;
 
   revalidatePath(`/sessions/?clubId=${clubId}`);
@@ -143,11 +146,18 @@ export async function endSession(id: string, notes: string) {
 export async function addNewBoardGame(formData: FormData) {
   const name = formData.get("gameName")?.toString();
   const winCondition = formData.get("winCondition")?.toString();
-  const picture = formData.get("gameArt")?.toString();
+  const clubId = formData.get("clubId")?.toString();
+  const scoringDirection = formData.get("scoringDirection")?.toString();
+
+  const club = clubId ? getClubDetails(clubId) : null;
+
+  if (!club) {
+    throw new Error("Club does not exist");
+  }
 
   await sql`
-        Insert into Boardgames (name, winCondition, picture)
-        VALUES (${name} , ${winCondition}, ${picture})
+        Insert into boardgames (id, title, win_condition, club_id, scoring_direction)
+        VALUES (${uuidv4()}, ${name} , ${winCondition}, ${clubId}, ${scoringDirection})
         `;
   redirect("/sessions/");
 }
@@ -168,8 +178,7 @@ export async function addNewClub(formData: FormData) {
   // Now you can access the values of the inserted club
   const insertedClubId = insertedClub.id as UUID;
 
-  if (owner && insertedClubId)
-  {
+  if (owner && insertedClubId) {
     await addPlayerToClub(owner, insertedClubId);
   }
 
@@ -187,7 +196,10 @@ export async function addPlayerToClub(playerId: string, clubId: UUID) {
   revalidatePath(`/requests?userid=${playerId}&clubid=${clubId}`);
 }
 
-export async function removePlayerFromRequestList(playerId: string, clubId: UUID) {
+export async function removePlayerFromRequestList(
+  playerId: string,
+  clubId: UUID
+) {
   await sql`
         DELETE FROM joinrequests
         WHERE player_id = ${playerId} AND club_id = ${clubId}`;
@@ -204,19 +216,16 @@ export async function createNewPlayerRecord(user: User) {
         Insert into players (externalid, name, avatar)
         VALUES (${user.id}, ${user.firstName}, ${user.imageUrl})
         `;
-};
+}
 
 export async function addNewGameResult(formData: FormData) {
-
-  console.log("formData", formData);
-
   const sessionId = formData.get("sessionId")?.toString();
   const winCondition = formData.get("winCondition")?.toString();
   const scoringDirection = formData.get("scoringDirection")?.toString();
-  const gameName = formData.get("gameName")?.toString();
+  const gameId = formData.get("gameId")?.toString();
   const notes = formData.get("gameResultNotes")?.toString();
   const clubId = formData.get("clubId")?.toString();
-  const winner = formData.get("winner")?.toString();
+  let winner = formData.get("winner")?.toString();
 
   let playerScores = [];
 
@@ -234,9 +243,45 @@ export async function addNewGameResult(formData: FormData) {
     }
   }
 
+  if (!winner) {
+    if (scoringDirection === "High") {
+      // get the id of the highest score in playerScores
+      const highestScore = Math.max(
+        ...playerScores.map((playerScore) => Number(playerScore.score))
+      );
+
+      const highestScoringPlayer = playerScores.find(
+        (playerScore) => Number(playerScore.score) === highestScore
+      );
+
+      winner = highestScoringPlayer?.playerId;
+    } else {
+      // get the id of the lowest score in playerScores
+      const lowestScore = Math.min(
+        ...playerScores.map((playerScore) => Number(playerScore.score))
+      );
+
+      const lowestScoringPlayer = playerScores.find(
+        (playerScore) => Number(playerScore.score) === lowestScore
+      );
+
+      winner = lowestScoringPlayer?.playerId;
+    }
+  }
+
+  const eventId = uuidv4();
+
+
+  // iterate through playerScores and add each to the database
+  for (const playerScore of playerScores) {
+    await sql`
+        INSERT INTO playerscores (id, player_id, game_id, session_id, result, team, event_id)
+        VALUES (${uuidv4()}, ${playerScore.playerId}, ${gameId}, ${sessionId}, ${playerScore.score}, ${playerScore.team}, ${eventId})`;
+  }
+
   const newResult = {
     id: uuidv4(),
-    gameName: gameName,
+    gameName: gameId,
     winCondition: winCondition,
     scoringDirection: scoringDirection,
     playerScores: playerScores,
@@ -244,25 +289,31 @@ export async function addNewGameResult(formData: FormData) {
     winner: winner,
   };
 
-  // Retrieve existing gameResults
-  const existingResults = await sql`
-   SELECT gameResults FROM sessions WHERE id = ${sessionId}`;
 
-  // Parse existing gameResults to get an array
-  const existingResultsArray =
-    existingResults.rows[0].gameresults !== null
-      ? JSON.parse(existingResults?.rows[0].gameresults)
-      : [];
 
-  // Add the new result to the array
-  existingResultsArray.push(newResult);
-
-  // Convert the updated array back to JSON string
-  const updatedResultsJson = JSON.stringify(existingResultsArray);
-
-  // Update the gameResults column in the database
   await sql`
-     UPDATE sessions SET gameResults = ${updatedResultsJson} WHERE id = ${sessionId}`;
+        INSERT INTO gameResults ( game_id, session_id, player_scores, winner, notes)
+        VALUES (${gameId}, ${sessionId}, ${JSON.stringify(playerScores)}, ${winner}, ${notes})`;
+
+  // // Retrieve existing gameResults
+  // const existingResults = await sql`
+  //  SELECT gameResults FROM sessions WHERE id = ${sessionId}`;
+
+  // // Parse existing gameResults to get an array
+  // const existingResultsArray =
+  //   existingResults.rows[0].gameresults !== null
+  //     ? JSON.parse(existingResults?.rows[0].gameresults)
+  //     : [];
+
+  // // Add the new result to the array
+  // existingResultsArray.push(newResult);
+
+  // // Convert the updated array back to JSON string
+  // const updatedResultsJson = JSON.stringify(existingResultsArray);
+
+  // // Update the gameResults column in the database
+  // await sql`
+  //    UPDATE sessions SET gameResults = ${updatedResultsJson} WHERE id = ${sessionId}`;
 
   revalidatePath(`/sessions?clubId=${clubId}`);
   redirect(`/sessions?clubId=${clubId}`);

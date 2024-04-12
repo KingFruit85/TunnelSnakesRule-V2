@@ -17,7 +17,6 @@ export default function ClubAccessRequests({
   clubId,
 }: ClubAccessRequestsProps) {
   const handleApprove = (player: Player) => {
-    console.log("player", player);
     addPlayerToClub(player.externalId, clubId as UUID);
   };
   const handleDecline = (player: Player) => {};

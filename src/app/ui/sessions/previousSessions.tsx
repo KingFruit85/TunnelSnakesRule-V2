@@ -33,7 +33,7 @@ export default function PreviousSessions(props: PreviousSessionsProps) {
 
             <div className="flex gap-2">
               <Image src={"/Dice.svg"} alt={"dice icon"} width={20} height={20}/>
-              <div className="">{session.gameResults?.length || 0}</div>
+              <div className="">{session.playerResults?.length || 0}</div>
             </div>
           </div>
 

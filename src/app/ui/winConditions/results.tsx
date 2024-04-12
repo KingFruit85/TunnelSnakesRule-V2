@@ -31,8 +31,6 @@ export default function Results({ games, players }: ResultsProps) {
 
     const selectedGame = games.find((game) => game.name === selectedGameId);
 
-    console.log("selectedGame", selectedGame);
-
     if (!selectedGame) {
       // Handle the case where selectedGame is undefined
       // For example, you might want to set a default value or show an error message
@@ -92,7 +90,7 @@ export default function Results({ games, players }: ResultsProps) {
         </button>
       </div>
 
-      <input type="hidden" name={"gameName"} value={game?.name || ""} />
+      <input type="hidden" name={"gameId"} value={game?.id || ""} />
 
       <input
         type="hidden"

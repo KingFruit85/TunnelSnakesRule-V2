@@ -1,23 +1,21 @@
 "use client";
 
-import { addPlayerToClub } from "@/app/lib/actions";
 import { Club, Destination } from "@/app/lib/definitions";
-import { UUID } from "crypto";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export interface SessionRedirectButtonProps {
   destination: Destination;
   label?: string;
-  club: Club;
+  club?: Club;
 }
 
-export default function SessionRedirectButton({
+export default function RedirectButton({
   label,
   destination,
   club,
 }: SessionRedirectButtonProps) {
   const router = useRouter();
-  let buttonLabel = label ? label : "";
+  let buttonLabel = label ? label : undefined;
   let destinationPath = "";
 
   const searchParams = useSearchParams()
@@ -32,10 +30,18 @@ export default function SessionRedirectButton({
       break;
     case Destination.JoinExistingClub:
       destinationPath = `/join/club?user_id=${userId}`;
-      buttonLabel = club.name;
+      buttonLabel = club?.name;
       break;
     case Destination.ClubSessions:
-      destinationPath = `/sessions/?clubId=${club.id}`;
+      destinationPath = `/sessions/?clubId=${club?.id}`;
+      break;
+    case Destination.AddNewBoardGame:
+      destinationPath = `/add/game?clubId=${club?.id}`;
+      buttonLabel="Add New Board Game";
+      break;
+    case Destination.Groups:
+      destinationPath = `/sessions/`;
+      buttonLabel = "Back To Groups";
       break;
 
     default:

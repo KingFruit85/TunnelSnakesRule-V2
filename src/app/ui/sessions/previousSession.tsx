@@ -1,15 +1,8 @@
 import { getPlayerById } from "@/app/lib/data";
 import {
-  Destination,
   GameResults,
-  GameSession,
-  PlayerScore,
-  ScoringDirection,
   WinCondition,
 } from "@/app/lib/definitions";
-import PageRedirectButton from "../Common/pageRedirectButton";
-import router from "next/navigation";
-import BackButton from "../Common/backButton";
 
 export interface PreviousSessionGameResultProps {
   result: GameResults;
@@ -19,10 +12,6 @@ export default function PreviousSessionGameResult({
   result,
 }: PreviousSessionGameResultProps) {
   // calculate winner
-
-  let playerScores = result.playerScores;
-
-  console.log(playerScores);
 
   const getWinner = async (playerScores: any[]) => {
     switch (parseInt(result.winCondition.toString())) {
@@ -72,7 +61,6 @@ export default function PreviousSessionGameResult({
         }
 
       case WinCondition.TeamBased:
-        console.log(result);
         return result.winner;
 
       case WinCondition.Coopratitive:
@@ -86,7 +74,7 @@ export default function PreviousSessionGameResult({
   };
 
   return (
-    <div className="border border-tunnel-snake-green flex flex-col gap-2 items-center pb-4">
+    <div className="w-[100%] border border-tunnel-snake-green flex flex-col gap-2 items-center pb-4">
       <div className="text-lg"> {result.gameName}</div>
       <div className="text-xs flex gap-1 pb-2">
         {" "}
@@ -118,7 +106,7 @@ export default function PreviousSessionGameResult({
             })}
           </div>
         </div>
-        <div className="w-[40%] p-2 text-base text-center">
+        <div className="p-2 text-base text-center">
           Notes
           <div className="text-xs">{result.gameResultNotes}</div>
         </div>

@@ -1,3 +1,5 @@
+import { UUID } from "crypto";
+
 export type Player = {
     id: string;
     externalId: string;
@@ -11,7 +13,7 @@ export type GameSession = {
     date: Date;
     active: boolean;
     playerIds: string[];
-    gameResults: GameResults[];
+    playerResults: PlayerResult[];
     notes?: string | undefined;
     imageurl?: string | undefined;
 }
@@ -24,6 +26,16 @@ export type GameResults = {
     playerScores: PlayerScore[];
     gameResultNotes?: string | undefined;
     winner: string;
+}
+
+export type PlayerResult = {
+    id: UUID;
+    playerId: UUID;
+    gameId: UUID;
+    sessionId: UUID;
+    result: string;
+    team?: string;
+    eventId: UUID;
 }
 
 export enum WinCondition {
@@ -44,10 +56,11 @@ export type PlayerScore = {
 }
 
 export type BoardGame = {
-    id: string;
+    id: UUID;
+    clubId:UUID
     name: string;
     winCondition: string;
-    picture: string;
+    scoringDirection: string;
 }
 
 export type Club = {
@@ -62,6 +75,8 @@ export enum Destination {
     JoinExistingClub,
     ClubSessions,
     ReviewAceessRequests,
+    AddNewBoardGame,
+    Groups,
 }
 
 export type ClubAndRequestStatus = {

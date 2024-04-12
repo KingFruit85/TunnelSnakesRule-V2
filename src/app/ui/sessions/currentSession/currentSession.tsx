@@ -1,7 +1,7 @@
 "use client";
 
 import { endSession } from "@/app/lib/actions";
-import { GameSession } from "@/app/lib/definitions";
+import { BoardGame, GameSession } from "@/app/lib/definitions";
 import { useEffect, useState } from "react";
 import CurrentSessionHeader from "./currentSessionHeader";
 import CurrentSessionGames from "./currentSessionGames";
@@ -11,9 +11,10 @@ import { useSearchParams } from "next/navigation";
 
 export interface currentSessionProps {
   session: GameSession;
+  boardgames:BoardGame[];
 }
 
-export default function CurrentSession({ session }: currentSessionProps) {
+export default function CurrentSession({ session, boardgames }: currentSessionProps) {
   const [showNotes, setShowNotes] = useState<boolean>(false);
   const [showImageUpload, setShowImageUpload] = useState<boolean>(false);
   const [notes, setNotes] = useState<string>("");
@@ -67,7 +68,7 @@ export default function CurrentSession({ session }: currentSessionProps) {
         showNotes={showNotes}
         clubId={clubId}
       />
-      <CurrentSessionGames session={session} />
+      <CurrentSessionGames session={session} boardgames={boardgames} />
       <div className="flex-row gap-4">
         <CurrentSessionButtons
           session={session}
