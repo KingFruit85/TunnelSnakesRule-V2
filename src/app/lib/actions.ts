@@ -33,12 +33,12 @@ export const addImageToSession = async (
   const currentSession = await sql`
     SELECT image_urls FROM sessions WHERE id = ${sessionId}`;
 
-  console.log(`imageurl: ${currentSession}`);
+  console.log(`imageurl: ${currentSession.rows[0]}`);
 
   // parse the current images to get an array
   const currentImagesArray =
     currentSession.rows[0].imageurl !== null
-      ? JSON.parse(currentSession?.rows[0].imageurl)
+      ? JSON.parse(currentSession?.rows[0]["image_urls"])
       : [];
 
   console.log(`currentImagesArray: ${currentImagesArray}`);
