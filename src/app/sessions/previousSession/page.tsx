@@ -79,7 +79,7 @@ export default async function Page({
           bg-black 
           flex 
           flex-col ">
-            <PreviousSessionGameResult result={result} />
+            {/* <PreviousSessionGameResult result={result} /> */}
           </div>
         ))}
     </div>
