@@ -27,6 +27,7 @@ export async function POST(request: Request): Promise<NextResponse> {
         // Get notified of client upload completion
         // ⚠️ This will not work on `localhost` websites,
         // Use ngrok or similar to get the full upload flow
+        console.log("UPLOAD COMPLETED")
 
         try {
           console.log("in try block")
