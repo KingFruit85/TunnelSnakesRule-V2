@@ -35,9 +35,10 @@ export const addImageToSession = async (
 
   console.log(`imageurl: ${currentSession.rows[0]}`);
 
+
   // parse the current images to get an array
   const currentImagesArray =
-    currentSession.rows[0].imageurl !== null
+    currentSession.rows[0]["image_urls"] !== null
       ? JSON.parse(currentSession?.rows[0]["image_urls"])
       : [];
 
