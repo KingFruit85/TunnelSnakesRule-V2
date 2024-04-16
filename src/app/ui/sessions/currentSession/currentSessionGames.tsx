@@ -1,4 +1,4 @@
-import { BoardGame, GameSession, PlayerResult } from "@/app/lib/definitions";
+import { BoardGame, GameSession } from "@/app/lib/definitions";
 import Image from "next/image";
 
 export interface CurrentSessionGamesProps {
@@ -15,7 +15,7 @@ export default function CurrentSessionGames({
     eventId: string;
     numberOfPlayers: number;
     boardgameName: string;
-    winner: string;
+    winner:string;
   }
   
   const summary: EventSummary[] = session.playerResults.reduce((acc: EventSummary[], playerResult) => {
@@ -30,14 +30,14 @@ export default function CurrentSessionGames({
         eventId: playerResult.eventId,
         numberOfPlayers: 1,
         boardgameName: boardgames.find(g => g.id === playerResult.gameId)?.name || "Unknown",
-        winner:""
+        winner:''
       };
       acc.push(newEvent);
     }
   
     return acc;
   }, []);
-  
+
   return (
     <div className="mt-3 mb-4 ml-4 mr-4">
       {summary.map(
@@ -55,7 +55,7 @@ export default function CurrentSessionGames({
               <div className="">-</div>
               <div className="">{event.boardgameName}</div>
               <div className="">  Winner:</div>
-              <div className="">{event.winner}!</div>
+              <div className="">{session.winners.find((w) => w.id === event.eventId)?.winner}!</div>
             </div>
           )
         )

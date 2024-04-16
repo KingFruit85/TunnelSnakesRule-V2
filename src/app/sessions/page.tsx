@@ -9,7 +9,6 @@ import {
 import SessionContextWrapper from "./sessionContextWrapper";
 import { currentUser } from "@clerk/nextjs";
 import RedirectButton from "../ui/Common/sessionRedirectButton";
-import { Dir } from "fs";
 import { Destination } from "../lib/definitions";
 
 export default async function Page({

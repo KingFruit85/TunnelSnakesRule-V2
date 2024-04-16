@@ -16,6 +16,12 @@ export type GameSession = {
     playerResults: PlayerResult[];
     notes?: string | undefined;
     imageurl?: string | undefined;
+    winners: GameAndWinner[];
+}
+
+export type GameAndWinner = {
+    id: UUID;
+    winner: string;
 }
 
 export type GameResults = {

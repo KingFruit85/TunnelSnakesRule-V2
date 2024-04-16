@@ -14,7 +14,7 @@ export default async function Page({
   const players = await getAllPlayersBySessionId(sessionId);
   const playerNamesString = players.map((player) => player.name).join(", ");
 
-  const gameResults = sessionDetails.playerResults;
+  const gameResults = sessionDetails.playerResults; // need to create an object the receiver can use
   const images = sessionDetails.imageurl
     ? (JSON.parse(sessionDetails.imageurl) as string[])
     : ([] as string[]);
@@ -79,7 +79,7 @@ export default async function Page({
           bg-black 
           flex 
           flex-col ">
-            {/* <PreviousSessionGameResult result={result} /> */}
+            {/* <PreviousSessionGameResult result={result} />  */}
           </div>
         ))}
     </div>

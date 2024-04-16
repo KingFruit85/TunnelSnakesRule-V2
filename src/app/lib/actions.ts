@@ -1,13 +1,12 @@
 "use server";
 
-import { number, z } from "zod";
+import { z } from "zod";
 import { sql } from "@vercel/postgres";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import { UUID } from "crypto";
 import { User } from "@clerk/nextjs/server";
-import { WinCondition } from "./definitions";
 import { getClubDetails } from "./data";
 
 const FormSchema = z.object({
@@ -33,9 +32,6 @@ export const addImageToSession = async (
   const currentSession = await sql`
     SELECT image_urls FROM sessions WHERE id = ${sessionId}`;
 
-  console.log(`imageurl: ${currentSession.rows[0]}`);
-
-
   // parse the current images to get an array
   const currentImagesArray =
     currentSession.rows[0]["image_urls"] !== null
@@ -58,6 +54,8 @@ export const addImageToSession = async (
   UPDATE sessions 
     SET image_urls = ${updatedImagesJson}
     WHERE id = ${sessionId}`;
+
+  console.log("image added to session record");
 
   revalidatePath(`/sessions/?clubId=${clubId}`);
   redirect(`/sessions/?clubId=${clubId}`);
@@ -230,6 +228,8 @@ export async function addNewGameResult(formData: FormData) {
   const clubId = formData.get("clubId")?.toString();
   let winner = formData.get("winner")?.toString();
 
+  console.log('actions winCondition', winCondition)
+
   let playerScores = [];
 
   for (const pair of formData.entries()) {
@@ -246,36 +246,58 @@ export async function addNewGameResult(formData: FormData) {
     }
   }
 
-  if (!winner) {
-    if (scoringDirection === "High") {
-      // get the id of the highest score in playerScores
-      const highestScore = Math.max(
-        ...playerScores.map((playerScore) => Number(playerScore.score))
-      );
+  console.log('scoring direction',scoringDirection)
+  
+  switch (winCondition) {
+    case '0':
+      if (scoringDirection === "High") {
 
-      const highestScoringPlayer = playerScores.find(
-        (playerScore) => Number(playerScore.score) === highestScore
-      );
+        // get the id of the highest score in playerScores
+        const highestScore = Math.max(
+          ...playerScores.map((playerScore) => Number(playerScore.score))
+        );
+  
+        const highestScoringPlayer = playerScores.find(
+          (playerScore) => Number(playerScore.score) === highestScore
+        );
+  
+        winner = highestScoringPlayer?.playerId;
+      } else {
 
-      winner = highestScoringPlayer?.playerId;
-    } else {
-      // get the id of the lowest score in playerScores
-      const lowestScore = Math.min(
-        ...playerScores.map((playerScore) => Number(playerScore.score))
-      );
+        // get the id of the lowest score in playerScores
+        const lowestScore = Math.min(
+          ...playerScores.map((playerScore) => Number(playerScore.score))
+        );
+  
+        const lowestScoringPlayer = playerScores.find(
+          (playerScore) => Number(playerScore.score) === lowestScore
+        );
+  
+        winner = lowestScoringPlayer?.playerId;
+      }
+      break;
 
-      const lowestScoringPlayer = playerScores.find(
-        (playerScore) => Number(playerScore.score) === lowestScore
-      );
+    case '1':
+      winner = winner;
 
-      winner = lowestScoringPlayer?.playerId;
-    }
+    case '2':
+      console.log('win condition coop!')
+
+      winner = winner
+
+  
+    default:
+      console.log('win condition fuck knows!')
+
+      break;
   }
+
 
   const eventId = uuidv4();
 
 
   // iterate through playerScores and add each to the database
+
   for (const playerScore of playerScores) {
     await sql`
         INSERT INTO playerscores (id, player_id, game_id, session_id, result, team, event_id)
@@ -292,11 +314,9 @@ export async function addNewGameResult(formData: FormData) {
     winner: winner,
   };
 
-
-
   await sql`
-        INSERT INTO gameResults ( game_id, session_id, player_scores, winner, notes)
-        VALUES (${gameId}, ${sessionId}, ${JSON.stringify(playerScores)}, ${winner}, ${notes})`;
+        INSERT INTO gameResults ( game_id, session_id, player_scores, winner, notes, event_id)
+        VALUES (${gameId}, ${sessionId}, ${JSON.stringify(playerScores)}, ${winner}, ${notes}, ${eventId} )`;
 
   // // Retrieve existing gameResults
   // const existingResults = await sql`

@@ -83,13 +83,13 @@ export default function PlayerRow({ player, winCondition }: PlayerRowProps) {
       <div className="flex">
         {winCondition === WinCondition.TeamBased && (
           <select
-            id="team"
+            id={team.name}
             value={team?.name}
             onChange={handleTeamChange}
             className="bg-tunnel-snake-black text-tunnel-snake-orange text-center"
           >
             {teams.map((team) => (
-              <option key={team.id} value={team.name}>
+              <option key={team.name} value={team.name}>
                 {team.name}
               </option>
             ))}

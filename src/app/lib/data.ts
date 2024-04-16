@@ -1,6 +1,6 @@
 "use server";
 
-import { sql } from "@vercel/postgres";
+import { QueryResult, QueryResultRow, sql } from "@vercel/postgres";
 import {
   BoardGame,
   GameSession,
@@ -9,10 +9,12 @@ import {
   Club,
   WinCondition,
   PlayerResult,
+  GameAndWinner,
 } from "./definitions";
 import { unstable_noStore as noStore } from "next/cache";
 import { redirect } from "next/navigation";
 import { UUID } from "crypto";
+import Results from "../ui/winConditions/results";
 
 export async function getPlayerById(id: string): Promise<Player> {
   noStore();
@@ -99,6 +101,15 @@ export async function getAllActiveSessionDetails(clubId: string) {
     }
   }
 
+  const eventIds = [...new Set(playerResults.map((r) => r.eventId))];
+
+  const winnerPromises = eventIds.map(async (id) => {
+    const winner = await getEventWinner(id);
+    return winner;
+  });
+
+  const winners = await Promise.all(winnerPromises);
+
   // add the playerresults to the gameResults prop on the corosponding session object
 
   const sessions: GameSession[] = result.rows.map((session) => ({
@@ -110,6 +121,7 @@ export async function getAllActiveSessionDetails(clubId: string) {
     playerResults: playerResults.filter((r) => r.sessionId === session.id),
     notes: String(session.notes),
     imageurl: session["image_urls"] || "",
+    winners: winners,
   }));
 
   return sessions;
@@ -126,18 +138,15 @@ export async function getAllInactiveSessions(clubId: string) {
     date: new Date(session.date),
     active: Boolean(session.active),
     playerIds: session["player_ids"].split(","),
-    gameResults:[],
-    playerResults:[],      
+    gameResults: [],
+    playerResults: [],
     notes: String(session.notes),
     imageurl: (session.imageurl as string) || undefined,
+    winners: [],
   }));
 
   return sessions;
 }
-
-// session.gameresults !== null && session.gameresults !== ""
-//         ? (JSON.parse(session.gameresults) as GameResults[])
-//         : [],
 
 export async function getSessionDetails(id: string) {
   noStore();
@@ -155,6 +164,7 @@ export async function getSessionDetails(id: string) {
     playerResults: [],
     notes: String(session.notes),
     imageurl: session.imageurl || "",
+    winners: [],
   } as GameSession;
 }
 
@@ -347,4 +357,29 @@ export async function getAvalibleClubs() {
   const clubs = (await Promise.all(clubPromises)) as Club[];
 
   return clubs;
+}
+
+export async function getEventWinner(eventId: UUID) {
+  noStore();
+
+  console.log(eventId)
+
+  const result = await sql`
+    SELECT gameresults.winner, playerscores.event_id
+    FROM gameresults 
+    INNER JOIN playerscores
+    ON gameresults.event_id = playerscores.event_id 
+    WHERE playerscores.event_id = ${eventId}`;
+
+  const winner = result.rows[0].winner;
+
+  const uuidPattern = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+
+  if (uuidPattern.test(winner)) {
+    const player = await getPlayerById(winner);
+    return {winner: player.name, id: eventId} as GameAndWinner;
+  } else {
+    // If winner does not match UUID pattern, it'll be something like 'Team 1' or 'Tied'
+    return {winner: winner, id: eventId} as GameAndWinner;
+  }
 }
