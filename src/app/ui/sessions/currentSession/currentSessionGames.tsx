@@ -53,7 +53,7 @@ export default function CurrentSessionGames({
               />
               <div className="">{event.numberOfPlayers}</div>
               <div className="">-</div>
-              <div className="">{event.boardgameName}</div>
+              <div className="text-tunnel-snake-orange">{event.boardgameName}</div>
               <div className="">  Winner:</div>
               <div className="">{session.winners.find((w) => w.id === event.eventId)?.winner}!</div>
             </div>

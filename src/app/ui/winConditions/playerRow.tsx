@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { Player, WinCondition } from "@/app/lib/definitions";
+import { BoardGame, Player, WinCondition } from "@/app/lib/definitions";
 import Image from "next/image";
 
 export interface PlayerRowProps {
   player: Player;
-  winCondition: WinCondition;
+  game: BoardGame;
 }
 
 type Team = {
@@ -19,7 +19,7 @@ export const teams = [
   { id: 3, name: "Team 4" },
 ] as Team[];
 
-export default function PlayerRow({ player, winCondition }: PlayerRowProps) {
+export default function PlayerRow({ player, game }: PlayerRowProps) {
   const [score, setScore] = useState(0);
   const [checked, setChecked] = useState(true);
   const [team, setTeam] = useState<Team>(teams[0]);
@@ -67,8 +67,6 @@ export default function PlayerRow({ player, winCondition }: PlayerRowProps) {
           height={25}
           className="rounded-full"
         />
-
-        {/* <label className="border">{player.name}</label> */}
       </div>
 
       <div className="flex border rounded-sm w-[25%]">
@@ -81,7 +79,7 @@ export default function PlayerRow({ player, winCondition }: PlayerRowProps) {
       </div>
 
       <div className="flex">
-        {winCondition === WinCondition.TeamBased && (
+        {parseInt(game.winCondition) === WinCondition.TeamBased && (
           <select
             id={team.name}
             value={team?.name}

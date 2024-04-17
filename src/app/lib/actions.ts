@@ -228,8 +228,6 @@ export async function addNewGameResult(formData: FormData) {
   const clubId = formData.get("clubId")?.toString();
   let winner = formData.get("winner")?.toString();
 
-  console.log('actions winCondition', winCondition)
-
   let playerScores = [];
 
   for (const pair of formData.entries()) {
@@ -246,10 +244,9 @@ export async function addNewGameResult(formData: FormData) {
     }
   }
 
-  console.log('scoring direction',scoringDirection)
-  
   switch (winCondition) {
     case '0':
+
       if (scoringDirection === "High") {
 
         // get the id of the highest score in playerScores

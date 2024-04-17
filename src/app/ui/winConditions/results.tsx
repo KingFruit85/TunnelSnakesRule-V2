@@ -100,7 +100,7 @@ export default function Results({ games, players }: ResultsProps) {
 
       <input type="hidden" name={"gameResultNotes"} value={notes} />
 
-      <Leaderboard players={players} winCondition={winCondition} />
+      <Leaderboard players={players} game={game} />
     </div>
   );
 }

@@ -362,8 +362,6 @@ export async function getAvalibleClubs() {
 export async function getEventWinner(eventId: UUID) {
   noStore();
 
-  console.log(eventId)
-
   const result = await sql`
     SELECT gameresults.winner, playerscores.event_id
     FROM gameresults 

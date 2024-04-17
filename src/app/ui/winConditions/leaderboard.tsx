@@ -1,32 +1,39 @@
 "use client";
 
-import { Player, WinCondition } from "@/app/lib/definitions";
+import { BoardGame, Player, WinCondition } from "@/app/lib/definitions";
 import PlayerRow from "./playerRow";
 import TeambasedRadio from "../add/Results/teambasedradio";
-import LeaderboardRadio from "../add/Results/leaderboardradio";
 import CooperativeRadio from "../add/Results/cooperativeradio";
 
 export interface LeaderboardProps {
   players: Player[];
-  winCondition: WinCondition;
+  game: BoardGame;
 }
 
 export default function Leaderboard(props: LeaderboardProps) {
-  const { players, winCondition } = props;
+  const { players, game } = props;
 
   return (
     <div className="flex flex-col items-center">
-      {winCondition == WinCondition.TeamBased && <TeambasedRadio />}
-      {winCondition == WinCondition.LeaderBoard && <LeaderboardRadio />}
-      {winCondition == WinCondition.Coopratitive && <CooperativeRadio />}
+      {parseInt(game.winCondition) == WinCondition.TeamBased && (
+        <TeambasedRadio />
+      )}
+      {parseInt(game.winCondition) == WinCondition.LeaderBoard && (
+        <input
+          type="hidden"
+          id="contactChoice2"
+          name="scoringDirection"
+          value={game.scoringDirection}
+          className=""
+        />
+      )}
+      {parseInt(game.winCondition) == WinCondition.Coopratitive && (
+        <CooperativeRadio />
+      )}
 
       <ul className="flex flex-col gap-2 m-4 w-[100%]">
         {players.map((player: Player) => (
-          <PlayerRow
-            key={player.id}
-            player={player}
-            winCondition={winCondition}
-          />
+          <PlayerRow key={player.id} player={player} game={game} />
         ))}
       </ul>
     </div>
