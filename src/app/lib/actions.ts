@@ -26,7 +26,6 @@ export const addImageToSession = async (
   sessionId: string,
   clubId: string
 ) => {
-
   console.log("adding image to session");
   // get current images for the session
   const currentSession = await sql`
@@ -59,7 +58,7 @@ export const addImageToSession = async (
 
   revalidatePath(`/sessions/?clubId=${clubId}`);
   redirect(`/sessions/?clubId=${clubId}`);
-}
+};
 
 export async function addImageToPlayer(blobUri: string, playerId: string) {
   console.log(`adding image ${blobUri} to player ${playerId}`);
@@ -160,7 +159,7 @@ export async function addNewBoardGame(formData: FormData) {
         Insert into boardgames (id, title, win_condition, club_id, scoring_direction)
         VALUES (${uuidv4()}, ${name} , ${winCondition}, ${clubId}, ${scoringDirection})
         `;
-  redirect("/sessions/");
+  redirect(`/sessions?clubId=${clubId}`);
 }
 
 export async function addNewClub(formData: FormData) {
@@ -192,24 +191,25 @@ export async function addPlayerToClub(playerId: string, clubId: UUID) {
         INSERT INTO players_clubs (player_id, club_id)
         VALUES (${playerId}, ${clubId})`;
 
-  await removePlayerFromRequestList(playerId, clubId);
+  await sql`
+        DELETE FROM joinrequests
+        WHERE player_id = ${playerId} AND club_id = ${clubId}`;
 
   revalidatePath(`/requests?userid=${playerId}&clubid=${clubId}`);
 }
 
-export async function removePlayerFromRequestList(
-  playerId: string,
-  clubId: UUID
-) {
+export async function declineAccessRequest(playerId: string, clubId: UUID) {
   await sql`
         DELETE FROM joinrequests
         WHERE player_id = ${playerId} AND club_id = ${clubId}`;
+
+  revalidatePath(`/requests?userid=${playerId}&clubid=${clubId}`);
 }
 
 export async function requestAccessToClub(playerId: string, clubId: UUID) {
   await sql`
-        INSERT INTO joinrequests (player_id, club_id)
-        VALUES (${playerId}, ${clubId})`;
+        INSERT INTO joinrequests (request_id, player_id, club_id)
+        VALUES (${uuidv4()}, ${playerId}, ${clubId})`;
 }
 
 export async function createNewPlayerRecord(user: User) {
@@ -245,60 +245,58 @@ export async function addNewGameResult(formData: FormData) {
   }
 
   switch (winCondition) {
-    case '0':
-
+    case "0":
       if (scoringDirection === "High") {
-
         // get the id of the highest score in playerScores
         const highestScore = Math.max(
           ...playerScores.map((playerScore) => Number(playerScore.score))
         );
-  
+
         const highestScoringPlayer = playerScores.find(
           (playerScore) => Number(playerScore.score) === highestScore
         );
-  
+
         winner = highestScoringPlayer?.playerId;
       } else {
-
         // get the id of the lowest score in playerScores
         const lowestScore = Math.min(
           ...playerScores.map((playerScore) => Number(playerScore.score))
         );
-  
+
         const lowestScoringPlayer = playerScores.find(
           (playerScore) => Number(playerScore.score) === lowestScore
         );
-  
+
         winner = lowestScoringPlayer?.playerId;
       }
       break;
 
-    case '1':
+    case "1":
       winner = winner;
 
-    case '2':
-      console.log('win condition coop!')
+    case "2":
+      console.log("win condition coop!");
 
-      winner = winner
+      winner = winner;
 
-  
     default:
-      console.log('win condition fuck knows!')
+      console.log("win condition fuck knows!");
 
       break;
   }
 
-
   const eventId = uuidv4();
-
 
   // iterate through playerScores and add each to the database
 
   for (const playerScore of playerScores) {
     await sql`
         INSERT INTO playerscores (id, player_id, game_id, session_id, result, team, event_id)
-        VALUES (${uuidv4()}, ${playerScore.playerId}, ${gameId}, ${sessionId}, ${playerScore.score}, ${playerScore.team}, ${eventId})`;
+        VALUES (${uuidv4()}, ${
+      playerScore.playerId
+    }, ${gameId}, ${sessionId}, ${playerScore.score}, ${
+      playerScore.team
+    }, ${eventId})`;
   }
 
   const newResult = {
@@ -313,7 +311,9 @@ export async function addNewGameResult(formData: FormData) {
 
   await sql`
         INSERT INTO gameResults ( game_id, session_id, player_scores, winner, notes, event_id)
-        VALUES (${gameId}, ${sessionId}, ${JSON.stringify(playerScores)}, ${winner}, ${notes}, ${eventId} )`;
+        VALUES (${gameId}, ${sessionId}, ${JSON.stringify(
+    playerScores
+  )}, ${winner}, ${notes}, ${eventId} )`;
 
   // // Retrieve existing gameResults
   // const existingResults = await sql`

@@ -33,7 +33,7 @@ export default async function AddGameResult({
         <Results games={boardGames} players={players}></Results>
 
         <div className="flex flex-row gap-4 items-center ">
-          <SubmitButton label="Submit" />
+          {boardGames.length > 0 && (<SubmitButton label="Submit" />)}
           <CancelButton />
         </div>
       </div>
