@@ -155,17 +155,51 @@ export async function getSessionDetails(id: string) {
 
   const session = result.rows[0];
 
-  return {
+  let playerResults: PlayerResult[] = [];
+
+  for (const row of result.rows) {
+    const result = await sql`
+          SELECT * FROM playerscores WHERE session_id = ${row.id}`;
+
+    for (const score of result.rows) {
+      let r: PlayerResult = {
+        id: score["id"],
+        playerId: score["player_id"],
+        gameId: score["game_id"],
+        sessionId: score["session_id"],
+        result: score["result"],
+        team: score["team"] || null,
+        eventId: score["event_id"],
+      };
+      playerResults.push(r);
+    }
+  }
+
+  const eventIds = [...new Set(playerResults.map((r) => r.eventId))];
+
+  const winnerPromises = eventIds.map(async (id) => {
+    const winner = await getEventWinner(id);
+    return winner;
+  });
+
+  const winners = await Promise.all(winnerPromises);
+
+  // add the playerresults to the gameResults prop on the corosponding session object
+
+  const sessions: GameSession[] = result.rows.map((session) => ({
     id: String(session.id),
     name: String(session["session_name"]),
     date: new Date(session.date),
     active: Boolean(session.active),
     playerIds: session["player_ids"].split(","),
-    playerResults: [],
+    playerResults: playerResults.filter((r) => r.sessionId === session.id),
     notes: String(session.notes),
-    imageurl: session.imageurl || "",
-    winners: [],
-  } as GameSession;
+    imageurl: session["image_urls"] || "",
+    winners: winners,
+  }));
+
+  return sessions;
+
 }
 
 export async function checkAccessRequestStatus(
@@ -357,6 +391,17 @@ export async function getAvalibleClubs() {
   const clubs = (await Promise.all(clubPromises)) as Club[];
 
   return clubs;
+}
+
+export async function getEventNotes(eventId:UUID)
+{
+  noStore();
+
+  const result = await sql`
+  SELECT notes FROM gameresults WHERE  event_id = ${eventId}`
+
+  return result.rows[0].notes;
+
 }
 
 export async function getEventWinner(eventId: UUID) {

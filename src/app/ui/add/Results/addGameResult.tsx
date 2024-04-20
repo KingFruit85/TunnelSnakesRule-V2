@@ -18,11 +18,12 @@ export default async function AddGameResult({
   const boardGames = await getAllBoardgames(clubId);
 
   return (
+    <div className="w-full flex flex-col space-items items-center py-5">
+      <div className="w-[95%] md:w-[35%] lg:w-[35%] xl:w-[25%] sm:w-[95%] flex-col border p-4 rounded-sm bg-black">
     <form action={addNewGameResult}>
       <input type="hidden" name="sessionId" value={sessionId} />
       <input type="hidden" name="clubId" value={clubId} />
 
-      <div className="p-2 bg-black flex flex-col items-center w-[100%] md:w-[40%] lg:w-[40%] xl:w-[40%] sm:w-[95%]">
         <div
           className="p-4 text-3xl md:text-3xl lg:text-4xl xl:text-4xl 
                     text-center font-['Montserrat'] font-semibold flex items-center text-tunnel-snake-white"
@@ -36,7 +37,8 @@ export default async function AddGameResult({
           {boardGames.length > 0 && (<SubmitButton label="Submit" />)}
           <CancelButton />
         </div>
-      </div>
     </form>
+      </div>
+    </div>
   );
 }

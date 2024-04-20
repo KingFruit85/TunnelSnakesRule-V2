@@ -115,15 +115,6 @@ export async function addNewGameSession(formData: FormData) {
 
   const playerIds = players.join(",");
 
-  // check if session name already exists for that club
-  const existingSession = await sql`
-    SELECT * FROM sessions WHERE session_name = ${sessionName} AND club_id = ${clubId}
-  `;
-
-  if (existingSession.rows.length > 0) {
-    throw new Error("Session with that name already exists");
-  }
-
   await sql`
         Insert into sessions (id, session_name, date, active, player_ids, game_results, club_id)
         VALUES (${uuidv4()}, ${sessionName} , ${date}, ${active}, ${playerIds}, ${gameResults}, ${clubId})
