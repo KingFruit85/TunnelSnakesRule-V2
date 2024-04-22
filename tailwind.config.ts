@@ -10,7 +10,6 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: ["montserrat", "sans-serif"],
-        // You can define additional font families here
       },
       colors: {
         "tunnel-snake-black": "#020202",

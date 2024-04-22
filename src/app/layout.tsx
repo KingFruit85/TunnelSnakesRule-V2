@@ -23,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={montserrat.className}>
       <ClerkProvider>
-        <body className="bg-tunnel-snake-grey ${inter.className} h-screen">
+        <body className="">
           <TopNav />
           {children}
         </body>

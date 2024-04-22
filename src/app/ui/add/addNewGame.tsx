@@ -22,7 +22,7 @@ export default function AddNewGame() {
     >
       <input type="hidden" name={"clubId"} value={clubId || ""} />
 
-      <div className="p-4 text-3xl md:text-3xl lg:text-4xl xl:text-4xl text-center font-semibold font-['Montserrat'] flex items-center text-tunnel-snake-white">
+      <div className="p-4 text-3xl md:text-3xl lg:text-4xl xl:text-4xl text-center font-semibold flex items-center text-lime-400">
         Add New Game
       </div>
 
