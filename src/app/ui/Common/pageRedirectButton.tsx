@@ -34,6 +34,8 @@ export default function PageRedirectButton({
       destinationPath = `/requests?userid=${userId}&clubid=${clubId}`;
       buttonLabel = "! New group access requests !";
       break;
+    case Destination.PlayerProfile:
+      destinationPath = `/players?userid=${userId}`;
 
     default:
       break;

@@ -8,13 +8,16 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["montserrat", "sans-serif"],
+        // You can define additional font families here
+      },
       colors: {
         "tunnel-snake-black": "#020202",
         "tunnel-snake-green": "#96C431",
         "tunnel-snake-orange": "#FE8A1F",
         "tunnel-snake-grey": "#141813",
         "tunnel-snake-red": "#de0202",
-
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",

@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import TopNav from "./ui/sessions/topNav";
 
-const inter = Inter({ subsets: ["latin"] });
+const montserrat = Montserrat({
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Tunnel Snakes Rule",
@@ -17,10 +21,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={montserrat.className}>
       <ClerkProvider>
         <body className="bg-tunnel-snake-grey ${inter.className} h-screen">
-        <TopNav />
+          <TopNav />
           {children}
         </body>
       </ClerkProvider>

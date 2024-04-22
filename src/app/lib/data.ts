@@ -199,7 +199,6 @@ export async function getSessionDetails(id: string) {
   }));
 
   return sessions;
-
 }
 
 export async function checkAccessRequestStatus(
@@ -393,15 +392,13 @@ export async function getAvalibleClubs() {
   return clubs;
 }
 
-export async function getEventNotes(eventId:UUID)
-{
+export async function getEventNotes(eventId: UUID) {
   noStore();
 
   const result = await sql`
-  SELECT notes FROM gameresults WHERE  event_id = ${eventId}`
+  SELECT notes FROM gameresults WHERE  event_id = ${eventId}`;
 
   return result.rows[0].notes;
-
 }
 
 export async function getEventWinner(eventId: UUID) {
@@ -416,13 +413,41 @@ export async function getEventWinner(eventId: UUID) {
 
   const winner = result.rows[0].winner;
 
-  const uuidPattern = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+  const uuidPattern =
+    /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
 
   if (uuidPattern.test(winner)) {
     const player = await getPlayerById(winner);
-    return {winner: player.name, id: eventId} as GameAndWinner;
+    return { winner: player.name, id: eventId } as GameAndWinner;
   } else {
     // If winner does not match UUID pattern, it'll be something like 'Team 1' or 'Tied'
-    return {winner: winner, id: eventId} as GameAndWinner;
+    return { winner: winner, id: eventId } as GameAndWinner;
   }
+}
+
+export type GroupedBoardgameTotalPlays = {
+  [gameName: string]: number;
+};
+
+export async function getPlayerEvents(playerId: UUID) {
+  noStore();
+
+  const result = await sql`
+    SELECT * from playerScores WHERE player_id = ${playerId}
+  `;
+
+
+  const playerEvents: GroupedBoardgameTotalPlays = {};
+
+  for (const row of result.rows) {
+
+    const gameName = (await getBoardgameById(row.game_id)).name;
+
+    if (playerEvents[gameName]) {
+      playerEvents[gameName]++;
+    } else {
+      playerEvents[gameName] = 1;   
+    }
+  }
+  return playerEvents;
 }
