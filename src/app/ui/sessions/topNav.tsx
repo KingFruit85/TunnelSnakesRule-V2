@@ -55,79 +55,83 @@ const TopNav: React.FC = () => {
   };
 
   return (
-    <div className="w-full bg-tunnel-snake-black p-5 space-items items-center gap-5 flex-row inline-flex relative place-content-between">
+    <>
       {isLoaded && userId && (
-        <div className="justify-center items-center gap-2 flex pl-5">
-          <Image
-            src="/Menu.svg"
-            alt="Nav menu button"
-            width={20}
-            height={20}
-            onClick={handlePopoverToggle}
-            className="cursor-pointer"
-            ref={buttonRef}
-          />
-          <div className="text-2xl md:text-3xl lg:text-3xl xl:text-3xl text-center font-montserrat">
-            Menu
-          </div>
-        </div>
-      )}
-
-      {isPopoverVisible && (
-        <div
-          className="fixed top-0 left-0 w-full h-full bg-black opacity-50"
-          onClick={handlePopoverClose}
-        ></div>
-      )}
-
-      {isPopoverVisible && (
-        <div
-          className="absolute bg-tunnel-snake-green shadow-lg w-[15pc]"
-          style={{ top: popoverPosition.top, left: popoverPosition.left }}
-        >
-          <button
-            onClick={() => {
-              router.push("/");
-              handlePopoverClose();
-            }}
-            className="border block w-full text-left px-4 py-2 text-white text-base font-normal font-['Montserrat'] hover:bg-tunnel-snake-orange"
-          >
-            <div className="flex pl-2 gap-2">
+        <div className="w-full bg-black text-white p-5 space-items items-center gap-5 flex-row inline-flex relative place-content-between dark:bg-black text-white">
+          {isLoaded && userId && (
+            <div className="justify-center items-center gap-2 flex pl-5 bg-black text-white">
               <Image
-                src={"/TrophyWhite.svg"}
-                alt={"home icon"}
-                height={20}
+                src="/Menu.svg"
+                alt="Nav menu button"
                 width={20}
+                height={20}
+                onClick={handlePopoverToggle}
+                className="cursor-pointer"
+                ref={buttonRef}
               />
-              <label>Groups</label>
+              <div className="text-2xl md:text-3xl lg:text-3xl xl:text-3xl text-center font-montserrat">
+                Menu
+              </div>
             </div>
-          </button>
+          )}
 
-          <button
-            onClick={() => {
-              router.push("/add/game/");
-              handlePopoverClose();
-            }}
-            className="border block w-full text-left px-4 py-2 text-white text-base font-normal font-['Montserrat'] hover:bg-tunnel-snake-orange"
-          >
-            <div className="flex pl-2 gap-2">
-              <Image
-                src={"/DiceWhite.svg"}
-                alt={"add game icon"}
-                height={20}
-                width={20}
-              />
-              <label>Add Boardgame</label>
+          {isPopoverVisible && (
+            <div
+              className="fixed top-0 left-0 w-full h-full bg-black opacity-50"
+              onClick={handlePopoverClose}
+            ></div>
+          )}
+
+          {isPopoverVisible && (
+            <div
+              className="absolute bg-tunnel-snake-green shadow-lg w-[15pc]"
+              style={{ top: popoverPosition.top, left: popoverPosition.left }}
+            >
+              <button
+                onClick={() => {
+                  router.push("/");
+                  handlePopoverClose();
+                }}
+                className="border block w-full text-left px-4 py-2 text-white text-base font-normal font-['Montserrat'] hover:bg-tunnel-snake-orange"
+              >
+                <div className="flex pl-2 gap-2">
+                  <Image
+                    src={"/TrophyWhite.svg"}
+                    alt={"home icon"}
+                    height={20}
+                    width={20}
+                  />
+                  <label>Groups</label>
+                </div>
+              </button>
+
+              <button
+                onClick={() => {
+                  router.push("/add/game/");
+                  handlePopoverClose();
+                }}
+                className="border block w-full text-left px-4 py-2 text-white text-base font-normal font-['Montserrat'] hover:bg-tunnel-snake-orange"
+              >
+                <div className="flex pl-2 gap-2">
+                  <Image
+                    src={"/DiceWhite.svg"}
+                    alt={"add game icon"}
+                    height={20}
+                    width={20}
+                  />
+                  <label>Add Boardgame</label>
+                </div>
+              </button>
             </div>
-          </button>
+          )}
+          {isLoaded && userId && (
+            <div className="text-tunnel-snake-orange bg-tunnel-snake-black rounded-sm border border-tunnel-snake-orange py-2 px-4 hover:bg-tunnel-snake-orange hover:text-black hover:border-black">
+              <SignOutButton />
+            </div>
+          )}
         </div>
       )}
-      {isLoaded && userId && (
-        <div className="text-tunnel-snake-orange bg-tunnel-snake-black rounded-sm border border-tunnel-snake-orange py-2 px-4 hover:bg-tunnel-snake-orange hover:text-black hover:border-black">
-          <SignOutButton />
-        </div>
-      )}
-    </div>
+    </>
   );
 };
 

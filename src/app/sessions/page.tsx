@@ -32,19 +32,16 @@ export default async function Page({
     : false;
 
   return (
-    <div className="flex flex-col gap-2 items-center  h-screen">
+    <div className="flex flex-col gap-2 items-center h-screen bg-black dark:bg-black text-white">
       <div className="text-3xl md:text-3xl lg:text-3xl xl:text-3xl text-center font-montserrat pt-4 pb-4 bg-stone-500 flex w-[100%] justify-center text-tunnel-snake-white">
         {clubDetails.name}
       </div>
       <div className="flex hover:bg-tunnel-snake-orange">
-      <RedirectButton
+        <RedirectButton
           destination={Destination.AddNewBoardGame}
           club={clubDetails}
         />
-      <RedirectButton
-          destination={Destination.Groups}
-          club={clubDetails}
-        />
+        <RedirectButton destination={Destination.Groups} club={clubDetails} />
       </div>
       <div className="text-2xl md:text-3xl lg:text-3xl xl:text-3xl text-center font-montserrat mt-4 mb-2">
         Active Sessions

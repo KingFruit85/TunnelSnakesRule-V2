@@ -18,17 +18,17 @@ export default function AddNewGame() {
   return (
     <form
       action={addNewBoardGame}
-      className="border p-4 bg-black flex flex-col items-start w-[95%] md:w-[40%] lg:w-[40%] xl:w-[40%] sm:w-[95%]"
+      className="border p-4 bg-black flex flex-col items-start w-[95%] md:w-[40%] lg:w-[40%] xl:w-[40%] sm:w-[95%] dark:bg-black text-white"
     >
       <input type="hidden" name={"clubId"} value={clubId || ""} />
 
-      <div className="p-4 text-3xl md:text-3xl lg:text-4xl xl:text-4xl text-center font-semibold flex items-center text-lime-400">
+      <div className="p-4 text-3xl md:text-3xl lg:text-4xl xl:text-4xl text-center font-semibold flex items-center">
         Add New Game
       </div>
 
       <div className="p-4">
         <div className="flex flex-col gap-2">
-          <div className="font-['Montserrat']">Name</div>
+          <div>Name</div>
           <input
             id="gameName"
             name="gameName"
@@ -39,41 +39,38 @@ export default function AddNewGame() {
         </div>
 
         <div className=" pt-4 pb-2 flex flex-col gap-2">
-          <div className="font-['Montserrat']">Win conditions</div>
+          <div>Win conditions</div>
 
-          <div className="flex gap-2 font-['Montserrat']">
+          <div className="flex gap-2 ">
             <input
               type="radio"
               name="winCondition"
               id="teamBased"
               value={WinCondition.TeamBased}
               onClick={() => setLeaderboardSelected(false)}
-              className=""
             />
-            <div className="">Team based</div>
+            <div>Team based</div>
           </div>
-          <div className="flex gap-2 font-['Montserrat']">
+          <div className="flex gap-2 ">
             <input
               type="radio"
               name="winCondition"
               id="cooperative"
               value={WinCondition.Coopratitive}
               onClick={() => setLeaderboardSelected(false)}
-              className=""
             />
-            <div className="">Co-operative</div>
+            <div>Co-operative</div>
           </div>
 
-          <div className="flex gap-2 font-['Montserrat']">
+          <div className="flex gap-2 ">
             <input
               type="radio"
               name="winCondition"
               id="leaderBoard"
               value={WinCondition.LeaderBoard}
               onClick={() => setLeaderboardSelected(true)}
-              className=""
             />
-            <div className="">Leader board</div>
+            <div>Leader board</div>
           </div>
 
           {leaderboardSelected && (

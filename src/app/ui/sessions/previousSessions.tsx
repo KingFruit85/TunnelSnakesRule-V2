@@ -15,8 +15,8 @@ export default function PreviousSessions(props: PreviousSessionsProps) {
   );
 
   return (
-    <div className="w-[95%] md:w-[35%] lg:w-[35%] xl:w-[35%] sm:w-[95%]">
-      <div className="text-2xl md:text-3xl lg:text-3xl xl:text-3xl text-center font-montserrat mb-2 mt-2">
+    <div className="w-[95%] md:w-[35%] lg:w-[35%] xl:w-[35%] sm:w-[95%] text-white bg-black dark:bg-black text-white">
+      <div className="text-2xl md:text-3xl lg:text-3xl xl:text-3xl text-center mb-2 mt-2">
         Previous Sessions
       </div>
 
@@ -32,18 +32,24 @@ export default function PreviousSessions(props: PreviousSessionsProps) {
             </div>
 
             <div className="flex gap-2">
-              <Image src={"/Dice.svg"} alt={"dice icon"} width={20} height={20}/>
+              <Image
+                src={"/Dice.svg"}
+                alt={"dice icon"}
+                width={20}
+                height={20}
+              />
               <div className="">{session.playerResults?.length || 0}</div>
             </div>
           </div>
 
           <div className="pl-4 pt-2 ">{session?.name}</div>
-          <Link className="flex gap-2 pl-4 pt-2 pb-2 text-tunnel-snake-orange underline-offset-4" 
+          <Link
+            className="flex gap-2 pl-4 pt-2 pb-2 text-tunnel-snake-orange underline-offset-4"
             href={{
               pathname: "/sessions/previousSession",
               query: { sessionId: session.id },
-            
-            }}>
+            }}
+          >
             <u>View session</u>{" "}
             <Image
               src={"/RightArrow.svg"}

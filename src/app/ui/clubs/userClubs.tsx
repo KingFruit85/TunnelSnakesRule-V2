@@ -15,7 +15,7 @@ export default async function UserClubs() {
   const pfp = user?.imageUrl;
 
   return (
-    <div className="w-[95%] md:w-[35%] lg:w-[35%] xl:w-[25%] sm:w-[95%] flex-col border p-4 rounded-sm bg-black">
+    <div className="w-[95%] md:w-[35%] lg:w-[35%] xl:w-[25%] sm:w-[95%] flex-col border p-4 rounded-sm bg-black text-white dark:bg-black text-white">
       <Image
         src={pfp!}
         alt="profile picture"

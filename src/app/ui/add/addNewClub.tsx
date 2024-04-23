@@ -1,21 +1,18 @@
 "use client";
 
-import {
-  addNewClub,
-} from "@/app/lib/actions";
+import { addNewClub } from "@/app/lib/actions";
 import CancelButton from "../Common/cancelButton";
 import SubmitButton from "../Common/submitButton";
 
 import { useAuth } from "@clerk/nextjs";
 
 export default function AddNewClub() {
-
-    const { userId } = useAuth();
+  const { userId } = useAuth();
 
   return (
     <form
-        action={addNewClub}
-      className="border p-4 bg-black flex flex-col items-start w-[95%] md:w-[40%] lg:w-[40%] xl:w-[40%] sm:w-[95%]"
+      action={addNewClub}
+      className="border p-4 bg-black text-white flex flex-col items-start w-[95%] md:w-[40%] lg:w-[40%] xl:w-[40%] sm:w-[95%] dark:bg-black text-white"
     >
       <div
         className="p-4 text-3xl md:text-3xl lg:text-4xl xl:text-4xl 
@@ -36,15 +33,11 @@ export default function AddNewClub() {
         />
       </div>
 
-      <input
-        type="hidden"
-        name={"owner"}
-        value={userId || ""}
-      />
+      <input type="hidden" name={"owner"} value={userId || ""} />
 
       <div className="mt-4 mb-4 w-[95%] md:w-[95%] lg:w-[95%] xl:w-[95%] sm:w-[95%] flex flex-col gap-4 items-center">
-        <SubmitButton label={"Add Club"}  />
-        <CancelButton  />
+        <SubmitButton label={"Add Club"} />
+        <CancelButton />
       </div>
     </form>
   );

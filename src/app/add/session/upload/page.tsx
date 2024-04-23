@@ -12,16 +12,16 @@ export default function Page() {
   const sessionId = session.get("sessionId");
   const clubId = session.get("clubId");
 
-  const payload = `${sessionId}, ${clubId}`
+  const payload = `${sessionId}, ${clubId}`;
 
   const inputFileRef = useRef<HTMLInputElement>(null);
   // const [blob, setBlob] = useState<PutBlobResult | null>(null);
 
   return (
-    <div className="flex flex-col border border-tunnel-snake-white bg-black items-center p-4 mt-4 mr-4 ml-4">
+    <div className="flex flex-col border border-tunnel-snake-white bg-black text-white items-center p-4 mt-4 mr-4 ml-4 dark:bg-black text-white">
       <h1
         className="text-3xl md:text-2xl lg:text-2xl xl:text-2xl 
-      text-center font-montserrat flex items-center text-tunnel-snake-green mb-4 flex-col"
+      text-center flex items-center  mb-4 flex-col"
       >
         Upload Your Image
       </h1>
@@ -45,8 +45,7 @@ export default function Page() {
           });
 
           // setBlob(newBlob);
-          redirectBackToSessions(clubId as string)
-
+          redirectBackToSessions(clubId as string);
         }}
       >
         <input
@@ -66,7 +65,7 @@ export default function Page() {
         >
           Upload
         </button>
-        <CancelButton/>
+        <CancelButton />
       </form>
     </div>
   );

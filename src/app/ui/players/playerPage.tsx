@@ -10,16 +10,13 @@ export interface PlayerPageProps {
   playerEvents: GroupedBoardgameTotalPlays;
 }
 
-export default function PlayerPage({ player,playerEvents }: PlayerPageProps) {
-
+export default function PlayerPage({ player, playerEvents }: PlayerPageProps) {
   // get a list of all games played by the player
-  
 
   const data = Object.entries(playerEvents).map(([gameName, total]) => ({
     gameName,
-    total
+    total,
   }));
-
 
   // const data = [
   //   {
@@ -44,7 +41,7 @@ export default function PlayerPage({ player,playerEvents }: PlayerPageProps) {
 
   return (
     <div>
-      <div className=" gap-4 flex flex-col items-center">
+      <div className=" gap-4 flex flex-col items-center bg-black text-white dark:bg-black text-white">
         <Image
           className="border border-black rounded-full"
           key={player.id}

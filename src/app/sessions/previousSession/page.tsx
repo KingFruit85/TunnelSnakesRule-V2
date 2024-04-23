@@ -55,13 +55,13 @@ export default async function Page({
   const groupedResultsData = await Promise.all(promises);
 
   return (
-    <div className="w-full flex flex-col space-items items-center py-5">
-      <div className="w-[95%] md:w-[35%] lg:w-[35%] xl:w-[25%] sm:w-[95%] flex-col border p-4 rounded-sm bg-black ">
+    <div className="w-full flex flex-col space-items items-center py-5 text-white bg-black dark: bg-black text-white">
+      <div className="w-[95%] md:w-[35%] lg:w-[35%] xl:w-[25%] sm:w-[95%] flex-col border p-4 rounded-sm  ">
         <BackButton>Go Back</BackButton>
 
         <div className="flex flex-col mt-1 mb-1 text-lg items-center text-4xl">
           <p>~{sessionDate}~</p>
-          <p>{session.name}</p>
+          <p className="text-2xl font-bold">{session.name}</p>
         </div>
 
         <div className="flex flex-row justify-between p-4">
@@ -80,7 +80,7 @@ export default async function Page({
         </div>
 
         {session.notes && (
-          <i className="w-[100%] text-tunnel-snake-orange flex flex-col items-center p-4">
+          <i className="w-[100%] text-tunnel-snake-orange flex flex-col items-center p-4 ">
             &quot;{session.notes}&quot;
           </i>
         )}
