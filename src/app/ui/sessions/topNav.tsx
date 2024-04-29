@@ -122,12 +122,13 @@ const TopNav: React.FC = () => {
                   <label>Add Boardgame</label>
                 </div>
               </button>
-
-              <SignOutButton className="border block w-full text-left px-4 py-2 text-white text-base hover:bg-tunnel-snake-orange">
-                <div className="flex pl-2 gap-2 text-tunnel-snake-orange bg-tunnel-snake-orange">
-                  <label>Sign out</label>
-                </div>
-              </SignOutButton>
+              <div className="border block w-full text-left px-4 py-2 text-white text-base hover:bg-tunnel-snake-orange">
+                <SignOutButton>
+                  <div className="flex pl-2 gap-2 text-tunnel-snake-red">
+                    <label>Sign out</label>
+                  </div>
+                </SignOutButton>
+              </div>
             </div>
           )}
           {/* {isLoaded && userId && (
