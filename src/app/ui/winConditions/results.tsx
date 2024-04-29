@@ -48,6 +48,15 @@ export default function Results({ games, players }: ResultsProps) {
             </div>
           )}
 
+          <Image
+            src={"/coup.png"}
+            alt={"coup"}
+            width={0}
+            height={0}
+            sizes="100vw"
+            style={{ width: "100%", height: "auto" }}
+          />
+
           <div className="flex mb-2 pb-2 pt-2 gap-4 justify-between">
             {games.length > 0 && (
               <select

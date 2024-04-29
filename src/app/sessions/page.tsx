@@ -8,8 +8,6 @@ import {
 } from "@/app/lib/data";
 import SessionContextWrapper from "./sessionContextWrapper";
 import { currentUser } from "@clerk/nextjs";
-import RedirectButton from "../ui/Common/sessionRedirectButton";
-import { Destination } from "../lib/definitions";
 
 export default async function Page({
   searchParams,
@@ -32,29 +30,26 @@ export default async function Page({
     : false;
 
   return (
-    <div className="flex flex-col gap-2 items-center h-screen bg-black dark:bg-black text-white">
-      <div className="text-3xl md:text-3xl lg:text-3xl xl:text-3xl text-center font-montserrat pt-4 pb-4 bg-stone-500 flex w-[100%] justify-center text-tunnel-snake-white">
+    <div className="flex flex-col gap-2 h-screen bg-black dark:bg-black items-center">
+      <div className="text-3xl md:text-3xl lg:text-3xl xl:text-3xl italic text-tunnel-snake-green pt-4 pb-4 flex justify-center flex">
         {clubDetails.name}
       </div>
-      <div className="flex hover:bg-tunnel-snake-orange">
-        <RedirectButton
-          destination={Destination.AddNewBoardGame}
-          club={clubDetails}
+
+      <div className="flex flex-col items-left">
+        <div className="text-2xl text-left text-white flex pl-4">
+          Active Sessions
+        </div>
+
+        <SessionContextWrapper
+          clubId={clubId}
+          userId={user!.id}
+          activeSessions={activeSessions}
+          previousSessions={previousSessions}
+          isClubOwner={isClubOwner}
+          accessRequestsPending={accessRequestsPending}
+          boardgames={boardgames}
         />
-        <RedirectButton destination={Destination.Groups} club={clubDetails} />
       </div>
-      <div className="text-2xl md:text-3xl lg:text-3xl xl:text-3xl text-center font-montserrat mt-4 mb-2">
-        Active Sessions
-      </div>
-      <SessionContextWrapper
-        clubId={clubId}
-        userId={user!.id}
-        activeSessions={activeSessions}
-        previousSessions={previousSessions}
-        isClubOwner={isClubOwner}
-        accessRequestsPending={accessRequestsPending}
-        boardgames={boardgames}
-      />
     </div>
   );
 }

@@ -57,9 +57,9 @@ const TopNav: React.FC = () => {
   return (
     <>
       {isLoaded && userId && (
-        <div className="w-full bg-black text-white p-5 space-items items-center gap-5 flex-row inline-flex relative place-content-between dark:bg-black text-white">
+        <div className="w-full bg-black text-white p-4 space-items items-center flex-row inline-flex dark:bg-black text-white">
           {isLoaded && userId && (
-            <div className="justify-center items-center gap-2 flex pl-5 bg-black text-white">
+            <div className="justify-center items-center gap-2 flex bg-black text-white">
               <Image
                 src="/Menu.svg"
                 alt="Nav menu button"
@@ -122,13 +122,19 @@ const TopNav: React.FC = () => {
                   <label>Add Boardgame</label>
                 </div>
               </button>
+
+              <SignOutButton className="border block w-full text-left px-4 py-2 text-white text-base hover:bg-tunnel-snake-orange">
+                <div className="flex pl-2 gap-2 text-tunnel-snake-orange bg-tunnel-snake-orange">
+                  <label>Sign out</label>
+                </div>
+              </SignOutButton>
             </div>
           )}
-          {isLoaded && userId && (
+          {/* {isLoaded && userId && (
             <div className="text-tunnel-snake-orange bg-tunnel-snake-black rounded-sm border border-tunnel-snake-orange py-2 px-4 hover:bg-tunnel-snake-orange hover:text-black hover:border-black">
               <SignOutButton />
             </div>
-          )}
+          )} */}
         </div>
       )}
     </>

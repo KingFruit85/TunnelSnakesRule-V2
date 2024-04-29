@@ -3,7 +3,7 @@ import { addNewGameResult } from "@/app/lib/actions";
 import Results from "../../winConditions/results";
 import CancelButton from "../../Common/cancelButton";
 import SubmitButton from "../../Common/submitButton";
-import BackButton from "../../Common/backButton";
+import Image from "next/image";
 
 export interface AddGameResultProps {
   sessionId: string;

@@ -11,16 +11,19 @@ import { useSearchParams } from "next/navigation";
 
 export interface currentSessionProps {
   session: GameSession;
-  boardgames:BoardGame[];
+  boardgames: BoardGame[];
 }
 
-export default function CurrentSession({ session, boardgames }: currentSessionProps) {
+export default function CurrentSession({
+  session,
+  boardgames,
+}: currentSessionProps) {
   const [showNotes, setShowNotes] = useState<boolean>(false);
   const [showImageUpload, setShowImageUpload] = useState<boolean>(false);
   const [notes, setNotes] = useState<string>("");
 
   const clubId = useSearchParams().get("clubId") as string;
-  
+
   useEffect(() => {
     const notes = localStorage.getItem("sessionNotes");
     if (notes) {
@@ -58,7 +61,7 @@ export default function CurrentSession({ session, boardgames }: currentSessionPr
   };
 
   return (
-    <div className="flex-col border border-tunnel-snake-orange bg-black ">
+    <div className="flex-col border border-tunnel-snake-orange bg-black text-white">
       <CurrentSessionHeader
         handleShowNotes={handleShowNotes}
         formattedDate={formattedDate}
@@ -69,17 +72,17 @@ export default function CurrentSession({ session, boardgames }: currentSessionPr
         clubId={clubId}
       />
       <CurrentSessionGames session={session} boardgames={boardgames} />
-      <div className="flex-row gap-4">
-        <CurrentSessionButtons
-          session={session}
-          clubId={clubId}
-          handleEndSession={handleEndSession}
-        />
+      <CurrentSessionButtons
+        session={session}
+        clubId={clubId}
+        handleEndSession={handleEndSession}
+      />
+      {session.imageurl && (
         <CurrentSessionImages
           session={session}
           handleEndSession={handleEndSession}
         />
-      </div>
+      )}
     </div>
   );
 }

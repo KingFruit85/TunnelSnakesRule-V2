@@ -15,7 +15,9 @@ export default function AddNewSession({ players, clubId }: AddNewSessionProps) {
   const [sessionName, setSessionName] = useState("");
   const maxChars = 25;
 
-  const handleInputChange = (e: { target: { value: SetStateAction<string>; }; }) => {
+  const handleInputChange = (e: {
+    target: { value: SetStateAction<string> };
+  }) => {
     setSessionName(e.target.value);
   };
 
@@ -24,7 +26,7 @@ export default function AddNewSession({ players, clubId }: AddNewSessionProps) {
   return (
     <form action={addNewGameSession}>
       <input type="hidden" name="clubId" value={clubId} />
-      <div className="p-12 bg-tunnel-snake-black border border-white flex-col justify-start items-start gap-8 inline-flex">
+      <div className=" bg-tunnel-snake-black flex-col justify-start items-start gap-8 inline-flex">
         <div className="text-white text-[32px] font-semibold font-['Montserrat']">
           Add New Session
         </div>

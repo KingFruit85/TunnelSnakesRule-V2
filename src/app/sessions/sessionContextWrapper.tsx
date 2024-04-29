@@ -14,7 +14,7 @@ export interface SessionContextWrapperProps {
   userId: string | null;
   isClubOwner: boolean;
   accessRequestsPending: boolean;
-  boardgames:BoardGame[];
+  boardgames: BoardGame[];
 }
 
 export default function SessionContextWrapper({
@@ -27,23 +27,23 @@ export default function SessionContextWrapper({
   boardgames,
 }: SessionContextWrapperProps) {
   return (
-    <>
-      <ClubContext.Provider value={clubId}>
-        {isClubOwner && accessRequestsPending ? (
-          <PageRedirectButton
-            destination={Destination.ReviewAceessRequests}
-            userId={userId}
-            clubId={clubId}
-          />
-        ) : null}
-        {activeSessions.length === 0 && <NewSessionButton />}
-        {activeSessions.map((session) => (
-          <div key={session.id}>
-            <CurrentSession session={session} boardgames={boardgames} />
-          </div>
-        ))}
+    <ClubContext.Provider value={clubId}>
+      {isClubOwner && accessRequestsPending ? (
+        <PageRedirectButton
+          destination={Destination.ReviewAceessRequests}
+          userId={userId}
+          clubId={clubId}
+        />
+      ) : null}
+      {activeSessions.length === 0 && <NewSessionButton />}
+      {activeSessions.map((session) => (
+        <div key={session.id} className="p-4">
+          <CurrentSession session={session} boardgames={boardgames} />
+        </div>
+      ))}
+      <div className="p-4">
         <PreviousSessions sessions={previousSessions} />
-      </ClubContext.Provider>
-    </>
+      </div>
+    </ClubContext.Provider>
   );
 }

@@ -15,51 +15,44 @@ export default function PreviousSessions(props: PreviousSessionsProps) {
   );
 
   return (
-    <div className="w-[95%] md:w-[35%] lg:w-[35%] xl:w-[35%] sm:w-[95%] text-white bg-black dark:bg-black text-white">
-      <div className="text-2xl md:text-3xl lg:text-3xl xl:text-3xl text-center mb-2 mt-2">
-        Previous Sessions
-      </div>
+    <div className="text-white bg-black dark:bg-black text-white">
+      <div className="text-2xl flex mb-2 ">Previous Sessions</div>
 
-      {sortedSessions.map((session) => (
-        <div key={session.id} className="mb-4 bg-black flex-col">
-          <div className="flex flex-row gap-2 pl-4 pt-2 place-content-between pr-4">
-            <div className="text-tunnel-snake-green">
-              {session?.date?.toLocaleDateString("en-GB", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-              })}
-            </div>
-
-            <div className="flex gap-2">
-              <Image
-                src={"/Dice.svg"}
-                alt={"dice icon"}
-                width={20}
-                height={20}
-              />
-              <div className="">{session.playerResults?.length || 0}</div>
-            </div>
-          </div>
-
-          <div className="pl-4 pt-2 ">{session?.name}</div>
-          <Link
-            className="flex gap-2 pl-4 pt-2 pb-2 text-tunnel-snake-orange underline-offset-4"
-            href={{
-              pathname: "/sessions/previousSession",
-              query: { sessionId: session.id },
-            }}
+      {sortedSessions.map((session) => {
+        return (
+          <div
+            key={session.id}
+            className="mb-4 pl-4 bg-tunnel-snake-grey flex-col shadow-inner"
           >
-            <u>View session</u>{" "}
-            <Image
-              src={"/RightArrow.svg"}
-              alt={"dice icon"}
-              width={15}
-              height={15}
-            />
-          </Link>
-        </div>
-      ))}
+            <div className="flex flex-row pt-2 place-content-between">
+              <div className="text-tunnel-snake-green">
+                {session?.date?.toLocaleDateString("en-GB", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                })}
+              </div>
+            </div>
+
+            <div>{session?.name}</div>
+            <Link
+              className="flex gap-2 pb-2 text-tunnel-snake-orange underline-offset-4"
+              href={{
+                pathname: "/sessions/previousSession",
+                query: { sessionId: session.id },
+              }}
+            >
+              <u>View session</u>{" "}
+              <Image
+                src={"/RightArrow.svg"}
+                alt={"dice icon"}
+                width={15}
+                height={15}
+              />
+            </Link>
+          </div>
+        );
+      })}
     </div>
   );
 }
