@@ -38,12 +38,12 @@ export default function CurrentSessionHeader({
           />
         </div>
       )}
-      <div className="gap-4 flex mt-2 ml-2 mr-2 items-center mb-2">
-        <div className="text-base md:text-lg lg:text-lg xl:text-lg text-center font-montserrat flex items-center pl-2 pt-1 pr-2">
+      <div className="flex pt-2 pl-2 pr-2 space-x-4">
+        <div className="text-base md:text-lg lg:text-lg xl:text-lg text-center font-montserrat flex items-center pl-2 pt-1">
           {formattedDate}
         </div>
 
-        <div className="text-1xl md:text-2xl lg:text-2xl xl:text-2xl text-center font-montserrat flex items-center text-tunnel-snake-green truncate">
+        <div className="text-1xl md:text-2xl lg:text-2xl xl:text-2xl  flex items-center text-tunnel-snake-green truncate ... ">
           {session?.name}
         </div>
         <div className="flex items-center gap-2 mr-1">
