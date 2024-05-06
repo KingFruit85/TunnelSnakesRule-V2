@@ -8,11 +8,11 @@ import Link from "next/link";
 
 export default async function Home() {
   const user = await currentUser();
-  let currentEnv = process.env.VERCEL_ENV;
+  let currentEnv = "";
 
-  // if (process.env.VERCEL_ENV === "development") {
-  //   currentEnv = process.env.VERCEL_ENV;
-  // }
+  if (process.env.VERCEL_ENV && process.env.VERCEL_ENV !== "production") {
+    currentEnv = process.env.VERCEL_ENV;
+  }
 
   if (user) {
     const userHasCreatedAccount = await checkIfUserHasPlayerProfile(
@@ -38,7 +38,9 @@ export default async function Home() {
               style={{ width: "100%", height: "auto" }} // optional
             />
             <h1 className="p-4 text-2xl font-bold">Let&apos;s get playing!</h1>
-            <p className="p-4 text-xl text-red-500">{currentEnv}</p>
+            {currentEnv.length > 0 && (
+              <p className="p-4 text-xl text-red-500">{currentEnv}</p>
+            )}
             <h2 className="p-4">
               <Link
                 target="_blank"
