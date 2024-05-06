@@ -24,6 +24,8 @@ export default async function Home() {
     }
   }
 
+  // some texts
+
   return (
     <div className="w-full flex flex-col space-items items-center py-5 bg-black dark:bg-black">
       {!user && (
