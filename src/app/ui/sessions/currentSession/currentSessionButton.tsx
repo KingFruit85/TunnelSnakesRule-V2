@@ -14,7 +14,7 @@ export default function CurrentSessionButtons({
   clubId,
 }: CurrentSessionButtonsProps) {
   return (
-    <div className="ml-4 mb-4 flex gap-4">
+    <div className="m-4 flex gap-4">
       <Link
         className="text-tunnel-snake-green flex border border-tunnel-snake-green rounded-sm p-2 gap-2 items-center justify-center hover:bg-tunnel-snake-green 
         hover:text-white"
@@ -33,9 +33,7 @@ export default function CurrentSessionButtons({
           height={20}
           alt={"number of players in session icon"}
         />
-        <div className="">
-          Add result
-        </div>
+        <div className="">Add result</div>
       </Link>
 
       <button
@@ -43,9 +41,7 @@ export default function CurrentSessionButtons({
         className="text-tunnel-snake-red flex border border-tunnel-snake-red rounded-sm p-2 gap-2 items-center justify-center hover:bg-tunnel-snake-red 
         hover:text-white"
       >
-        <div className="">
-          End session
-        </div>
+        <div className="">End session</div>
       </button>
     </div>
   );

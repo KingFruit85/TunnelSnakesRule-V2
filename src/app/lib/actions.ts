@@ -301,10 +301,10 @@ export async function addNewGameResult(formData: FormData) {
   };
 
   await sql`
-        INSERT INTO gameResults ( game_id, session_id, player_scores, winner, notes, event_id)
+        INSERT INTO gameResults ( game_id, session_id, player_scores, winner, notes, event_id, club_id)
         VALUES (${gameId}, ${sessionId}, ${JSON.stringify(
     playerScores
-  )}, ${winner}, ${notes}, ${eventId} )`;
+  )}, ${winner}, ${notes}, ${eventId}, ${clubId} )`;
 
   // // Retrieve existing gameResults
   // const existingResults = await sql`

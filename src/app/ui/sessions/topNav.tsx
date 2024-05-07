@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { SignOutButton } from "@clerk/nextjs";
 import { useAuth } from "@clerk/nextjs";
 
@@ -13,6 +13,10 @@ const TopNav: React.FC = () => {
 
   const [screenSize, setScreenSize] = useState("md"); // Default size
   const { isLoaded, userId } = useAuth();
+
+  const searchParams = useSearchParams();
+
+  const clubId = searchParams.get("clubId");
 
   useEffect(() => {
     const handleResize = () => {
@@ -105,23 +109,26 @@ const TopNav: React.FC = () => {
                 </div>
               </button>
 
-              <button
-                onClick={() => {
-                  router.push("/add/game/");
-                  handlePopoverClose();
-                }}
-                className="border block w-full text-left px-4 py-2 text-white text-base font-normal font-['Montserrat'] hover:bg-tunnel-snake-orange"
-              >
-                <div className="flex pl-2 gap-2">
-                  <Image
-                    src={"/DiceWhite.svg"}
-                    alt={"add game icon"}
-                    height={20}
-                    width={20}
-                  />
-                  <label>Add Boardgame</label>
-                </div>
-              </button>
+              {clubId && (
+                <button
+                  onClick={() => {
+                    router.push(`/add/game?clubId=${clubId}`);
+                    handlePopoverClose();
+                  }}
+                  className="border block w-full text-left px-4 py-2 text-white text-base font-normal font-['Montserrat'] hover:bg-tunnel-snake-orange"
+                >
+                  <div className="flex pl-2 gap-2">
+                    <Image
+                      src={"/DiceWhite.svg"}
+                      alt={"add game icon"}
+                      height={20}
+                      width={20}
+                    />
+                    <label>Add Boardgame</label>
+                  </div>
+                </button>
+              )}
+
               <div className="border block w-full text-left px-4 py-2 text-white text-base hover:bg-tunnel-snake-orange">
                 <SignOutButton>
                   <div className="flex pl-2 gap-2 text-tunnel-snake-red">
@@ -131,11 +138,6 @@ const TopNav: React.FC = () => {
               </div>
             </div>
           )}
-          {/* {isLoaded && userId && (
-            <div className="text-tunnel-snake-orange bg-tunnel-snake-black rounded-sm border border-tunnel-snake-orange py-2 px-4 hover:bg-tunnel-snake-orange hover:text-black hover:border-black">
-              <SignOutButton />
-            </div>
-          )} */}
         </div>
       )}
     </>

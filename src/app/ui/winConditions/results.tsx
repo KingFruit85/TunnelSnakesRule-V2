@@ -73,15 +73,6 @@ export default function Results({ games, players }: ResultsProps) {
               </select>
             )}
 
-            {/* <button type="button">
-              <Image
-                src={"/Camera.svg"}
-                alt={"Camera icon"}
-                width={20}
-                height={20}
-              />
-            </button> */}
-
             <button type="button" onClick={handleShowNotes}>
               <Image
                 src={"/Paper.svg"}
