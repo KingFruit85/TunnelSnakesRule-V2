@@ -4,7 +4,6 @@ import { BoardGame, Player, WinCondition } from "@/app/lib/definitions";
 import PlayerRow from "./playerRow";
 import TeambasedRadio from "../add/Results/teambasedradio";
 import CooperativeRadio from "../add/Results/cooperativeradio";
-import { Radio } from "@geist-ui/core";
 import { useState } from "react";
 import Image from "next/image";
 
@@ -17,16 +16,10 @@ export default function Leaderboard(props: LeaderboardProps) {
   const { players, game } = props;
   const [selectedPlayerId, setSelectedPlayerId] = useState("");
 
-  const [state, setState] = useState<string | number | undefined>();
-
-  const handler = (val: string | number | undefined) => {
-    setState(val);
-  };
-
   switch (parseInt(game.winCondition)) {
     case WinCondition.SingleLoser:
       return (
-        <>
+        <div className=" pb-6">
           <p className="p-4 text-xl">Select the loser</p>
           <div className="grid grid-cols-3 gap-4">
             {players.map((player: Player) => (
@@ -43,11 +36,11 @@ export default function Leaderboard(props: LeaderboardProps) {
                   <Image
                     src={player.avatar}
                     alt={player.name}
-                    width={25}
-                    height={25}
+                    width={50}
+                    height={50}
                     className={`rounded-full ${
                       selectedPlayerId === player.id
-                        ? "ring-2 ring-tunnel-snake-orange"
+                        ? "ring-4 ring-tunnel-snake-green"
                         : ""
                     }`}
                     onClick={() => setSelectedPlayerId(player.id)}
@@ -56,7 +49,7 @@ export default function Leaderboard(props: LeaderboardProps) {
               </div>
             ))}
           </div>
-        </>
+        </div>
       );
 
     case WinCondition.SinglerWinner:
@@ -82,7 +75,7 @@ export default function Leaderboard(props: LeaderboardProps) {
                     height={50}
                     className={`rounded-full ${
                       selectedPlayerId === player.id
-                        ? "ring-2 ring-tunnel-snake-orange"
+                        ? "ring-4 ring-tunnel-snake-green"
                         : ""
                     }`}
                     onClick={() => setSelectedPlayerId(player.id)}
