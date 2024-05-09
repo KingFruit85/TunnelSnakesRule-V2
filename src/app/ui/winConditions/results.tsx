@@ -57,13 +57,13 @@ export default function Results({ games, players }: ResultsProps) {
             style={{ width: "100%", height: "auto" }}
           />
 
-          <div className="flex mb-2 pb-2 pt-2 gap-4 justify-between">
+          <div className="flex mb-2 pb-2 pt-2 ">
             {games.length > 0 && (
               <select
                 id="boardgame"
                 value={game?.name}
                 onChange={handleGameChange}
-                className="text-tunnel-snake-green bg-tunnel-snake-black text-2xl sm:text-1xl md:text-3xl lg:text-3xl xl:text-3xl font-semibold font-['Montserrat']"
+                className="text-tunnel-snake-green bg-tunnel-snake-black font-bold"
               >
                 {games.map((game) => (
                   <option key={game.id} value={game.name}>
@@ -73,16 +73,7 @@ export default function Results({ games, players }: ResultsProps) {
               </select>
             )}
 
-            {/* <button type="button">
-              <Image
-                src={"/Camera.svg"}
-                alt={"Camera icon"}
-                width={20}
-                height={20}
-              />
-            </button> */}
-
-            <button type="button" onClick={handleShowNotes}>
+            <button type="button" onClick={handleShowNotes} className="pl-4">
               <Image
                 src={"/Paper.svg"}
                 alt={"Paper icon"}

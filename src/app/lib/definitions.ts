@@ -48,6 +48,8 @@ export enum WinCondition {
   LeaderBoard,
   TeamBased,
   Coopratitive,
+  SinglerWinner,
+  SingleLoser,
 }
 
 export enum ScoringDirection {

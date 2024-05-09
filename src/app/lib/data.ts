@@ -201,6 +201,15 @@ export async function getSessionDetails(id: string) {
   return sessions;
 }
 
+export async function GetClubNameByEventId(id: string) {
+  const result = await sql`
+  SELECT club_id FROM gameresults WHERE event_id = ${id} `;
+
+  const club = await getClubDetails(result.rows[0]["club_id"]);
+
+  return club.name;
+}
+
 export async function checkAccessRequestStatus(
   playerId: string,
   clubId: string
@@ -436,17 +445,15 @@ export async function getPlayerEvents(playerId: UUID) {
     SELECT * from playerScores WHERE player_id = ${playerId}
   `;
 
-
   const playerEvents: GroupedBoardgameTotalPlays = {};
 
   for (const row of result.rows) {
-
     const gameName = (await getBoardgameById(row.game_id)).name;
 
     if (playerEvents[gameName]) {
       playerEvents[gameName]++;
     } else {
-      playerEvents[gameName] = 1;   
+      playerEvents[gameName] = 1;
     }
   }
   return playerEvents;

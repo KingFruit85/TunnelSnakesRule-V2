@@ -1,14 +1,15 @@
 "use server";
 
 import {
+  GetClubNameByEventId,
   getAllPlayersBySessionId,
   getBoardgameById,
+  getClubDetails,
   getEventNotes,
   getEventWinner,
   getSessionDetails,
 } from "@/app/lib/data";
 import { Player, PlayerResult } from "@/app/lib/definitions";
-import BackButton from "@/app/ui/Common/backButton";
 import { UUID } from "crypto";
 import Image from "next/image";
 import Link from "next/link";
@@ -54,21 +55,37 @@ export default async function Page({
 
   const groupedResultsData = await Promise.all(promises);
 
+  const eventIds = Object.keys(groupedResults);
+
+  let clubName = "";
+
+  if (eventIds.length > 0) {
+    const firstEventId = eventIds[0];
+    clubName = await GetClubNameByEventId(firstEventId);
+  }
+
+  // get the clubname from the gameResult with a matching event_id
+  // const clubname = GetClubNameByEventId(groupedResults.)
+
   return (
     <div className="w-full flex flex-col space-items items-center py-5 text-white bg-black dark: bg-black text-white">
-      <div className="w-[95%] md:w-[35%] lg:w-[35%] xl:w-[25%] sm:w-[95%] flex-col border p-4 rounded-sm  ">
-        <BackButton>Go Back</BackButton>
-
+      <div className="w-[95%] md:w-[35%] lg:w-[35%] xl:w-[25%] sm:w-[95%] flex-col p-4 rounded-sm  ">
         <div className="flex flex-col mt-1 mb-1 text-lg items-center text-4xl">
-          <p>~{sessionDate}~</p>
-          <p className="text-2xl font-bold">{session.name}</p>
+          <p className="text-tunnel-snake-orange">{clubName}</p>
+
+          <p className="text-tunnel-snake-orange">{sessionDate}</p>
+          <p className="text-2xl p-2 font-bold">{session.name}</p>
         </div>
 
         <div className="flex flex-row justify-between p-4">
           {players.map((player) => (
-            <Link key={player.id} href={`/players?userid=${player.id}`}>
+            <Link
+              className="p-2"
+              key={player.id}
+              href={`/players?userid=${player.id}`}
+            >
               <Image
-                className="border border-black rounded-full ring-4"
+                className="rounded-full ring-4"
                 key={player.id}
                 src={player.avatar}
                 alt={player.name}

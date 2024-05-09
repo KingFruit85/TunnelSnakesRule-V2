@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { BoardGame, Player, WinCondition } from "@/app/lib/definitions";
 import Image from "next/image";
+import { Radio } from "@geist-ui/core";
 
 export interface PlayerRowProps {
   player: Player;

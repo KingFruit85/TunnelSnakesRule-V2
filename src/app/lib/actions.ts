@@ -211,6 +211,7 @@ export async function createNewPlayerRecord(user: User) {
 }
 
 export async function addNewGameResult(formData: FormData) {
+  console.log(formData);
   const sessionId = formData.get("sessionId")?.toString();
   const winCondition = formData.get("winCondition")?.toString();
   const scoringDirection = formData.get("scoringDirection")?.toString();
@@ -266,12 +267,17 @@ export async function addNewGameResult(formData: FormData) {
       winner = winner;
 
     case "2":
-      console.log("win condition coop!");
-
       winner = winner;
 
+    case "3":
+      winner = winner;
+
+    case "4":
+      winner = formData.get("loser")?.toString();
+
     default:
-      console.log("win condition fuck knows!");
+      console.log("win condition fuck knows! : ", winCondition);
+      console.log(formData);
 
       break;
   }
@@ -301,10 +307,10 @@ export async function addNewGameResult(formData: FormData) {
   };
 
   await sql`
-        INSERT INTO gameResults ( game_id, session_id, player_scores, winner, notes, event_id)
+        INSERT INTO gameResults ( game_id, session_id, player_scores, winner, notes, event_id, club_id)
         VALUES (${gameId}, ${sessionId}, ${JSON.stringify(
     playerScores
-  )}, ${winner}, ${notes}, ${eventId} )`;
+  )}, ${winner}, ${notes}, ${eventId}, ${clubId} )`;
 
   // // Retrieve existing gameResults
   // const existingResults = await sql`

@@ -3,7 +3,6 @@ import { addNewGameResult } from "@/app/lib/actions";
 import Results from "../../winConditions/results";
 import CancelButton from "../../Common/cancelButton";
 import SubmitButton from "../../Common/submitButton";
-import Image from "next/image";
 
 export interface AddGameResultProps {
   sessionId: string;
@@ -19,13 +18,13 @@ export default async function AddGameResult({
 
   return (
     <div className="w-full flex flex-col space-items items-center py-5 bg-black text-white dark:bg-black text-white">
-      <div className="w-[95%] md:w-[35%] lg:w-[35%] xl:w-[25%] sm:w-[95%] flex-col border p-4 rounded-sm bg-black">
+      <div className="w-[95%] md:w-[35%] lg:w-[35%] xl:w-[25%] sm:w-[95%] flex-col p-4 rounded-sm bg-black">
         <form action={addNewGameResult}>
           <input type="hidden" name="sessionId" value={sessionId} />
           <input type="hidden" name="clubId" value={clubId} />
 
           <div
-            className="p-4 text-3xl md:text-3xl lg:text-4xl xl:text-4xl 
+            className="pb-2 text-3xl md:text-3xl lg:text-4xl xl:text-4xl 
                     text-center font-['Montserrat'] font-semibold flex items-center text-tunnel-snake-white"
           >
             Add Result

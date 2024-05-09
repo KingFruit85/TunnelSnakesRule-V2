@@ -18,17 +18,15 @@ export default function AddNewGame() {
   return (
     <form
       action={addNewBoardGame}
-      className="border p-4 bg-black flex flex-col items-start w-[95%] md:w-[40%] lg:w-[40%] xl:w-[40%] sm:w-[95%] dark:bg-black text-white"
+      className=" p-4 bg-black flex flex-col items-start w-[95%] md:w-[40%] lg:w-[40%] xl:w-[40%] sm:w-[95%] dark:bg-black text-white"
     >
       <input type="hidden" name={"clubId"} value={clubId || ""} />
 
-      <div className="p-4 text-3xl md:text-3xl lg:text-4xl xl:text-4xl text-center font-semibold flex items-center">
-        Add New Game
-      </div>
+      <div className="p-2 text-3xl font-bold flex">Add New Game</div>
 
-      <div className="p-4">
+      <div className="p-2">
         <div className="flex flex-col gap-2">
-          <div>Name</div>
+          <div className="-mb-2">Name</div>
           <input
             id="gameName"
             name="gameName"
@@ -47,6 +45,7 @@ export default function AddNewGame() {
               name="winCondition"
               id="teamBased"
               value={WinCondition.TeamBased}
+              required
               onClick={() => setLeaderboardSelected(false)}
             />
             <div>Team based</div>
@@ -71,6 +70,28 @@ export default function AddNewGame() {
               onClick={() => setLeaderboardSelected(true)}
             />
             <div>Leader board</div>
+          </div>
+
+          <div className="flex gap-2 ">
+            <input
+              type="radio"
+              name="winCondition"
+              id="singlePlayerWins"
+              value={WinCondition.SinglerWinner}
+              onClick={() => setLeaderboardSelected(false)}
+            />
+            <div>Single Winner</div>
+          </div>
+
+          <div className="flex gap-2 ">
+            <input
+              type="radio"
+              name="winCondition"
+              id="singlePlayerLooses"
+              value={WinCondition.SingleLoser}
+              onClick={() => setLeaderboardSelected(false)}
+            />
+            <div>Single Loser</div>
           </div>
 
           {leaderboardSelected && (
