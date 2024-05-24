@@ -52,7 +52,7 @@ export default function PageRedirectButton({
       className="
         flex 
         gap-2 
-        text-tunnel-snake-green 
+        text-tunnel-snake-white 
         border-tunnel-snake-green 
         px-4 
         py-2 

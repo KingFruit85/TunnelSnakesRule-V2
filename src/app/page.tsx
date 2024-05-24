@@ -24,12 +24,10 @@ export default async function Home() {
     }
   }
 
-  // test comment
-
   return (
     <div className="w-full flex flex-col space-items items-center py-5 bg-black dark:bg-black">
       {!user && (
-        <div className="w-[95%] md:w-[35%] lg:w-[35%] xl:w-[25%] sm:w-[95%] flex-col border p-4 rounded-sm bg-black text-white dark:bg-black text-white">
+        <div className="w-[95%] md:w-[35%] lg:w-[35%] xl:w-[25%] sm:w-[95%] flex-col  p-4 rounded-sm bg-black text-white dark:bg-black text-white">
           <div className="p-4">
             <Image
               src={"/game.jpeg"}

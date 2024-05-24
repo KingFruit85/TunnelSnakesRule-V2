@@ -28,21 +28,27 @@ export default function SessionContextWrapper({
 }: SessionContextWrapperProps) {
   return (
     <ClubContext.Provider value={clubId}>
-      {isClubOwner && accessRequestsPending ? (
-        <PageRedirectButton
-          destination={Destination.ReviewAceessRequests}
-          userId={userId}
-          clubId={clubId}
-        />
-      ) : null}
-      {activeSessions.length === 0 && <NewSessionButton />}
-      {activeSessions.map((session) => (
-        <div key={session.id} className="p-4">
-          <CurrentSession session={session} boardgames={boardgames} />
+      <div className="flex flex-col items-center">
+        {isClubOwner && accessRequestsPending ? (
+          <PageRedirectButton
+            destination={Destination.ReviewAceessRequests}
+            userId={userId}
+            clubId={clubId}
+          />
+        ) : null}
+        {activeSessions.length === 0 && (
+          <div className="p-2">
+            <NewSessionButton />
+          </div>
+        )}
+        {activeSessions.map((session) => (
+          <div key={session.id} className="p-4">
+            <CurrentSession session={session} boardgames={boardgames} />
+          </div>
+        ))}
+        <div className="">
+          <PreviousSessions sessions={previousSessions} />
         </div>
-      ))}
-      <div className="p-4">
-        <PreviousSessions sessions={previousSessions} />
       </div>
     </ClubContext.Provider>
   );

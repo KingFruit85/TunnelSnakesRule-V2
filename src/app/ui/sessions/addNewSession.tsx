@@ -32,9 +32,7 @@ export default function AddNewSession({ players, clubId }: AddNewSessionProps) {
         </div>
         <div className="flex-col justify-start items-start gap-5 flex">
           <div className="flex-col justify-start items-start gap-2 flex">
-            <div className="text-white text-sm font-medium font-['Montserrat']">
-              Session name
-            </div>
+            <div className="text-white text-sm font-medium ">Session name</div>
             <input
               id="sessionName"
               name="sessionName"
@@ -43,7 +41,7 @@ export default function AddNewSession({ players, clubId }: AddNewSessionProps) {
               value={sessionName}
               onChange={handleInputChange}
               maxLength={maxChars}
-              className=" self-stretch px-3 py-2.5 bg-tunnel-snake-grey rounded-sm border border-white justify-start items-start gap-2.5 inline-flex"
+              className=" self-stretch px-3 py-2.5 bg-tunnel-snake-grey rounded-sm border border-white justify-start items-start gap-2.5 inline-flex text-white dark:text-white"
             />
             <div className=" font-['Montserrat'] flex w-[100%] justify-end text-sm text-tunnel-snake-orange">
               {charsLeft} / {maxChars}

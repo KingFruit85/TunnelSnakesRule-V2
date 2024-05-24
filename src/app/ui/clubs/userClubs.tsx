@@ -36,10 +36,7 @@ export default async function UserClubs() {
 
       {clubs && clubs.length > 0 ? (
         clubs.map((club) => (
-          <div
-            key={club.id}
-            className="mb-4 flex-col flex items-center rounded-sm"
-          >
+          <div key={club.id} className="mb-4 flex-col flex items-center">
             <RedirectButton
               label={club.name}
               destination={Destination.ClubSessions}

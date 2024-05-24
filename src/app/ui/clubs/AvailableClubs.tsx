@@ -31,8 +31,7 @@ export default async function AvailableClubs({ userId }: AvailableClubsProps) {
   const clubStatuses = await Promise.all(clubPromises);
 
   return (
-    <div className="w-[95%] md:w-[35%] lg:w-[35%] xl:w-[35%] sm:w-[95%] flex-col border p-4 rounded-sm bg-black text-white dark:bg-black text-white">
-      <BackButton>Go Back</BackButton>
+    <div className="w-[95%] md:w-[35%] lg:w-[35%] xl:w-[35%] sm:w-[95%] flex-col  p-4 rounded-sm bg-black text-white dark:bg-black text-white">
       <div className="text-2xl md:text-3xl lg:text-3xl xl:text-3xl text-center mb-6 mt-2">
         Avalible clubs
       </div>

@@ -2,9 +2,10 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { SignOutButton } from "@clerk/nextjs";
 import { useAuth } from "@clerk/nextjs";
+import path from "path";
 
 const TopNav: React.FC = () => {
   const [isPopoverVisible, setIsPopoverVisible] = useState(false);
@@ -15,6 +16,8 @@ const TopNav: React.FC = () => {
   const { isLoaded, userId } = useAuth();
 
   const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const inSessionsScreen = pathname.includes("sessions");
 
   const clubId = searchParams.get("clubId");
 
@@ -109,7 +112,7 @@ const TopNav: React.FC = () => {
                 </div>
               </button>
 
-              {clubId && (
+              {clubId && inSessionsScreen && (
                 <button
                   onClick={() => {
                     router.push(`/add/game?clubId=${clubId}`);

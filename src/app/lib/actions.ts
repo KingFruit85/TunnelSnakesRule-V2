@@ -265,15 +265,19 @@ export async function addNewGameResult(formData: FormData) {
 
     case "1":
       winner = winner;
+      break;
 
     case "2":
       winner = winner;
+      break;
 
     case "3":
       winner = winner;
+      break;
 
     case "4":
       winner = formData.get("loser")?.toString();
+      break;
 
     default:
       console.log("win condition fuck knows! : ", winCondition);

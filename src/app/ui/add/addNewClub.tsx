@@ -12,7 +12,7 @@ export default function AddNewClub() {
   return (
     <form
       action={addNewClub}
-      className="border p-4 bg-black text-white flex flex-col items-start w-[95%] md:w-[40%] lg:w-[40%] xl:w-[40%] sm:w-[95%] dark:bg-black text-white"
+      className="p-4 bg-black text-white flex flex-col items-start w-[95%] md:w-[40%] lg:w-[40%] xl:w-[40%] sm:w-[95%] dark:bg-black text-white"
     >
       <div
         className="p-4 text-3xl md:text-3xl lg:text-4xl xl:text-4xl 

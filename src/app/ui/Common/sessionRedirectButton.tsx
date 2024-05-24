@@ -18,10 +18,9 @@ export default function RedirectButton({
   let buttonLabel = label ? label : undefined;
   let destinationPath = "";
 
-  const searchParams = useSearchParams()
- 
-  const userId = searchParams.get('user_id') || "";
+  const searchParams = useSearchParams();
 
+  const userId = searchParams.get("user_id") || "";
 
   switch (destination) {
     case Destination.AddNewClub:
@@ -37,7 +36,7 @@ export default function RedirectButton({
       break;
     case Destination.AddNewBoardGame:
       destinationPath = `/add/game?clubId=${club?.id}`;
-      buttonLabel="Add New Board Game";
+      buttonLabel = "Add New Board Game";
       break;
     case Destination.Groups:
       destinationPath = `/sessions/`;
@@ -62,8 +61,8 @@ export default function RedirectButton({
         justify-center
         flex 
         gap-2 
-        text-tunnel-snake-green 
-        border-tunnel-snake-grey 
+        text-tunnel-snake-white 
+        border-tunnel-snake-green 
         px-4 
         py-2 
         bg-tunnel-snake-black 
