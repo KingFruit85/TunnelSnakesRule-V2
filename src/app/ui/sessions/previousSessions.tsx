@@ -4,10 +4,11 @@ import Link from "next/link";
 
 export interface PreviousSessionsProps {
   sessions: GameSession[];
+  clubId: string;
 }
 
 export default function PreviousSessions(props: PreviousSessionsProps) {
-  const { sessions } = props;
+  const { sessions, clubId } = props;
 
   // Sort sessions by date in descending order
   const sortedSessions = [...sessions].sort(
@@ -39,7 +40,7 @@ export default function PreviousSessions(props: PreviousSessionsProps) {
               className="flex gap-2 pb-2 text-tunnel-snake-orange underline-offset-4"
               href={{
                 pathname: "/sessions/previousSession",
-                query: { sessionId: session.id },
+                query: { sessionId: session.id, clubId: clubId },
               }}
             >
               <u>View session</u>{" "}

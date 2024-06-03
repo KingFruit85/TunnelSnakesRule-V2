@@ -9,6 +9,12 @@ import {
 import SessionContextWrapper from "./sessionContextWrapper";
 import { currentUser } from "@clerk/nextjs";
 
+import {
+  LinearTextGradient,
+  RadialTextGradient,
+  ConicTextGradient,
+} from "react-text-gradients-and-animations";
+
 export default async function Page({
   searchParams,
 }: {
@@ -31,8 +37,16 @@ export default async function Page({
 
   return (
     <div className="flex flex-col gap-2 h-screen bg-black dark:bg-black items-center">
-      <div className="text-3xl md:text-3xl lg:text-3xl xl:text-3xl italic text-tunnel-snake-green pt-4 pb-4 flex justify-center flex">
-        {clubDetails.name}
+      <div className="text-6xl italic text-tunnel-snake-green pl-4 pr-4 pt-4 pb-4 flex justify-center flex">
+        <LinearTextGradient
+          angle={0}
+          colors={["#96C431", "#FE8A1F"]}
+          animate={false}
+          animateDirection={"vertical"}
+          animateDuration={30}
+        >
+          {clubDetails.name}
+        </LinearTextGradient>
       </div>
 
       <div className="flex flex-col items-left">

@@ -13,6 +13,7 @@ import { Player, PlayerResult } from "@/app/lib/definitions";
 import { UUID } from "crypto";
 import Image from "next/image";
 import Link from "next/link";
+import { LinearTextGradient } from "react-text-gradients-and-animations";
 
 export default async function Page({
   searchParams,
@@ -41,6 +42,7 @@ export default async function Page({
       groupedResults[result.eventId] = [result];
     }
   });
+  const clubDetails = await getClubDetails(searchParams.clubId);
 
   const promises = Object.entries(groupedResults).map(
     async ([eventId, results]) => {
@@ -49,32 +51,42 @@ export default async function Page({
       const note = await getEventNotes(results[0].eventId);
       const winner = await getEventWinner(results[0].eventId);
       const sessionPlayers = await getAllPlayersBySessionId(session.id);
-      return { eventId, gameName, note, winner, results, sessionPlayers };
+      return {
+        eventId,
+        gameName,
+        note,
+        winner,
+        results,
+        sessionPlayers,
+      };
     }
   );
 
   const groupedResultsData = await Promise.all(promises);
 
-  const eventIds = Object.keys(groupedResults);
-
-  let clubName = "";
-
-  if (eventIds.length > 0) {
-    const firstEventId = eventIds[0];
-    clubName = await GetClubNameByEventId(firstEventId);
-  }
-
-  // get the clubname from the gameResult with a matching event_id
-  // const clubname = GetClubNameByEventId(groupedResults.)
-
   return (
     <div className="w-full flex flex-col space-items items-center py-5 text-white bg-black dark: bg-black text-white">
       <div className="w-[95%] md:w-[35%] lg:w-[35%] xl:w-[25%] sm:w-[95%] flex-col p-4 rounded-sm  ">
-        <div className="flex flex-col mt-1 mb-1 text-lg items-center text-4xl">
-          <p className="text-tunnel-snake-orange">{clubName}</p>
-
-          <p className="text-tunnel-snake-orange">{sessionDate}</p>
-          <p className="text-2xl p-2 font-bold">{session.name}</p>
+        <div className="flex flex-col mt-1 mb-1 text-lg items-center text-6xl">
+          <Link
+            key={clubDetails.id}
+            href={`/sessions?clubid=${clubDetails.id}`}
+          >
+            <LinearTextGradient
+              angle={0}
+              colors={["#96C431", "#FE8A1F"]}
+              animate={false}
+              animateDirection={"vertical"}
+              animateDuration={30}
+            >
+              {clubDetails.name}
+            </LinearTextGradient>
+          </Link>
+        </div>
+        <div className="flex">
+          <p className="text-tunnel-snake-green">
+            {sessionDate} - {session.name}
+          </p>
         </div>
 
         <div className="flex flex-row justify-between p-4">
@@ -85,7 +97,7 @@ export default async function Page({
               href={`/players?userid=${player.id}`}
             >
               <Image
-                className="rounded-full ring-4"
+                className="rounded-full ring-4 ring-tunnel-snake-grey"
                 key={player.id}
                 src={player.avatar}
                 alt={player.name}

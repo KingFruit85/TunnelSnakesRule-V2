@@ -46,8 +46,8 @@ export default function SessionContextWrapper({
             <CurrentSession session={session} boardgames={boardgames} />
           </div>
         ))}
-        <div className="">
-          <PreviousSessions sessions={previousSessions} />
+        <div className="w-[90%]">
+          <PreviousSessions sessions={previousSessions} clubId={clubId} />
         </div>
       </div>
     </ClubContext.Provider>
