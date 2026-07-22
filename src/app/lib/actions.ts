@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import { UUID } from "crypto";
-import { User } from "@clerk/nextjs/server";
+import { auth, User } from "@clerk/nextjs/server";
 import { getClubDetails } from "./data";
 
 const FormSchema = z.object({
@@ -16,8 +16,8 @@ const FormSchema = z.object({
 
 const AddNewPlayer = FormSchema.omit({ id: true });
 
-export const redirectBackToSessions = (clubId: string) => {
-  revalidatePath(`/sessions/?clubId=${clubId}`);
+export const redirectBackToSessions = async (clubId: string) => {
+  revalidatePath("/sessions");
   redirect(`/sessions/?clubId=${clubId}`);
 };
 
@@ -56,28 +56,24 @@ export const addImageToSession = async (
 
   console.log("image added to session record");
 
-  revalidatePath(`/sessions/?clubId=${clubId}`);
+  revalidatePath("/sessions");
   redirect(`/sessions/?clubId=${clubId}`);
 };
 
 export async function addImageToPlayer(blobUri: string, playerId: string) {
-  console.log(`adding image ${blobUri} to player ${playerId}`);
   await sql`
   UPDATE players 
     SET avatar = ${blobUri}
     WHERE id = ${playerId}`;
+  revalidatePath("/players");
 }
 
 export async function addNewPlayer(formData: FormData) {
   const email = `${formData.get("playerName")}@test.com`;
-  const password = "123";
-  const avatar = "123";
 
   const { name } = AddNewPlayer.parse({
     name: formData.get("playerName"),
     email: email,
-    password: password,
-    avatar: avatar,
   });
 
   // check if user already exists
@@ -91,8 +87,8 @@ export async function addNewPlayer(formData: FormData) {
 
   try {
     await sql`
-        Insert into players (name, email, password, avatar )
-        VALUES (${name} , ${email}, ${password}, ${avatar})
+        Insert into players (name, email)
+        VALUES (${name} , ${email})
         `;
   } catch (err) {
     return { message: err };
@@ -120,7 +116,7 @@ export async function addNewGameSession(formData: FormData) {
         VALUES (${uuidv4()}, ${sessionName} , ${date}, ${active}, ${playerIds}, ${gameResults}, ${clubId})
         `;
 
-  revalidatePath(`/sessions/?clubId=${clubId}`);
+  revalidatePath("/sessions");
   redirect(`/sessions/?clubId=${clubId}`);
 }
 
@@ -131,7 +127,7 @@ export async function endSession(id: string, notes: string) {
         notes = ${notes} 
     WHERE id = ${id}`;
 
-  revalidatePath("/sessions/");
+  revalidatePath("/sessions");
 }
 
 export async function addNewBoardGame(formData: FormData) {
@@ -154,8 +150,10 @@ export async function addNewBoardGame(formData: FormData) {
 }
 
 export async function addNewClub(formData: FormData) {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
   const name = formData.get("clubName")?.toString();
-  const owner = formData.get("owner")?.toString();
+  const owner = userId;
 
   // Execute the SQL query with the RETURNING clause
   const result = await sql`
@@ -173,7 +171,7 @@ export async function addNewClub(formData: FormData) {
     await addPlayerToClub(owner, insertedClubId);
   }
 
-  revalidatePath("/join/club/");
+  revalidatePath("/join/club");
   redirect("/");
 }
 
@@ -186,7 +184,7 @@ export async function addPlayerToClub(playerId: string, clubId: UUID) {
         DELETE FROM joinrequests
         WHERE player_id = ${playerId} AND club_id = ${clubId}`;
 
-  revalidatePath(`/requests?userid=${playerId}&clubid=${clubId}`);
+  revalidatePath("/requests");
 }
 
 export async function declineAccessRequest(playerId: string, clubId: UUID) {
@@ -194,13 +192,15 @@ export async function declineAccessRequest(playerId: string, clubId: UUID) {
         DELETE FROM joinrequests
         WHERE player_id = ${playerId} AND club_id = ${clubId}`;
 
-  revalidatePath(`/requests?userid=${playerId}&clubid=${clubId}`);
+  revalidatePath("/requests");
 }
 
-export async function requestAccessToClub(playerId: string, clubId: UUID) {
+export async function requestAccessToClub(clubId: UUID) {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
   await sql`
         INSERT INTO joinrequests (request_id, player_id, club_id)
-        VALUES (${uuidv4()}, ${playerId}, ${clubId})`;
+        VALUES (${uuidv4()}, ${userId}, ${clubId})`;
 }
 
 export async function createNewPlayerRecord(user: User) {
@@ -211,7 +211,6 @@ export async function createNewPlayerRecord(user: User) {
 }
 
 export async function addNewGameResult(formData: FormData) {
-  console.log(formData);
   const sessionId = formData.get("sessionId")?.toString();
   const winCondition = formData.get("winCondition")?.toString();
   const scoringDirection = formData.get("scoringDirection")?.toString();
@@ -280,9 +279,6 @@ export async function addNewGameResult(formData: FormData) {
       break;
 
     default:
-      console.log("win condition fuck knows! : ", winCondition);
-      console.log(formData);
-
       break;
   }
 
@@ -336,6 +332,7 @@ export async function addNewGameResult(formData: FormData) {
   // await sql`
   //    UPDATE sessions SET gameResults = ${updatedResultsJson} WHERE id = ${sessionId}`;
 
-  revalidatePath(`/sessions?clubId=${clubId}`);
+  revalidatePath("/sessions");
+  revalidatePath("/players");
   redirect(`/sessions?clubId=${clubId}`);
 }

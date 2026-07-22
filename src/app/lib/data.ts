@@ -1,4 +1,4 @@
-"use server";
+import "server-only";
 
 import { QueryResult, QueryResultRow, sql } from "@vercel/postgres";
 import {
@@ -16,8 +16,17 @@ import { redirect } from "next/navigation";
 import { UUID } from "crypto";
 import Results from "../ui/winConditions/results";
 
-export async function getPlayerById(id: string): Promise<Player> {
+export async function checkIfPlayerIsClubMember(
+  externalUserId: string,
+  clubId: string
+) {
   noStore();
+  const result = await sql`
+    SELECT 1 FROM players_clubs WHERE player_id = ${externalUserId} AND club_id = ${clubId}`;
+  return (result.rowCount ?? 0) > 0;
+}
+
+export async function getPlayerById(id: string): Promise<Player> {
   const result = await sql`
     SELECT * FROM Players WHERE id = ${id}`;
 
@@ -33,7 +42,6 @@ export async function getPlayerById(id: string): Promise<Player> {
 }
 
 export async function getPlayerByExternalId(id: string): Promise<Player> {
-  noStore();
   const result = await sql`
     SELECT * FROM Players WHERE Externalid = ${id}`;
 
@@ -54,11 +62,10 @@ export async function checkIfUserHasPlayerProfile(externalId: string) {
   const result = await sql`
     SELECT * FROM Players WHERE externalId = ${externalId}`;
 
-  return result.rowCount > 0;
+  return (result.rowCount ?? 0) > 0;
 }
 
 export async function getAllClubSessionNames(clubId: string) {
-  noStore();
   const result = await sql`
     SELECT name FROM sessions WHERE clubId = ${clubId}`;
 
@@ -132,17 +139,46 @@ export async function getAllInactiveSessions(clubId: string) {
   const result = await sql`
     SELECT * FROM sessions WHERE active = false AND club_id = ${clubId}`;
 
+  // get all the playerresults linked to each inactive session
+  let playerResults: PlayerResult[] = [];
+
+  for (const row of result.rows) {
+    const scoreResult = await sql`
+          SELECT * FROM playerscores WHERE session_id = ${row.id}`;
+
+    for (const score of scoreResult.rows) {
+      let r: PlayerResult = {
+        id: score["id"],
+        playerId: score["player_id"],
+        gameId: score["game_id"],
+        sessionId: score["session_id"],
+        result: score["result"],
+        team: score["team"] || null,
+        eventId: score["event_id"],
+      };
+      playerResults.push(r);
+    }
+  }
+
+  const eventIds = [...new Set(playerResults.map((r) => r.eventId))];
+
+  const winnerPromises = eventIds.map(async (id) => {
+    const winner = await getEventWinner(id);
+    return winner;
+  });
+
+  const winners = await Promise.all(winnerPromises);
+
   const sessions: GameSession[] = result.rows.map((session) => ({
     id: String(session.id),
     name: String(session["session_name"]),
     date: new Date(session.date),
     active: Boolean(session.active),
     playerIds: session["player_ids"].split(","),
-    gameResults: [],
-    playerResults: [],
+    playerResults: playerResults.filter((r) => r.sessionId === session.id),
     notes: String(session.notes),
-    imageurl: (session.imageurl as string) || undefined,
-    winners: [],
+    imageurl: session["image_urls"] || "",
+    winners: winners,
   }));
 
   return sessions;
@@ -291,7 +327,6 @@ export async function getAllPlayersBySessionId(id: string) {
 }
 
 export async function getAllBoardgames(clubId: string) {
-  noStore();
   const result = await sql`
     SELECT * FROM boardgames WHERE club_id = ${clubId}`;
 
@@ -322,8 +357,6 @@ export async function getBoardgameById(id: UUID) {
 }
 
 export async function getClubDetails(id: string) {
-  noStore();
-
   if (!id) {
     redirect("/");
   }
@@ -342,7 +375,6 @@ export async function getClubDetails(id: string) {
 }
 
 export async function getClubsPlayerIsNotAMemberOf(userId: string) {
-  noStore();
   const clubIdResult = await sql`
     SELECT id FROM clubs`;
 
@@ -370,7 +402,6 @@ export async function getClubsPlayerIsNotAMemberOf(userId: string) {
 }
 
 export async function getUsersClubs(userId: string) {
-  noStore();
   const result = await sql`
   SELECT * FROM players_clubs WHERE player_id = ${userId}`;
 
@@ -387,7 +418,6 @@ export async function getUsersClubs(userId: string) {
 }
 
 export async function getAvalibleClubs() {
-  noStore();
   const result = await sql`
   SELECT * FROM clubs`;
 
@@ -402,8 +432,6 @@ export async function getAvalibleClubs() {
 }
 
 export async function getEventNotes(eventId: UUID) {
-  noStore();
-
   const result = await sql`
   SELECT notes FROM gameresults WHERE  event_id = ${eventId}`;
 
@@ -411,8 +439,6 @@ export async function getEventNotes(eventId: UUID) {
 }
 
 export async function getEventWinner(eventId: UUID) {
-  noStore();
-
   const result = await sql`
     SELECT gameresults.winner, playerscores.event_id
     FROM gameresults 
@@ -439,8 +465,6 @@ export type GroupedBoardgameTotalPlays = {
 };
 
 export async function getPlayerEvents(playerId: UUID) {
-  noStore();
-
   const result = await sql`
     SELECT * from playerScores WHERE player_id = ${playerId}
   `;
