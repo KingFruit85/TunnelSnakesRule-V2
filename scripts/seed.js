@@ -1,6 +1,5 @@
 const { db } = require('@vercel/postgres');
 const {users} = require('../src/app/lib/seedData.js');
-const bcrypt = require('bcrypt');
 
 async function seedUsers(client) {
     try {
@@ -11,8 +10,7 @@ async function seedUsers(client) {
           id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
           name VARCHAR(255) NOT NULL,
           email TEXT NOT NULL UNIQUE,
-          password TEXT NOT NULL,
-          avatar TEXT NOT NULL
+          avatar TEXT
         );
       `;
   
@@ -21,10 +19,9 @@ async function seedUsers(client) {
       // Insert data into the "users" table
       const insertedUsers = await Promise.all(
         users.map(async (user) => {
-          const hashedPassword = await bcrypt.hash(user.password, 10);
           return client.sql`
-          INSERT INTO players (id, name, email, password, avatar)
-          VALUES (${user.id}, ${user.name}, ${user.email}, ${hashedPassword}, ${user.avatar})
+          INSERT INTO players (id, name, email, avatar)
+          VALUES (${user.id}, ${user.name}, ${user.email}, ${user.avatar})
           ON CONFLICT (id) DO NOTHING;
         `;
         }),

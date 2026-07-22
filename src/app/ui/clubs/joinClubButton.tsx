@@ -3,7 +3,6 @@
 import { requestAccessToClub } from "@/app/lib/actions";
 import { ClubAndRequestStatus } from "@/app/lib/definitions";
 import { UUID } from "crypto";
-import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 export interface JoinClubButtonProps {
@@ -11,9 +10,6 @@ export interface JoinClubButtonProps {
 }
 
 export default function JoinClubButton({ club }: JoinClubButtonProps) {
-  // const router = useRouter();
-  const userId = useSearchParams().get("user_id") as string;
-
   const requestStatus = club.accessRequestPending
     ? "Requested Access"
     : club.club.name;
@@ -21,9 +17,8 @@ export default function JoinClubButton({ club }: JoinClubButtonProps) {
 
   const buttonHandler = () => {
     if (club.accessRequestPending) return;
-    requestAccessToClub(userId, club.club.id as UUID);
+    requestAccessToClub(club.club.id as UUID);
     setButtonText("Requested Access");
-    // router.push(`/sessions/?clubId=${club.id}`);
   };
 
   return (
