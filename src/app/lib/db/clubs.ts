@@ -99,17 +99,17 @@ export async function addNewClub(formData: FormData) {
     throw new Error("Missing required fields");
   }
 
-  const [owner] = await db.select().from(players).where(eq(players.externalId, userId));
-  if (!owner) {
+  const ownerId = await resolvePlayerIdByExternalId(userId);
+  if (!ownerId) {
     throw new Error("Player does not exist");
   }
 
   const [insertedClub] = await db
     .insert(clubs)
-    .values({ name, ownerId: owner.id })
+    .values({ name, ownerId })
     .returning();
 
-  await addPlayerToClub(owner.externalId, insertedClub.id);
+  await addPlayerToClub(userId, insertedClub.id);
 
   revalidatePath("/join/club");
   redirect("/");
