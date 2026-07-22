@@ -69,6 +69,7 @@ export type BoardGame = {
   name: string;
   winCondition: string;
   scoringDirection: string;
+  hasVariant: boolean;
 };
 
 export type Club = {
