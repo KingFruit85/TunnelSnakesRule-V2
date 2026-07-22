@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS "joinrequests" CASCADE;--> statement-breakpoint
 DROP TABLE IF EXISTS "boardgames" CASCADE;--> statement-breakpoint
 DROP TABLE IF EXISTS "gameresults" CASCADE;--> statement-breakpoint
 DROP TABLE IF EXISTS "playerscores" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "games" CASCADE;--> statement-breakpoint
 DROP TABLE IF EXISTS "sessions" CASCADE;--> statement-breakpoint
 DROP TABLE IF EXISTS "clubs" CASCADE;--> statement-breakpoint
 DROP TABLE IF EXISTS "players" CASCADE;--> statement-breakpoint

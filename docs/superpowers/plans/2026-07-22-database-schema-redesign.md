@@ -46,8 +46,10 @@ Expected: `drizzle-orm` added to `dependencies`, `drizzle-kit` added to `devDepe
 
 ```ts
 // drizzle.config.ts
-import "dotenv/config";
+import { config } from "dotenv";
 import { defineConfig } from "drizzle-kit";
+
+config({ path: ".env.local" });
 
 export default defineConfig({
   dialect: "postgresql",
@@ -59,6 +61,8 @@ export default defineConfig({
 });
 ```
 
+(Plain `"dotenv/config"` only auto-loads a file literally named `.env` — this repo only has `.env.local`, so the config must load it explicitly, or `POSTGRES_URL` is `undefined` and Drizzle Kit fails immediately with "Please provide required params for Postgres driver".)
+
 - [x] **Step 3: Add npm scripts**
 
 In `package.json`, under `"scripts"`:
@@ -66,7 +70,7 @@ In `package.json`, under `"scripts"`:
 ```json
 "db:generate": "drizzle-kit generate",
 "db:migrate": "drizzle-kit migrate",
-"db:verify": "node -r dotenv/config ./scripts/verify-schema.js"
+"db:verify": "node -r dotenv/config ./scripts/verify-schema.js dotenv_config_path=.env.local"
 ```
 
 - [x] **Step 4: Commit**
@@ -335,7 +339,7 @@ team_results 4 columns 0 indexes 2 fks
 
 - [x] **Step 2: Prepend the legacy-table drops**
 
-The generated file only contains `CREATE TYPE`/`CREATE TABLE`/`ALTER TABLE ... ADD CONSTRAINT` statements for the new schema — it has no knowledge of the 8 tables the old app used, three of which (`players`, `clubs`, `sessions`) share a name with a new table of a different shape and would collide on `CREATE TABLE` otherwise. Add this block at the very top of the generated file, before the first `CREATE TYPE`:
+The generated file only contains `CREATE TYPE`/`CREATE TABLE`/`ALTER TABLE ... ADD CONSTRAINT` statements for the new schema — it has no knowledge of the tables the old app used, three of which (`players`, `clubs`, `sessions`) share a name with a new table of a different shape and would collide on `CREATE TABLE` otherwise. Add this block at the very top of the generated file, before the first `CREATE TYPE`:
 
 ```sql
 -- The tables below are the pre-Drizzle schema (no data left in any of them).
@@ -346,12 +350,15 @@ DROP TABLE IF EXISTS "joinrequests" CASCADE;--> statement-breakpoint
 DROP TABLE IF EXISTS "boardgames" CASCADE;--> statement-breakpoint
 DROP TABLE IF EXISTS "gameresults" CASCADE;--> statement-breakpoint
 DROP TABLE IF EXISTS "playerscores" CASCADE;--> statement-breakpoint
+DROP TABLE IF EXISTS "games" CASCADE;--> statement-breakpoint
 DROP TABLE IF EXISTS "sessions" CASCADE;--> statement-breakpoint
 DROP TABLE IF EXISTS "clubs" CASCADE;--> statement-breakpoint
 DROP TABLE IF EXISTS "players" CASCADE;--> statement-breakpoint
 ```
 
 The `--> statement-breakpoint` markers matter — Drizzle Kit's migrator splits the file into individual statements on that exact marker before running them in order.
+
+**Note:** the `games` drop wasn't in the original plan — running this migration the first time surfaced a 9th table already in the database, unrelated to any of the 8 known legacy tables: an empty `games` table with a BoardGameGeek-API-shaped schema (`thumbnaillurl`, `yearpublished`, `minplayers`, `maxplayers`, `boardgamemechanics`, ...) that nothing in `data.ts`/`actions.ts` references. It collided with the new schema's `games` table and made the first migration attempt fail — harmlessly, since the whole migration runs in one transaction and rolled back completely. Confirmed with the user it was safe to drop (empty, unreferenced by any code) before adding it to this list and re-running.
 
 - [x] **Step 3: Commit**
 
@@ -384,25 +391,36 @@ git commit -m "test(db): add post-migration schema verification script"
 
 **Files:** none (runs against the live database configured in `.env.local`)
 
-- [ ] **Step 1: Confirm target database**
+- [x] **Step 1: Confirm target database**
 
-Run `grep POSTGRES_HOST .env.local` and confirm this is the intended database before proceeding — this step runs `DROP TABLE` against it. **This step requires explicit user confirmation before running**, regardless of how the rest of this plan is executed.
+Ran `grep POSTGRES_HOST .env.local` — `verceldb` on `ep-floral-tree-63625634-pooler.us-east-1.postgres.vercel-storage.com`. Confirmed with the user before running anything destructive against it.
 
-- [ ] **Step 2: Apply the migration**
+- [x] **Step 2: Apply the migration**
 
-```bash
-npm run db:migrate
+`npm run db:migrate` (the `drizzle-kit migrate` CLI command) failed silently — it printed a spinner, then exited 1 with no error message, using the `@vercel/postgres` driver. To get a real error, the migration was applied instead via `drizzle-orm/vercel-postgres/migrator`'s `migrate()` function directly from a throwaway script:
+
+```js
+// (temporary, not part of the repo) run-migrate.mjs
+import { config } from "dotenv";
+config({ path: ".env.local" });
+import { sql } from "@vercel/postgres";
+import { drizzle } from "drizzle-orm/vercel-postgres";
+import { migrate } from "drizzle-orm/vercel-postgres/migrator";
+
+const db = drizzle(sql);
+await migrate(db, { migrationsFolder: "./drizzle" });
+console.log("migration applied");
 ```
 
-Expected: Drizzle Kit reports the migration applied with no errors.
+This surfaced the real error on the first attempt: `relation "games" already exists` — the pre-existing, unrelated `games` table described in Task 4's note. The whole migration runs in one transaction, so that failure rolled back cleanly with zero side effects. After adding `games` to the drop list and re-running, it printed `migration applied` with no errors. If re-running this plan in a fresh environment, prefer this same direct-`migrate()` approach over the `drizzle-kit migrate` CLI, since the CLI's failure mode here gave no actionable error.
 
-- [ ] **Step 3: Run verification**
+- [x] **Step 3: Run verification**
 
 ```bash
 npm run db:verify
 ```
 
-Expected output:
+Actual output:
 
 ```
 All 11 new tables present; all 5 legacy tables gone.
@@ -411,11 +429,16 @@ CHECK constraint correctly rejected an invalid win_condition/scoring_direction c
 Schema verification passed.
 ```
 
-(The script checks for the presence of 11 new tables and the absence of the 5 legacy tables whose names don't collide with a new table; `players`, `clubs`, and `sessions` are covered implicitly since their new shape is what Step 2/3 insert into.)
+Independently confirmed by querying `information_schema.tables` directly: the `public` schema now contains exactly the 11 new tables (`club_game_variants`, `club_members`, `clubs`, `games`, `join_requests`, `leaderboard_results`, `outcome_results`, `players`, `plays`, `sessions`, `team_results`) and nothing else.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
-Nothing to commit (no file changes) — this step just confirms the migration succeeded against the real database. If it fails, fix forward in a new commit rather than re-running a broken migration file.
+No file changes from this step itself (the migration ran against the live database, not the repo). The `games`-drop fix from Task 4's note was committed as part of this task's cleanup:
+
+```bash
+git add drizzle/0000_cool_johnny_storm.sql package.json drizzle.config.ts docs/superpowers/plans/2026-07-22-database-schema-redesign.md
+git commit -m "fix(db): drop pre-existing unrelated games table, fix dotenv path"
+```
 
 ---
 

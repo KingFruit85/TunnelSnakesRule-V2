@@ -11,7 +11,7 @@
     "seed": "node -r dotenv/config ./scripts/seed.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:verify": "node -r dotenv/config ./scripts/verify-schema.js"
+    "db:verify": "node -r dotenv/config ./scripts/verify-schema.js dotenv_config_path=.env.local"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.39.6",
