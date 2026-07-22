@@ -3,6 +3,7 @@ import { Montserrat } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import TopNav from "./ui/sessions/topNav";
+import { Suspense } from "react";
 
 const montserrat = Montserrat({
   weight: "400",
@@ -27,7 +28,9 @@ export default function RootLayout({
     >
       <ClerkProvider>
         <body className="">
-          <TopNav />
+          <Suspense>
+            <TopNav />
+          </Suspense>
           {children}
         </body>
       </ClerkProvider>

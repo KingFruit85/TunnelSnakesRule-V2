@@ -7,46 +7,40 @@ import {
   getClubDetails,
 } from "@/app/lib/data";
 import SessionContextWrapper from "./sessionContextWrapper";
-import { currentUser } from "@clerk/nextjs";
-
-import {
-  LinearTextGradient,
-  RadialTextGradient,
-  ConicTextGradient,
-} from "react-text-gradients-and-animations";
+import { currentUser } from "@clerk/nextjs/server";
 
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Record<string, string>;
+  searchParams: Promise<Record<string, string>>;
 }) {
-  const clubId = searchParams.clubId;
+  const { clubId } = await searchParams;
   const user = await currentUser();
-  const clubDetails = await getClubDetails(clubId);
 
-  const activeSessions = await getAllActiveSessionDetails(clubId);
-  const previousSessions = await getAllInactiveSessions(clubId);
-  const boardgames = await getAllBoardgames(clubId);
-
-  const isClubOwner = user
-    ? await checkIfPlayerIsClubOwner(clubId, user.id)
-    : false;
-  const accessRequestsPending = user
-    ? await checkForOutstandingClubAccessRequests(clubId)
-    : false;
+  const [
+    clubDetails,
+    activeSessions,
+    previousSessions,
+    boardgames,
+    isClubOwner,
+    accessRequestsPending,
+  ] = await Promise.all([
+    getClubDetails(clubId),
+    getAllActiveSessionDetails(clubId),
+    getAllInactiveSessions(clubId),
+    getAllBoardgames(clubId),
+    user ? checkIfPlayerIsClubOwner(clubId, user.id) : Promise.resolve(false),
+    user
+      ? checkForOutstandingClubAccessRequests(clubId)
+      : Promise.resolve(false),
+  ]);
 
   return (
     <div className="flex flex-col gap-2 h-screen bg-black dark:bg-black items-center">
       <div className="text-6xl italic text-tunnel-snake-green pl-4 pr-4 pt-4 pb-4 flex justify-center flex">
-        <LinearTextGradient
-          angle={0}
-          colors={["#96C431", "#FE8A1F"]}
-          animate={false}
-          animateDirection={"vertical"}
-          animateDuration={30}
-        >
+        <span className="bg-gradient-to-b from-[#96C431] to-[#FE8A1F] bg-clip-text text-transparent">
           {clubDetails.name}
-        </LinearTextGradient>
+        </span>
       </div>
 
       <div className="flex flex-col items-left">
@@ -56,7 +50,7 @@ export default async function Page({
 
         <SessionContextWrapper
           clubId={clubId}
-          userId={user!.id}
+          userId={user?.id ?? ""}
           activeSessions={activeSessions}
           previousSessions={previousSessions}
           isClubOwner={isClubOwner}

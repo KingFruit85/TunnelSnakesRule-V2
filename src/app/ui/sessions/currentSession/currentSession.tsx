@@ -2,7 +2,7 @@
 
 import { endSession } from "@/app/lib/actions";
 import { BoardGame, GameSession } from "@/app/lib/definitions";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import CurrentSessionHeader from "./currentSessionHeader";
 import CurrentSessionGames from "./currentSessionGames";
 import CurrentSessionButtons from "./currentSessionButton";
@@ -14,7 +14,7 @@ export interface currentSessionProps {
   boardgames: BoardGame[];
 }
 
-export default function CurrentSession({
+function CurrentSessionInner({
   session,
   boardgames,
 }: currentSessionProps) {
@@ -84,5 +84,13 @@ export default function CurrentSession({
         />
       )}
     </div>
+  );
+}
+
+export default function CurrentSession(props: currentSessionProps) {
+  return (
+    <Suspense>
+      <CurrentSessionInner {...props} />
+    </Suspense>
   );
 }

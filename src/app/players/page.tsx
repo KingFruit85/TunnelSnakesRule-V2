@@ -7,10 +7,9 @@ import { UUID } from "crypto";
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Record<string, string>;
+  searchParams: Promise<Record<string, string>>;
 }) {
-  const playerId = searchParams.userid;
-  console.log(playerId);
+  const { userid: playerId } = await searchParams;
 
   const player = await getPlayerById(playerId);
 

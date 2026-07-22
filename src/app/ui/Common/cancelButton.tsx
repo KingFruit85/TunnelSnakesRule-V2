@@ -1,12 +1,13 @@
 "use client";
 
+import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export interface CancelButtonProps {
   disabled?: boolean;
 }
 
-export default function CancelButton({ disabled }: CancelButtonProps) {
+function CancelButtonInner({ disabled }: CancelButtonProps) {
   const router = useRouter();
 
   const clubId = useSearchParams().get("clubId") || "" as string;
@@ -25,5 +26,13 @@ export default function CancelButton({ disabled }: CancelButtonProps) {
     >
       Cancel
     </button>
+  );
+}
+
+export default function CancelButton({ disabled }: CancelButtonProps) {
+  return (
+    <Suspense>
+      <CancelButtonInner disabled={disabled} />
+    </Suspense>
   );
 }

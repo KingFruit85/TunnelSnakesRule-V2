@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { Club, Destination } from "@/app/lib/definitions";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -9,7 +10,7 @@ export interface SessionRedirectButtonProps {
   club?: Club;
 }
 
-export default function RedirectButton({
+function RedirectButtonInner({
   label,
   destination,
   club,
@@ -73,5 +74,13 @@ export default function RedirectButton({
     >
       {buttonLabel}
     </button>
+  );
+}
+
+export default function RedirectButton(props: SessionRedirectButtonProps) {
+  return (
+    <Suspense>
+      <RedirectButtonInner {...props} />
+    </Suspense>
   );
 }

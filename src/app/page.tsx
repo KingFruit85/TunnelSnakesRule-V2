@@ -1,4 +1,4 @@
-import { currentUser } from "@clerk/nextjs";
+import { currentUser } from "@clerk/nextjs/server";
 import UserClubs from "./ui/clubs/userClubs";
 import { SignInButton } from "@clerk/nextjs";
 import { checkIfUserHasPlayerProfile } from "./lib/data";

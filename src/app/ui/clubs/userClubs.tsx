@@ -1,4 +1,4 @@
-import { currentUser } from "@clerk/nextjs";
+import { currentUser } from "@clerk/nextjs/server";
 import RedirectButton from "../Common/sessionRedirectButton";
 import { Destination } from "@/app/lib/definitions";
 import PageRedirectButton from "../Common/pageRedirectButton";

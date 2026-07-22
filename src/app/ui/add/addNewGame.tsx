@@ -4,10 +4,10 @@ import CancelButton from "../Common/cancelButton";
 import SubmitButton from "../Common/submitButton";
 import { WinCondition } from "@/app/lib/definitions";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import LeaderboardRadio from "./Results/leaderboardradio";
 
-export default function AddNewGame() {
+function AddNewGameInner() {
   const searchParams = useSearchParams();
 
   const clubId = searchParams.get("clubId");
@@ -107,5 +107,13 @@ export default function AddNewGame() {
         <CancelButton />
       </div>
     </form>
+  );
+}
+
+export default function AddNewGame() {
+  return (
+    <Suspense>
+      <AddNewGameInner />
+    </Suspense>
   );
 }

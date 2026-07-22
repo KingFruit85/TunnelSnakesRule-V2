@@ -13,16 +13,16 @@ import { Player, PlayerResult } from "@/app/lib/definitions";
 import { UUID } from "crypto";
 import Image from "next/image";
 import Link from "next/link";
-import { LinearTextGradient } from "react-text-gradients-and-animations";
 
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Record<string, string>;
+  searchParams: Promise<Record<string, string>>;
 }) {
-  const sessionDetails = await getSessionDetails(searchParams.sessionId);
+  const { sessionId, clubId } = await searchParams;
+  const sessionDetails = await getSessionDetails(sessionId);
   const session = sessionDetails[0];
-  const players = await getAllPlayersBySessionId(searchParams.sessionId);
+  const players = await getAllPlayersBySessionId(sessionId);
   const sessionDate = session.date.toLocaleDateString();
 
   const images = session.imageurl
@@ -42,7 +42,7 @@ export default async function Page({
       groupedResults[result.eventId] = [result];
     }
   });
-  const clubDetails = await getClubDetails(searchParams.clubId);
+  const clubDetails = await getClubDetails(clubId);
 
   const promises = Object.entries(groupedResults).map(
     async ([eventId, results]) => {
@@ -72,15 +72,9 @@ export default async function Page({
             key={clubDetails.id}
             href={`/sessions?clubid=${clubDetails.id}`}
           >
-            <LinearTextGradient
-              angle={0}
-              colors={["#96C431", "#FE8A1F"]}
-              animate={false}
-              animateDirection={"vertical"}
-              animateDuration={30}
-            >
+            <span className="bg-gradient-to-b from-[#96C431] to-[#FE8A1F] bg-clip-text text-transparent">
               {clubDetails.name}
-            </LinearTextGradient>
+            </span>
           </Link>
         </div>
         <div className="flex">

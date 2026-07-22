@@ -4,10 +4,9 @@ import ClubAccessRequests from "../ui/requests/clubAccessRequests";
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Record<string, string>;
+  searchParams: Promise<Record<string, string>>;
 }) {
-  const playerId = searchParams.userid;
-  const clubId = searchParams.clubid;
+  const { userid: playerId, clubid: clubId } = await searchParams;
 
   // get all the requests for the club
 

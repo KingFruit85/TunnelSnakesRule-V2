@@ -4,9 +4,9 @@ import { redirectBackToSessions } from "@/app/lib/actions";
 import CancelButton from "@/app/ui/Common/cancelButton";
 import { upload } from "@vercel/blob/client";
 import { useSearchParams } from "next/navigation";
-import { useRef } from "react";
+import { useRef, Suspense } from "react";
 
-export default function Page() {
+function UploadPageInner() {
   const session = useSearchParams();
 
   const sessionId = session.get("sessionId");
@@ -68,5 +68,13 @@ export default function Page() {
         <CancelButton />
       </form>
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense>
+      <UploadPageInner />
+    </Suspense>
   );
 }
