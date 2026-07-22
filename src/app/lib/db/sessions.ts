@@ -4,6 +4,7 @@ import { and, eq, inArray } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { auth } from "@clerk/nextjs/server";
 import { db } from "@/db/client";
 import {
   sessions,
@@ -16,6 +17,18 @@ import {
 } from "@/db/schema";
 import { GameSession, Player } from "@/app/lib/definitions";
 import { getEventWinner, getPlayResultsForPlay } from "./results";
+import { checkIfPlayerIsClubMember } from "./players";
+
+async function assertIsClubMember(clubId: string) {
+  const { userId } = await auth();
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
+  const isMember = await checkIfPlayerIsClubMember(userId, clubId);
+  if (!isMember) {
+    throw new Error("Forbidden");
+  }
+}
 
 function toPlayer(row: typeof players.$inferSelect): Player {
   return { id: row.id, externalId: row.externalId, name: row.name, avatar: row.avatar ?? "" };
@@ -119,6 +132,7 @@ export async function addNewGameSession(formData: FormData) {
   if (!sessionName || !clubId) {
     throw new Error("Missing required fields");
   }
+  await assertIsClubMember(clubId);
 
   await db.insert(sessions).values({
     id: uuidv4(),
@@ -134,6 +148,12 @@ export async function addNewGameSession(formData: FormData) {
 
 export async function endSession(id: string, notes: string) {
   "use server";
+  const [session] = await db.select().from(sessions).where(eq(sessions.id, id));
+  if (!session) {
+    throw new Error(`Session ${id} not found`);
+  }
+  await assertIsClubMember(session.clubId);
+
   await db.update(sessions).set({ active: false, notes }).where(eq(sessions.id, id));
   revalidatePath("/sessions");
 }
