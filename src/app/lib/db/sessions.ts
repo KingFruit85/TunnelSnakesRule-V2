@@ -159,11 +159,26 @@ export async function endSession(id: string, notes: string) {
 }
 
 export async function addImageToSession(blobUri: string, sessionId: string, clubId: string) {
-  const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId));
-  const currentImages = (session?.imageUrls as string[] | null) ?? [];
+  // Constrained by clubId as well as sessionId: the caller (api/session/upload/route.ts)
+  // checks membership against the clubId it was handed, which is a separate value from
+  // sessionId in the same client payload - without this, a member of one club could
+  // attach an image to a different club's session by pairing their own clubId with
+  // someone else's sessionId. Scoping the read+update to both together makes a
+  // mismatched pair a no-op instead of a cross-tenant write.
+  const [session] = await db
+    .select()
+    .from(sessions)
+    .where(and(eq(sessions.id, sessionId), eq(sessions.clubId, clubId)));
+  if (!session) {
+    throw new Error(`Session ${sessionId} not found in club ${clubId}`);
+  }
+  const currentImages = (session.imageUrls as string[] | null) ?? [];
   const updatedImages = [...currentImages, blobUri];
 
-  await db.update(sessions).set({ imageUrls: updatedImages }).where(eq(sessions.id, sessionId));
+  await db
+    .update(sessions)
+    .set({ imageUrls: updatedImages })
+    .where(and(eq(sessions.id, sessionId), eq(sessions.clubId, clubId)));
 
   revalidatePath("/sessions");
   redirect(`/sessions/?clubId=${clubId}`);
