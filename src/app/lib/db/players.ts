@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import { revalidatePath } from "next/cache";
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/db/client";
-import { players, clubMembers, joinRequests } from "@/db/schema";
+import { players, clubMembers, joinRequests, clubs } from "@/db/schema";
 import { Player } from "@/app/lib/definitions";
 import type { User } from "@clerk/nextjs/server";
 
@@ -49,6 +49,10 @@ export async function createNewPlayerRecord(user: User) {
 
 export async function addNewPlayer(formData: FormData) {
   "use server";
+  const { userId } = await auth();
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
   const name = formData.get("playerName")?.toString();
   if (!name) {
     throw new Error("Missing player name");
@@ -72,11 +76,19 @@ export async function addImageToPlayer(blobUri: string, playerId: string) {
   revalidatePath("/players");
 }
 
+// Shared by every function below that's handed a Clerk external id instead
+// of the internal players.id - one query, two error-handling wrappers
+// (tolerant vs. throwing), rather than each caller inlining its own copy.
+async function findPlayerByExternalId(externalId: string) {
+  const [player] = await db.select().from(players).where(eq(players.externalId, externalId));
+  return player;
+}
+
 // Called from api/session/upload/route.ts with the Clerk external id
 // (tp.userId from auth()), not the internal players.id - resolve it here,
 // tolerating an unknown external id as "not a member" rather than throwing.
 export async function checkIfPlayerIsClubMember(playerExternalId: string, clubId: string) {
-  const [player] = await db.select().from(players).where(eq(players.externalId, playerExternalId));
+  const player = await findPlayerByExternalId(playerExternalId);
   if (!player) {
     return false;
   }
@@ -90,7 +102,7 @@ export async function checkIfPlayerIsClubMember(playerExternalId: string, clubId
 // Called from AvailableClubs.tsx with the Clerk external id (see Task 8) -
 // same resolve-internally rule as the rest of this file's membership checks.
 export async function checkAccessRequestStatus(playerExternalId: string, clubId: string) {
-  const [player] = await db.select().from(players).where(eq(players.externalId, playerExternalId));
+  const player = await findPlayerByExternalId(playerExternalId);
   if (!player) {
     return false;
   }
@@ -119,17 +131,37 @@ export async function getAllAcessRequests(clubId: string): Promise<Player[]> {
 // addPlayerToClub/declineAccessRequest are called from clubAccessRequests.tsx
 // with player.externalId (the Clerk id), matching today's real call site -
 // so these resolve to the internal players.id themselves, in one place,
-// rather than pushing that resolution onto every caller.
+// rather than pushing that resolution onto every caller. Throws instead of
+// tolerating a miss, unlike findPlayerByExternalId above, since these three
+// callers are mutations that can't proceed without a real player row.
 async function resolvePlayerByExternalId(externalId: string) {
-  const [player] = await db.select().from(players).where(eq(players.externalId, externalId));
+  const player = await findPlayerByExternalId(externalId);
   if (!player) {
     throw new Error(`Player with externalId ${externalId} not found`);
   }
   return player;
 }
 
+// addPlayerToClub/declineAccessRequest approve or decline someone else's
+// join request, so only that club's owner may call them - checked directly
+// against the clubs table here (not by importing clubs.ts's
+// checkIfPlayerIsClubOwner, which would create a circular import, since
+// clubs.ts already imports addPlayerToClub from this file).
+async function assertIsClubOwner(clubId: string, callerExternalId: string) {
+  const caller = await findPlayerByExternalId(callerExternalId);
+  const [club] = await db.select().from(clubs).where(eq(clubs.id, clubId));
+  if (!caller || !club || club.ownerId !== caller.id) {
+    throw new Error("Forbidden");
+  }
+}
+
 export async function addPlayerToClub(playerExternalId: string, clubId: string) {
   "use server";
+  const { userId } = await auth();
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
+  await assertIsClubOwner(clubId, userId);
   const player = await resolvePlayerByExternalId(playerExternalId);
   await db.insert(clubMembers).values({ playerId: player.id, clubId });
   await db
@@ -140,6 +172,11 @@ export async function addPlayerToClub(playerExternalId: string, clubId: string) 
 
 export async function declineAccessRequest(playerExternalId: string, clubId: string) {
   "use server";
+  const { userId } = await auth();
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
+  await assertIsClubOwner(clubId, userId);
   const player = await resolvePlayerByExternalId(playerExternalId);
   await db
     .delete(joinRequests)
