@@ -14,7 +14,7 @@ export default function ThemeToggle() {
     // resolvedTheme is undefined on first server render; rendering nothing
     // themed until mount avoids a hydration mismatch, same reasoning as
     // next-themes' own suppressHydrationWarning usage in the root layout.
-    return <span className="block h-9 w-9" />;
+    return <span className="block h-11 w-11" />;
   }
 
   const isDark = resolvedTheme === "dark";

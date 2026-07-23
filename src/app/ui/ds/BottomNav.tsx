@@ -20,7 +20,8 @@ export default function BottomNav() {
           <Link
             key={href}
             href={href}
-            className={`flex flex-col items-center gap-[3px] py-2.5 ${
+            aria-current={active ? "page" : undefined}
+            className={`flex flex-col items-center gap-[3px] py-2.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 ${
               active ? "text-accent" : "text-text opacity-55"
             }`}
           >
