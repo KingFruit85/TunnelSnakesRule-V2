@@ -29,7 +29,7 @@ export default async function PreviousSessionsPage({ params }: { params: Promise
         {sorted.map((session) => (
           <Link
             key={session.id}
-            href={`/sessions/previousSession?sessionId=${session.id}&clubId=${clubId}`}
+            href={`/clubs/${clubId}/sessions/${session.id}`}
             className="flex items-center gap-3 border-b border-divider px-5 py-[15px]"
           >
             <div className="flex-1">

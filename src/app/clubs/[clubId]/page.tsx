@@ -71,7 +71,7 @@ export default async function ClubDetailPage({ params }: { params: Promise<{ clu
           {activeSessions.map((session) => (
             <Link
               key={session.id}
-              href={`/sessions/previousSession?sessionId=${session.id}&clubId=${clubId}`}
+              href={`/clubs/${clubId}/sessions/${session.id}`}
               className="flex items-center gap-3 border-b border-divider px-5 py-3"
             >
               <div className="flex-1">

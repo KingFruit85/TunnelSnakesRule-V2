@@ -44,7 +44,7 @@ export async function addNewGameSession(formData: FormData) {
 
   revalidatePath(`/clubs/${clubId}`);
   revalidatePath("/sessions");
-  redirect(`/sessions/previousSession?sessionId=${inserted.id}&clubId=${clubId}`);
+  redirect(`/clubs/${clubId}/sessions/${inserted.id}`);
 }
 
 export async function endSession(id: string, notes: string) {

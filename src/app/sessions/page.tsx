@@ -40,7 +40,7 @@ export default async function SessionsTabPage() {
             {rows.map(({ session, club }) => (
               <Link
                 key={session.id}
-                href={`/sessions/previousSession?sessionId=${session.id}&clubId=${club.id}`}
+                href={`/clubs/${club.id}/sessions/${session.id}`}
                 className="flex items-center gap-3 border-b border-divider px-5 py-[15px]"
               >
                 <div className="flex-1">
