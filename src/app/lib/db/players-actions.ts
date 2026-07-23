@@ -40,7 +40,7 @@ export async function addNewPlayer(formData: FormData) {
   return inserted.id;
 }
 
-// addPlayerToClub/declineAccessRequest are called from clubAccessRequests.tsx
+// addPlayerToClub/declineAccessRequest are called from JoinRequestRow.tsx
 // with player.externalId (the Clerk id), matching today's real call site -
 // so these resolve to the internal players.id themselves, in one place,
 // rather than pushing that resolution onto every caller. Throws instead of

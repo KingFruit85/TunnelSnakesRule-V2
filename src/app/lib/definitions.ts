@@ -80,16 +80,6 @@ export type Club = {
   avatar: string;
 };
 
-export enum Destination {
-  AddNewClub,
-  JoinExistingClub,
-  ClubSessions,
-  ReviewAceessRequests,
-  AddNewBoardGame,
-  Groups,
-  PlayerProfile,
-}
-
 export type ClubAndRequestStatus = {
   club: Club;
   accessRequestPending: boolean;

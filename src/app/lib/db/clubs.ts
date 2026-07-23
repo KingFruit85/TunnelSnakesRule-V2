@@ -38,7 +38,7 @@ export async function getClubDetails(id: string): Promise<Club> {
 // checkIfPlayerIsClubOwner / getClubsPlayerIsNotAMemberOf / getUsersClubs are
 // all called from pages/components that only ever have a Clerk external id in
 // scope (user.id from currentUser()/auth()), never an already-resolved
-// internal player row - see sessions/page.tsx, userClubs.tsx, AvailableClubs.tsx
+// internal player row - see clubs/page.tsx, sessions/page.tsx, AvailableClubs.tsx
 // in Task 8. Rather than pushing that resolution onto each call site (which
 // would mean editing three more files beyond an import-path swap), each of
 // these resolves the external id to the internal players.id itself, exactly
