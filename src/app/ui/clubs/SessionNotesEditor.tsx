@@ -27,7 +27,11 @@ export default function SessionNotesEditor({ sessionId, initialNotes }: SessionN
 
   return (
     <div className="flex flex-col gap-2 px-5 pb-4">
+      <label htmlFor="sessionNotes" className="sr-only">
+        Session notes
+      </label>
       <textarea
+        id="sessionNotes"
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
         rows={3}
