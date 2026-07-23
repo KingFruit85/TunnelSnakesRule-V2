@@ -42,5 +42,5 @@ export async function addNewBoardGame(formData: FormData) {
       });
   }
 
-  redirect(`/sessions?clubId=${clubId}`);
+  redirect(`/clubs/${clubId}`);
 }
