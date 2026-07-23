@@ -1,5 +1,5 @@
 "use client";
-import { addNewGameSession } from "@/app/lib/db/sessions";
+import { addNewGameSession } from "@/app/lib/db/sessions-actions";
 import CancelButton from "../Common/cancelButton";
 import SubmitButton from "../Common/submitButton";
 import { SetStateAction, useState } from "react";

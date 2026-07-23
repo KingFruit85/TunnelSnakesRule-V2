@@ -1,10 +1,15 @@
 // src/app/lib/db/sessions.ts
+//
+// Reads only, plus addImageToSession (a write, but never called from
+// client-reachable code - only api/session/upload/route.ts, a Route
+// Handler, so it doesn't need "use server" and can stay here). Every
+// Server Action reachable from a "use client" component lives in
+// sessions-actions.ts instead - see the header comment in players.ts for
+// why this split exists.
 import "server-only";
 import { and, eq, inArray } from "drizzle-orm";
-import { v4 as uuidv4 } from "uuid";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { auth } from "@clerk/nextjs/server";
 import { db } from "@/db/client";
 import {
   sessions,
@@ -17,18 +22,6 @@ import {
 } from "@/db/schema";
 import { GameSession, Player } from "@/app/lib/definitions";
 import { getEventWinner, getPlayResultsForPlay } from "./results";
-import { checkIfPlayerIsClubMember } from "./players";
-
-async function assertIsClubMember(clubId: string) {
-  const { userId } = await auth();
-  if (!userId) {
-    throw new Error("Unauthorized");
-  }
-  const isMember = await checkIfPlayerIsClubMember(userId, clubId);
-  if (!isMember) {
-    throw new Error("Forbidden");
-  }
-}
 
 function toPlayer(row: typeof players.$inferSelect): Player {
   return { id: row.id, externalId: row.externalId, name: row.name, avatar: row.avatar ?? "" };
@@ -125,39 +118,6 @@ export async function getSessionDetails(id: string): Promise<GameSession[]> {
   return Promise.all(rows.map(toGameSession));
 }
 
-export async function addNewGameSession(formData: FormData) {
-  "use server";
-  const sessionName = formData.get("sessionName")?.toString();
-  const clubId = formData.get("clubId")?.toString();
-  if (!sessionName || !clubId) {
-    throw new Error("Missing required fields");
-  }
-  await assertIsClubMember(clubId);
-
-  await db.insert(sessions).values({
-    id: uuidv4(),
-    clubId,
-    name: sessionName,
-    date: new Date(),
-    active: true,
-  });
-
-  revalidatePath("/sessions");
-  redirect(`/sessions/?clubId=${clubId}`);
-}
-
-export async function endSession(id: string, notes: string) {
-  "use server";
-  const [session] = await db.select().from(sessions).where(eq(sessions.id, id));
-  if (!session) {
-    throw new Error(`Session ${id} not found`);
-  }
-  await assertIsClubMember(session.clubId);
-
-  await db.update(sessions).set({ active: false, notes }).where(eq(sessions.id, id));
-  revalidatePath("/sessions");
-}
-
 export async function addImageToSession(blobUri: string, sessionId: string, clubId: string) {
   // Constrained by clubId as well as sessionId: the caller (api/session/upload/route.ts)
   // checks membership against the clubId it was handed, which is a separate value from
@@ -183,9 +143,3 @@ export async function addImageToSession(blobUri: string, sessionId: string, club
   revalidatePath("/sessions");
   redirect(`/sessions/?clubId=${clubId}`);
 }
-
-export const redirectBackToSessions = async (clubId: string) => {
-  "use server";
-  revalidatePath("/sessions");
-  redirect(`/sessions/?clubId=${clubId}`);
-};

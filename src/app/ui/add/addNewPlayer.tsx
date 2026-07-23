@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { redirectBackToSessions } from "@/app/lib/db/sessions";
+import { redirectBackToSessions } from "@/app/lib/db/sessions-actions";
 import CancelButton from "../Common/cancelButton";
 import SubmitButton from "../Common/submitButton";
 import { upload } from "@vercel/blob/client";

@@ -1,6 +1,6 @@
 "use client";
 
-import { requestAccessToClub } from "@/app/lib/db/players";
+import { requestAccessToClub } from "@/app/lib/db/players-actions";
 import { ClubAndRequestStatus } from "@/app/lib/definitions";
 import { UUID } from "crypto";
 import { useState } from "react";

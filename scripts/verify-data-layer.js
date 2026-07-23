@@ -84,6 +84,7 @@ function compile() {
       'src/app/lib/db/players.ts',
       'src/app/lib/db/clubs.ts',
       'src/app/lib/db/games.ts',
+      'src/app/lib/db/games-actions.ts',
       'src/app/lib/db/sessions.ts',
       'src/app/lib/db/results.ts',
       'src/app/lib/definitions.ts',
@@ -143,6 +144,12 @@ async function main() {
   const players = require(path.join(OUT_DIR, 'app/lib/db/players.js'));
   const clubs = require(path.join(OUT_DIR, 'app/lib/db/clubs.js'));
   const games = require(path.join(OUT_DIR, 'app/lib/db/games.js'));
+  // addNewBoardGame lives in games-actions.ts, not games.ts - split out
+  // after the "use server" module-boundary fix (a per-function "use server"
+  // inside a file that also `import "server-only"`s and is reachable from
+  // client code doesn't work; see the header comment in
+  // src/app/lib/db/players.ts for the full story).
+  const gamesActions = require(path.join(OUT_DIR, 'app/lib/db/games-actions.js'));
   const rules = require(path.join(OUT_DIR, 'app/lib/db/rules.js'));
   const sessionsLib = require(path.join(OUT_DIR, 'app/lib/db/sessions.js'));
   const results = require(path.join(OUT_DIR, 'app/lib/db/results.js'));
@@ -309,7 +316,7 @@ async function main() {
         formData.set(key, value);
       }
       try {
-        await games.addNewBoardGame(formData);
+        await gamesActions.addNewBoardGame(formData);
       } catch (err) {
         if (!(err && typeof err.digest === 'string' && err.digest.startsWith('NEXT_REDIRECT'))) {
           throw err;

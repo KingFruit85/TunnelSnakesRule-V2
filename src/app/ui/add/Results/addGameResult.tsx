@@ -1,6 +1,6 @@
 import { getAllBoardgames } from "@/app/lib/db/games";
 import { getAllPlayersInClub } from "@/app/lib/db/sessions";
-import { recordPlayResults } from "@/app/lib/db/results";
+import { recordPlayResults } from "@/app/lib/db/results-actions";
 import { getClubDetails } from "@/app/lib/db/clubs";
 import Results from "../../winConditions/results";
 import CancelButton from "../../Common/cancelButton";

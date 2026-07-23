@@ -1,6 +1,6 @@
 "use client";
 
-import { addNewClub } from "@/app/lib/db/clubs";
+import { addNewClub } from "@/app/lib/db/clubs-actions";
 import CancelButton from "../Common/cancelButton";
 import SubmitButton from "../Common/submitButton";
 

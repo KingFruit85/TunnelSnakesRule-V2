@@ -1,6 +1,6 @@
 "use client";
 
-import { addPlayerToClub, declineAccessRequest } from "@/app/lib/db/players";
+import { addPlayerToClub, declineAccessRequest } from "@/app/lib/db/players-actions";
 import { Player } from "@/app/lib/definitions";
 import { UUID } from "crypto";
 import Image from "next/image";

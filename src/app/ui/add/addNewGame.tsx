@@ -1,5 +1,5 @@
 "use client";
-import { addNewBoardGame } from "@/app/lib/db/games";
+import { addNewBoardGame } from "@/app/lib/db/games-actions";
 import CancelButton from "../Common/cancelButton";
 import SubmitButton from "../Common/submitButton";
 import { WinCondition } from "@/app/lib/definitions";

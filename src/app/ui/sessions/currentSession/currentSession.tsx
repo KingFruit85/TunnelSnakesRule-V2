@@ -1,6 +1,6 @@
 "use client";
 
-import { endSession } from "@/app/lib/db/sessions";
+import { endSession } from "@/app/lib/db/sessions-actions";
 import { BoardGame, GameSession } from "@/app/lib/definitions";
 import { useEffect, useState, Suspense } from "react";
 import CurrentSessionHeader from "./currentSessionHeader";
