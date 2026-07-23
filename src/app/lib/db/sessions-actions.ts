@@ -31,16 +31,20 @@ export async function addNewGameSession(formData: FormData) {
   }
   await assertIsClubMember(clubId);
 
-  await db.insert(sessions).values({
-    id: uuidv4(),
-    clubId,
-    name: sessionName,
-    date: new Date(),
-    active: true,
-  });
+  const [inserted] = await db
+    .insert(sessions)
+    .values({
+      id: uuidv4(),
+      clubId,
+      name: sessionName,
+      date: new Date(),
+      active: true,
+    })
+    .returning();
 
+  revalidatePath(`/clubs/${clubId}`);
   revalidatePath("/sessions");
-  redirect(`/sessions/?clubId=${clubId}`);
+  redirect(`/sessions/previousSession?sessionId=${inserted.id}&clubId=${clubId}`);
 }
 
 export async function endSession(id: string, notes: string) {
