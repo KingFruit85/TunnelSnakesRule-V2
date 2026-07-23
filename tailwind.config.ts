@@ -24,8 +24,12 @@ const config: Config = {
         "tunnel-snake-red": "#de0202",
 
         // Mobile redesign tokens - see design_handoff_mobile_redesign/README.md
-        bg: "var(--color-bg)",
-        "bg-page": "var(--color-bg-page)",
+        // Note: "canvas"/"canvas-page" and "muted" are the Tailwind-facing
+        // color keys - deliberately not "bg"/"bg-page" (which would generate
+        // the awkward bg-bg/bg-bg-page utility names) or "neutral" (which
+        // would collide with Tailwind's built-in neutral gray palette).
+        canvas: "var(--color-bg)",
+        "canvas-page": "var(--color-bg-page)",
         surface: "var(--color-surface)",
         text: "var(--color-text)",
         divider: "var(--color-divider)",
@@ -39,7 +43,7 @@ const config: Config = {
           800: "var(--color-accent-800)",
           900: "var(--color-accent-900)",
         },
-        neutral: {
+        muted: {
           100: "var(--color-neutral-100)",
           200: "var(--color-neutral-200)",
           300: "var(--color-neutral-300)",
