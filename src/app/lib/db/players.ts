@@ -8,7 +8,7 @@
 // also has `import "server-only"` and gets imported - even just for a type
 // or an unrelated read - by any "use client" component breaks the build.)
 import "server-only";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db/client";
 import { players, clubMembers, joinRequests } from "@/db/schema";
@@ -30,6 +30,14 @@ export async function getPlayerById(id: string): Promise<Player> {
     throw new Error(`Player ${id} not found`);
   }
   return toPlayer(row);
+}
+
+export async function getPlayersByIds(ids: string[]): Promise<Player[]> {
+  if (ids.length === 0) {
+    return [];
+  }
+  const rows = await db.select().from(players).where(inArray(players.id, ids));
+  return rows.map(toPlayer);
 }
 
 export async function getPlayerByExternalId(externalId: string): Promise<Player> {
