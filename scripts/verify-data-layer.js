@@ -590,6 +590,62 @@ async function main() {
       `single_winner detail should list both participants (got ${JSON.stringify(singleWinnerSummary.detail)})`
     );
     console.log('results.ts getSessionPlaySummaries OK (leaderboard both directions, team, cooperative, single_loser, single_winner)');
+
+    // ------------------------------------------------------------------
+    // 8. results.ts - getPlayForEdit. Reuses club/player fixtures already
+    //    in scope; adds one leaderboard play and one team_based play to a
+    //    fresh session so this section doesn't disturb section 6/7's own
+    //    wins/played counts or summary assertions.
+    // ------------------------------------------------------------------
+    const [editSession] = await db
+      .insert(schema.sessions)
+      .values({ clubId: club.id, name: `${MARKER}-Edit Session`, date: new Date(), active: true })
+      .returning();
+    fixtures.sessionIds.push(editSession.id);
+
+    const [editPlayLeaderboard] = await db
+      .insert(schema.plays)
+      .values({ sessionId: editSession.id, gameId: gameLeaderboard.id, notes: `${MARKER}-edit notes` })
+      .returning();
+    fixtures.playIds.push(editPlayLeaderboard.id);
+    await db.insert(schema.leaderboardResults).values([
+      { playId: editPlayLeaderboard.id, playerId: ownerPlayer.id, score: 15 },
+      { playId: editPlayLeaderboard.id, playerId: memberPlayer.id, score: 30 },
+    ]);
+
+    const [editPlayTeam] = await db
+      .insert(schema.plays)
+      .values({ sessionId: editSession.id, gameId: gameTeamBased.id })
+      .returning();
+    fixtures.playIds.push(editPlayTeam.id);
+    await db.insert(schema.teamResults).values([
+      { playId: editPlayTeam.id, playerId: ownerPlayer.id, team: 'Red', won: false },
+      { playId: editPlayTeam.id, playerId: memberPlayer.id, team: 'Blue', won: true },
+    ]);
+
+    const leaderboardEdit = await results.getPlayForEdit(club.id, editPlayLeaderboard.id);
+    assert(leaderboardEdit, 'getPlayForEdit should find the leaderboard play');
+    assertEqual(leaderboardEdit.gameId, gameLeaderboard.id, 'leaderboard edit data should resolve the right game');
+    assertEqual(leaderboardEdit.notes, `${MARKER}-edit notes`, 'leaderboard edit data should carry play notes through');
+    assertEqual(leaderboardEdit.winCondition, 'leaderboard', 'leaderboard edit data should resolve effective win condition');
+    assertEqual(leaderboardEdit.scoresByPlayerId[ownerPlayer.id], 15, 'leaderboard edit data should carry owner score');
+    assertEqual(leaderboardEdit.scoresByPlayerId[memberPlayer.id], 30, 'leaderboard edit data should carry member score');
+    assertSameSet(
+      leaderboardEdit.participantIds,
+      [ownerPlayer.id, memberPlayer.id],
+      'leaderboard edit data should list both participants'
+    );
+
+    const teamEdit = await results.getPlayForEdit(club.id, editPlayTeam.id);
+    assert(teamEdit, 'getPlayForEdit should find the team play');
+    assertEqual(teamEdit.winCondition, 'team_based', 'team edit data should resolve effective win condition');
+    assertEqual(teamEdit.teamByPlayerId[ownerPlayer.id], 'Red', 'team edit data should carry owner team assignment');
+    assertEqual(teamEdit.teamByPlayerId[memberPlayer.id], 'Blue', 'team edit data should carry member team assignment');
+    assertEqual(teamEdit.winningTeam, 'Blue', 'team edit data should identify the winning team from the won:true row');
+
+    const missingEdit = await results.getPlayForEdit(club.id, '00000000-0000-0000-0000-000000000000');
+    assertEqual(missingEdit, null, 'getPlayForEdit should return null for a play id that does not exist');
+    console.log('results.ts getPlayForEdit OK (leaderboard rehydration, team rehydration, missing play)');
   } finally {
     // Explicit cleanup, not a transaction rollback - see header comment:
     // every db/lib call in this script shares the module-level `db`

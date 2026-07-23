@@ -289,3 +289,105 @@ export async function getSessionPlaySummaries(clubId: string, sessionId: string)
   }
   return summaries;
 }
+
+export type PlayEditData = {
+  gameId: string;
+  notes: string;
+  winCondition: EffectiveRules["winCondition"];
+  scoringDirection: EffectiveRules["scoringDirection"];
+  participantIds: string[];
+  scoresByPlayerId: Record<string, number>;
+  teamByPlayerId: Record<string, string>;
+  winningTeam: string | null;
+  cooperativeWon: boolean | null;
+  pickedPlayerId: string | null;
+};
+
+// Rehydrates an existing play's raw result data for the Edit result screen.
+// Reads whichever ONE of the three result tables actually has rows for this
+// play (recordPlayResults/updatePlayResults only ever write to one), and -
+// critically - uses resolveEffectiveRules to tell cooperative apart from
+// single_winner/single_loser, since all three write to outcome_results and
+// are otherwise indistinguishable. Same reasoning already applied in
+// getSessionPlaySummaries and getClubStats: never trust the base game's own
+// winCondition/scoringDirection directly, always resolve club variants.
+//
+// Scoped by clubId as well as playId, joined through the play's session -
+// same reasoning as getSessionDetails/getSessionPlaySummaries's fix: without
+// this, a caller could read another club's play data (scores, notes) by
+// pairing its own clubId with a different club's playId. A mismatched pair
+// returns null instead of leaking data.
+export async function getPlayForEdit(clubId: string, playId: string): Promise<PlayEditData | null> {
+  const [play] = await db
+    .select({ id: plays.id, gameId: plays.gameId, notes: plays.notes })
+    .from(plays)
+    .innerJoin(sessions, eq(plays.sessionId, sessions.id))
+    .where(and(eq(plays.id, playId), eq(sessions.clubId, clubId)));
+  if (!play) {
+    return null;
+  }
+
+  const rules = await resolveEffectiveRules(clubId, play.gameId);
+  const base = {
+    gameId: play.gameId,
+    notes: play.notes ?? "",
+    winCondition: rules.winCondition,
+    scoringDirection: rules.scoringDirection,
+  };
+
+  if (rules.winCondition === "leaderboard") {
+    const rows = await db.select().from(leaderboardResults).where(eq(leaderboardResults.playId, playId));
+    return {
+      ...base,
+      participantIds: rows.map((r) => r.playerId),
+      scoresByPlayerId: Object.fromEntries(rows.map((r) => [r.playerId, r.score])),
+      teamByPlayerId: {},
+      winningTeam: null,
+      cooperativeWon: null,
+      pickedPlayerId: null,
+    };
+  }
+
+  if (rules.winCondition === "team_based") {
+    const rows = await db.select().from(teamResults).where(eq(teamResults.playId, playId));
+    const winningRow = rows.find((r) => r.won);
+    return {
+      ...base,
+      participantIds: rows.map((r) => r.playerId),
+      scoresByPlayerId: {},
+      teamByPlayerId: Object.fromEntries(rows.map((r) => [r.playerId, r.team])),
+      winningTeam: winningRow?.team ?? null,
+      cooperativeWon: null,
+      pickedPlayerId: null,
+    };
+  }
+
+  // cooperative / single_winner / single_loser all write to outcome_results
+  // with the correct per-player `won` already encoded at write time - so
+  // "the winner" for single_winner, "the loser" for single_loser, and
+  // "did everyone win" for cooperative are all just different READS of the
+  // same won column, not different write shapes.
+  const outcomeRows = await db.select().from(outcomeResults).where(eq(outcomeResults.playId, playId));
+  if (rules.winCondition === "cooperative") {
+    return {
+      ...base,
+      participantIds: outcomeRows.map((r) => r.playerId),
+      scoresByPlayerId: {},
+      teamByPlayerId: {},
+      winningTeam: null,
+      cooperativeWon: outcomeRows.some((r) => r.won),
+      pickedPlayerId: null,
+    };
+  }
+
+  const picked = outcomeRows.find((r) => (rules.winCondition === "single_winner" ? r.won : !r.won));
+  return {
+    ...base,
+    participantIds: outcomeRows.map((r) => r.playerId),
+    scoresByPlayerId: {},
+    teamByPlayerId: {},
+    winningTeam: null,
+    cooperativeWon: null,
+    pickedPlayerId: picked?.playerId ?? null,
+  };
+}
