@@ -32,12 +32,12 @@ scripts/verify-data-layer.js # new — round-trips the real db/*.ts functions
 
 ---
 
-## Task 1: Add `hasVariant` to `BoardGame`
+## Task 1: Add `hasVariant` to `BoardGame` ✅ DONE (c5af20e)
 
 **Files:**
 - Modify: `src/app/lib/definitions.ts:66-72`
 
-- [ ] **Step 1: Add the field**
+- [x] **Step 1: Add the field**
 
 ```ts
 export type BoardGame = {
@@ -50,7 +50,7 @@ export type BoardGame = {
 };
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add src/app/lib/definitions.ts
@@ -59,12 +59,12 @@ git commit -m "feat(db): add hasVariant to BoardGame for the house-rules indicat
 
 ---
 
-## Task 2: `rules.ts` — the one shared win-condition resolver
+## Task 2: `rules.ts` — the one shared win-condition resolver ✅ DONE (5428eeb)
 
 **Files:**
 - Create: `src/app/lib/db/rules.ts`
 
-- [ ] **Step 1: Write it**
+- [x] **Step 1: Write it**
 
 ```ts
 // src/app/lib/db/rules.ts
@@ -113,7 +113,7 @@ export async function resolveEffectiveRules(
 }
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add src/app/lib/db/rules.ts
@@ -122,14 +122,14 @@ git commit -m "feat(db): add resolveEffectiveRules, the single club_game_variant
 
 ---
 
-## Task 3: `games.ts` — catalog, variants, and the numeric<->DB win-condition mapping
+## Task 3: `games.ts` — catalog, variants, and the numeric<->DB win-condition mapping ✅ DONE (729d20d) — note: addNewBoardGame can't revert a club's variant back to the global default once created (matches old app's insert-only behavior, no edit path existed before either); getBoardgameById doesn't resolve per-club variants (confirmed inert for all current callers, which only read .name)
 
 **Files:**
 - Create: `src/app/lib/db/games.ts`
 
 The UI's `WinCondition` enum (`definitions.ts`) is numeric (`LeaderBoard=0`...`SingleLoser=4`), stored/passed around as numeric strings (`"0"`..`"4"`) — every component (`Leaderboard.tsx`'s `switch (parseInt(game.winCondition))`, `PlayerRow.tsx`) already assumes this. Rather than changing every component to the DB's semantic string enum, this module translates at the boundary, so no UI component needs to change for this reason.
 
-- [ ] **Step 1: Write it**
+- [x] **Step 1: Write it**
 
 ```ts
 // src/app/lib/db/games.ts
@@ -249,7 +249,7 @@ export async function addNewBoardGame(formData: FormData) {
 
 `addNewBoardGame` implements the spec's catalog design directly: if the name doesn't exist yet in `games`, this club's chosen rules become the new global default (no variant row needed, since they're first). If the name already exists with different rules, a `club_game_variants` row is created (or updated) for this club only — the existing default is untouched for every other club.
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add src/app/lib/db/games.ts
@@ -258,12 +258,12 @@ git commit -m "feat(db): rewrite boardgame catalog reads/writes against games + 
 
 ---
 
-## Task 4: `clubs.ts`
+## Task 4: `clubs.ts` ✅ DONE (ee43d86, refined 97c9c09) — note: club creation isn't wrapped in a transaction with the owner's club_members insert (pre-existing carried-over risk from the old app, not a new regression)
 
 **Files:**
 - Create: `src/app/lib/db/clubs.ts`
 
-- [ ] **Step 1: Write it**
+- [x] **Step 1: Write it**
 
 ```ts
 // src/app/lib/db/clubs.ts
@@ -386,7 +386,7 @@ export async function addNewClub(formData: FormData) {
 
 `checkIfPlayerIsClubOwner`, `getClubsPlayerIsNotAMemberOf`, and `getUsersClubs` all take the Clerk **external** id and resolve it to the internal `players.id` themselves (see the `resolvePlayerIdByExternalId` helper above) — matching the real call sites found in `sessions/page.tsx`, `AvailableClubs.tsx`, and `userClubs.tsx` (Task 8), none of which have an internal player row already looked up. This is the same fix `players.ts`'s `addPlayerToClub`/`checkIfPlayerIsClubMember`/`checkAccessRequestStatus` apply, closing the identity inconsistency documented in the schema spec without needing to touch those three call sites beyond an import-path swap.
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add src/app/lib/db/clubs.ts
@@ -395,12 +395,12 @@ git commit -m "feat(db): rewrite club reads/writes against the new schema"
 
 ---
 
-## Task 5: `players.ts` — identity, membership, join requests
+## Task 5: `players.ts` — identity, membership, join requests ✅ DONE (6992b9e, refined ed327ba) — security review caught addPlayerToClub/declineAccessRequest/addNewPlayer had no authorization at all; fixed with auth()+club-owner checks (also refactored the duplicated external-id resolver into one shared findPlayerByExternalId, per code review)
 
 **Files:**
 - Create: `src/app/lib/db/players.ts`
 
-- [ ] **Step 1: Write it**
+- [x] **Step 1: Write it**
 
 ```ts
 // src/app/lib/db/players.ts
@@ -563,9 +563,9 @@ export async function requestAccessToClub(clubId: string) {
 }
 ```
 
-Note the parameter type change: every function here now takes the **internal `players.id`**, not a Clerk external id — per the schema spec's invariant, resolving external→internal id happens once at the call site (Task 8), not inside these functions.
+Note the parameter type: `checkIfPlayerIsClubMember`, `checkAccessRequestStatus`, `addPlayerToClub`, `declineAccessRequest`, and `requestAccessToClub` all take a Clerk **external** id (matching their real call sites in Task 8) and resolve it to the internal `players.id` themselves before touching `club_members`/`join_requests` — per the schema spec's invariant that this resolution happens in one place, not scattered across callers. `getPlayerById`/`addImageToPlayer` take the internal id directly, since their callers (`getAllPlayersBySessionId`, the avatar upload route) already have it.
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add src/app/lib/db/players.ts
@@ -574,12 +574,12 @@ git commit -m "feat(db): rewrite player identity and club membership against the
 
 ---
 
-## Task 6: `sessions.ts` — sessions, plays, both roster queries
+## Task 6: `sessions.ts` — sessions, plays, both roster queries ✅ DONE (9f6c123; security fixes 5293d4a, fa67726) — added auth+membership checks to addNewGameSession/endSession, and scoped addImageToSession's update to (sessionId, clubId) to close a cross-tenant IDOR
 
 **Files:**
 - Create: `src/app/lib/db/sessions.ts`
 
-- [ ] **Step 1: Write it**
+- [x] **Step 1: Write it**
 
 ```ts
 // src/app/lib/db/sessions.ts
@@ -742,7 +742,7 @@ export const redirectBackToSessions = async (clubId: string) => {
 
 `addNewGameSession` no longer accepts a `player` field from the form — `sessions` has no `player_ids` column in the new schema, and per the spec, the record-time roster is always derived from `club_members` when a result is actually recorded, not fixed at session-creation time. See Task 9 for the matching `AddNewSession` form change (the player checkbox section is removed, since it would otherwise silently do nothing).
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add src/app/lib/db/sessions.ts
@@ -751,14 +751,14 @@ git commit -m "feat(db): rewrite session reads/writes, split record-time vs hist
 
 ---
 
-## Task 7: `results.ts` — the three-way write path and result reads
+## Task 7: `results.ts` — the three-way write path and result reads ✅ DONE (fbd5fe4; security fixes 2823b97, db2831e) — added auth+club-membership to recordPlayResults, then fixed a second IDOR: clubId is now derived from the session's own row rather than trusted as a separate client-supplied form field, matching the addImageToSession fix. Known, deferred issue: parseCheckedPlayers' comma-delimited FormData encoding will silently truncate/misparse a team name containing a comma (schema allows free-text team names); inert under the current UI (hardcoded "Team 1".."Team 4") but worth hardening if Task 9's UI changes that.
 
 **Files:**
 - Create: `src/app/lib/db/results.ts`
 
 This is the module the schema spec's invariants are about: `recordPlayResults` is the *only* place that resolves a play's effective win condition and writes to one of the three result tables.
 
-- [ ] **Step 1: Write it**
+- [x] **Step 1: Write it**
 
 ```ts
 // src/app/lib/db/results.ts
@@ -990,7 +990,7 @@ export async function getPlayerEvents(playerId: string): Promise<GroupedBoardgam
 
 `recordPlayResults` replaces `addNewGameResult` as the exported name — Task 8 updates `addGameResult.tsx`'s import and the form's `action` prop accordingly (a rename here is warranted since the old name described the old single-table write, and there's exactly one call site to fix).
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add src/app/lib/db/results.ts
@@ -999,7 +999,7 @@ git commit -m "feat(db): implement the three-way result write path and result re
 
 ---
 
-## Task 8: Update every call site's import paths (and two real logic changes)
+## Task 8: Update every call site's import paths (and two real logic changes) ✅ DONE (09ab031, typo fix 1763eff)
 
 **Files (import-path changes only — swap `@/app/lib/data` / `@/app/lib/actions` for the matching `@/app/lib/db/*` module):**
 
@@ -1047,7 +1047,7 @@ git commit -m "feat(db): implement the three-way result write path and result re
 
     return (
       <div className="w-full flex flex-col space-items items-center py-5 bg-black text-white dark:bg-black text-white">
-        <div className="w-[95%] md:w-[35%] lg:w-[35%] xl:w-[35%] xl:w-[25%] sm:w-[95%] flex-col p-4 rounded-sm bg-black">
+        <div className="w-[95%] md:w-[35%] lg:w-[35%] xl:w-[25%] sm:w-[95%] flex-col p-4 rounded-sm bg-black">
           <form action={recordPlayResults}>
             <input type="hidden" name="sessionId" value={sessionId} />
             <input type="hidden" name="clubId" value={clubId} />
@@ -1106,7 +1106,7 @@ git commit -m "refactor: point every call site at the new src/app/lib/db modules
 
 ---
 
-## Task 9: UI changes forced by the new schema
+## Task 9: UI changes forced by the new schema ✅ DONE (868eef5, validation fix e1d95fd) — recordPlayResults now rejects a single_winner/single_loser submission if the selected winner/loser isn't among the checked participants, since the checkbox row and avatar-grid picker are independent, unwired controls
 
 **Files:**
 - Modify: `src/app/ui/winConditions/playerRow.tsx`
@@ -1286,13 +1286,13 @@ git commit -m "feat(ui): adjust result-entry and session-creation forms for the 
 
 ---
 
-## Task 10: Delete the old data-access files
+## Task 10: Delete the old data-access files ✅ DONE (7715a08) — confirmed zero remaining references, then a clean `tsc --noEmit` across the whole project for the first time in this rewrite
 
 **Files:**
 - Delete: `src/app/lib/data.ts`
 - Delete: `src/app/lib/actions.ts`
 
-- [ ] **Step 1: Confirm nothing still imports them**
+- [x] **Step 1: Confirm nothing still imports them**
 
 ```bash
 grep -rn "@/app/lib/data\"\|@/app/lib/actions\"\|\.\./lib/data\"\|\.\./lib/actions\"\|\./lib/data\"\|\./lib/actions\"" src/
@@ -1300,7 +1300,7 @@ grep -rn "@/app/lib/data\"\|@/app/lib/actions\"\|\.\./lib/data\"\|\.\./lib/actio
 
 Expected: no output (Tasks 1-9 should have moved every import).
 
-- [ ] **Step 2: Delete and type-check**
+- [x] **Step 2: Delete and type-check**
 
 ```bash
 rm src/app/lib/data.ts src/app/lib/actions.ts
@@ -1309,7 +1309,7 @@ npx tsc --noEmit
 
 Expected: no type errors.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add -u src/app/lib/data.ts src/app/lib/actions.ts
@@ -1318,13 +1318,13 @@ git commit -m "chore: remove data.ts/actions.ts, fully replaced by src/app/lib/d
 
 ---
 
-## Task 11: Rewrite `scripts/seed.js`
+## Task 11: Rewrite `scripts/seed.js` ✅ DONE (988f660)
 
 **Files:**
 - Modify: `scripts/seed.js`
 - Modify: `src/app/lib/seedData.js` (or delete if no longer needed)
 
-- [ ] **Step 1: Rewrite against the new schema**
+- [x] **Step 1: Rewrite against the new schema**
 
 The old script seeded a single admin `players` row with `email`/`avatar`, using a shape that predates even the pre-Drizzle schema this rewrite replaces. Replace it with a minimal seed that's actually useful for local development — one club with an owner and a couple of catalog games:
 
@@ -1369,13 +1369,13 @@ main().catch((err) => {
 });
 ```
 
-- [ ] **Step 2: Remove the now-unused `seedData.js`**
+- [x] **Step 2: Remove the now-unused `seedData.js`**
 
 ```bash
 rm src/app/lib/seedData.js
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add scripts/seed.js
@@ -1385,7 +1385,7 @@ git commit -m "chore: rewrite seed script against the new schema"
 
 ---
 
-## Task 12: Verification script for the rewritten data-access layer
+## Task 12: Verification script for the rewritten data-access layer ✅ DONE (2685c4a, extended 5ecf3d3) — covers players/clubs/games/rules/sessions reads plus addNewBoardGame's real write path; auth-gated writes (addNewClub, addPlayerToClub, declineAccessRequest, requestAccessToClub, addNewGameSession, endSession, recordPlayResults, addNewPlayer) simulated via direct fixture inserts since auth() needs a real Next.js request context. Known, accepted gap: composed session-read functions (toGameSession/getAllActiveSessionDetails/etc.) aren't scripted here — exercised for real in Task 13's browser walkthrough instead. Ran live against the real database each time; confirmed zero leftover fixture rows, including via a deliberately-injected mid-run failure.
 
 **Files:**
 - Create: `scripts/verify-data-layer.js`
@@ -1447,6 +1447,13 @@ main().catch((err) => {
 
 This covers the `players.ts` round-trip as a template; extend the same insert-then-explicitly-delete pattern to exercise `clubs.ts` → `games.ts` → `sessions.ts` → `results.ts` end-to-end (create a club, a game, a session, record one result of each win condition type, assert `getEventWinner`/`getAllPlayersBySessionId` return the expected values, then delete everything created in reverse dependency order: results → plays → sessions/club_game_variants → games → club_members → clubs → players) before this task is considered done — the single `players.ts` check above is the minimum to prove the compile-and-require approach works, not the full coverage this task needs.
 
+**Amendment (post-Task-7 security fixes):** by the time this task runs, `addNewClub`, `addPlayerToClub`, `declineAccessRequest`, `requestAccessToClub`, `addNewGameSession`, `endSession`, and `recordPlayResults` all call Clerk's `auth()` internally as an authorization gate (added during code/security review on Tasks 5–7, after this task was originally drafted). `auth()` requires a real Next.js request/middleware context to resolve a session — it does not work when these functions are `require()`'d and called directly from a standalone Node script the way this task's `players.ts` example does with `addNewPlayer` (which, not coincidentally, is the one write function in this file that does *not* require auth). Calling any of the seven auth-gated functions from this script will throw.
+
+Given that, extend coverage using this adjusted approach instead of literally calling every exported function:
+- **Read functions** (`getClubDetails`, `checkIfPlayerIsClubOwner`, `getClubsPlayerIsNotAMemberOf`, `getUsersClubs`, `getAllBoardgames`, `getBoardgameById`, `resolveEffectiveRules`, `getAllPlayersInClub`, `getAllPlayersBySessionId`, `getAllActiveSessionDetails`, `getEventWinner`, `getPlayResultsForPlay`, `getPlayerEvents`, etc.) — call these directly as planned; none of them require `auth()`.
+- **Auth-gated write functions** — do not call them from this script. Instead, insert the fixture rows they would have written directly via Drizzle (`db.insert(clubs).values(...)`, `db.insert(plays).values(...)`, etc.), then verify the *read* functions return correct results against that fixture data. This still exercises every read path's query logic (including `getEventWinner`'s three-way fallback and `resolveEffectiveRules`'s variant-then-default resolution) — it just can't exercise the auth check itself or the write-side branching logic in `recordPlayResults`'s switch statement via this script.
+- The auth checks and `recordPlayResults`'s write-side branching are exercised for real in Task 13 (manual browser verification), which runs inside a real authenticated Next.js request — that is the actual coverage for those paths, not a gap being silently accepted.
+
 - [ ] **Step 2: Add the npm script**
 
 ```json
@@ -1468,11 +1475,11 @@ git commit -m "test(db): verify the rewritten data-access layer end-to-end"
 
 ---
 
-## Task 13: Manual verification in the browser
+## Task 13: Manual verification in the browser (partial — public-path checked; authenticated walkthrough handed to the user)
 
 **Files:** none — this task drives the running app, per this project's standing requirement that UI changes be exercised in a browser before being called done.
 
-- [ ] **Step 1: Start the dev server**
+- [x] **Step 1: Start the dev server** — running on http://localhost:3002 (port 3000 was in use)
 
 ```bash
 npm run dev
@@ -1494,6 +1501,8 @@ npm run dev
 
 Check the browser console and terminal output for errors during the above walkthrough. Fix forward in a new commit if anything surfaces.
 
+**Post-Task-13 correction (05a32b6):** the user ran the app themselves and immediately hit a real Next.js build error that Tasks 2–12's verification never caught: `import "server-only"` (module-level) mixed with per-function `"use server"` directives in the same file — a pattern every one of those tasks' plan text explicitly called deliberate — breaks `next build`/`next dev` whenever that file is reachable from any `"use client"` component, even via an unrelated export. `tsc --noEmit` and `eslint` both stay silent about this, because Next.js's client/server boundary analysis only runs inside its own compiler, which nothing in Tasks 1–12 ever invoked — every verification step in this plan ran `tsc`/`eslint`/a standalone Node script, never `npm run build` or `npm run dev` against a real route. Fixed by splitting all 5 affected domain modules into a reads file (keeps `import "server-only"`) and a sibling `*-actions.ts` file (starts with `"use server";`, holds every mutation actually used as a form action/onClick handler from client code) — see commit `05a32b6` for the full breakdown. **Lesson for future plans in this codebase: any task touching a file that mixes reads and Server Actions must include running the actual `next build` (or `next dev` + hitting the affected route) as a verification step — a clean `tsc`/`eslint` pass is not sufficient evidence the code works in Next.js's real module system.**
+
 ---
 
 ## Self-Review Notes
@@ -1504,3 +1513,5 @@ Check the browser console and terminal output for errors during the above walkth
 - **New consequence surfaced while writing this plan** (not caught during brainstorming, flagged for the user before merging Task 9): the avatar-grid participant checkboxes for single-winner/single-loser (Task 9, Step 2) are implemented as a simpler, fully-server-rendered version of the interactive mockup shown during brainstorming (which live-hid unchecked players via client-side JS). Confirm this simplification is acceptable, or convert `Leaderboard.tsx`'s relevant branch to track checkbox state client-side to match the mockup exactly.
 - **New consequence surfaced while writing this plan** (flagged for the user): removing the player picker from `AddNewSession` (Task 9, Step 4) is a visible flow change that follows necessarily from "no session-level roster column," but was not itself shown as a mockup or explicitly signed off on during brainstorming the way the other UI changes were.
 - **Bugs caught and fixed while writing this plan, not during brainstorming:** an earlier draft of Task 12's verification script wrapped calls to `players.addNewPlayer()` in a `db.transaction()` at the script level, which would silently **not** have rolled anything back — those functions use their own module-level `db` import, not the transaction's scoped handle. Fixed to use real inserts with explicit cleanup instead. Separately, an earlier draft of `clubs.ts`/`players.ts` assumed every membership/ownership function took the internal `players.id`, but checking the actual call sites (`userClubs.tsx`, `AvailableClubs.tsx`, `sessions/page.tsx`, `api/session/upload/route.ts`, `clubAccessRequests.tsx`) showed most of them only ever have the Clerk **external** id in scope. Fixed by having `checkIfPlayerIsClubOwner`, `getClubsPlayerIsNotAMemberOf`, `getUsersClubs`, `checkAccessRequestStatus`, `checkIfPlayerIsClubMember`, `addPlayerToClub`, and `declineAccessRequest` all resolve the external id to an internal player id themselves, consistently, rather than pushing that resolution onto call sites (which would have turned "import path change only" into "logic change" for several more files than Task 8 currently lists).
+- **Security issues caught and fixed during execution (Tasks 5-6), not anticipated by the plan:** automated security review on the `players.ts` and `sessions.ts` commits found several `"use server"` mutations with zero authorization — `addPlayerToClub`, `declineAccessRequest`, `addNewPlayer`, `addNewGameSession`, `endSession` were all directly client-callable with no check that the caller was even signed in, let alone entitled to act on the given club/player. Fixed by adding `auth()` + club-membership/ownership checks to each. Also found a cross-tenant IDOR in `addImageToSession`: `sessionId` and `clubId` arrive as two independent values from the same client payload, and only `clubId` was membership-checked (by the calling route handler) — a member of one club could attach an image to a different club's session by pairing their own `clubId` with someone else's `sessionId`. Fixed by scoping both the read and the update to `(sessionId, clubId)` together.
+- **Known, deliberately deferred follow-up (user decision, not an oversight):** the same security review found that essentially every club-scoped *read* function across this whole rewrite (`getClubDetails`, `getAllBoardgames`, `getAllActiveSessionDetails`, `getAllInactiveSessions`, `getSessionDetails`, `getAllClubSessionNames`, `getAllPlayersInClub`, etc.) trusts whatever `clubId` it's given with no check that the caller actually belongs to that club — confirmed exploitable today via `src/app/sessions/page.tsx`, which passes `clubId` straight from `searchParams`. This is pre-existing in the old app too, not a regression from this rewrite. Fixing it properly means adding a membership check to ~15+ functions across `clubs.ts`/`games.ts`/`players.ts`/`sessions.ts`/`results.ts` — a real scope expansion beyond "port the data layer to the new schema." The user chose to track this as a separate follow-up (its own spec/plan) rather than expand Phase 2's scope to cover it. **This gap is not fixed as of the end of this plan — do not treat Phase 2's completion as a security sign-off on read access control.**
