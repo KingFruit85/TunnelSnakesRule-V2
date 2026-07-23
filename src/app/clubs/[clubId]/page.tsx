@@ -5,7 +5,7 @@ import { ChevronRight, BarChart, History } from "lucide-react";
 import { getClubDetails } from "@/app/lib/db/clubs";
 import { getAllPlayersInClub, getAllActiveSessionDetails, getAllInactiveSessions } from "@/app/lib/db/sessions";
 import { getAllBoardgames } from "@/app/lib/db/games";
-import { getAllAcessRequests } from "@/app/lib/db/players";
+import { getAllAcessRequests, checkIfPlayerIsClubMember } from "@/app/lib/db/players";
 import AppShell from "@/app/ui/ds/AppShell";
 import BackHeader from "@/app/ui/ds/BackHeader";
 import SectionHeader from "@/app/ui/ds/SectionHeader";
@@ -18,6 +18,9 @@ export default async function ClubDetailPage({ params }: { params: Promise<{ clu
   const { clubId } = await params;
   const user = await currentUser();
   if (!user) redirect("/");
+
+  const isMember = await checkIfPlayerIsClubMember(user.id, clubId);
+  if (!isMember) redirect("/clubs");
 
   const [club, members, games, activeSessions, previousSessions, requests] = await Promise.all([
     getClubDetails(clubId),

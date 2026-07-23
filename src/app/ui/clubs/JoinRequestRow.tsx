@@ -21,42 +21,48 @@ export interface JoinRequestRowProps {
 export default function JoinRequestRow({ player, clubId, requestedAt }: JoinRequestRowProps) {
   const [isPending, startTransition] = useTransition();
   const [resolved, setResolved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   if (resolved) return null;
 
+  const handleApprove = () =>
+    startTransition(async () => {
+      setError(null);
+      try {
+        await addPlayerToClub(player.externalId, clubId);
+        setResolved(true);
+      } catch {
+        setError("Couldn't approve — it may have already been handled. Refresh and try again.");
+      }
+    });
+
+  const handleDecline = () =>
+    startTransition(async () => {
+      setError(null);
+      try {
+        await declineAccessRequest(player.externalId, clubId);
+        setResolved(true);
+      } catch {
+        setError("Couldn't decline — it may have already been handled. Refresh and try again.");
+      }
+    });
+
   return (
-    <div className="flex items-center gap-3 border-b border-divider px-5 py-3">
-      <InitialSquare label={player.name} size={34} variant="neutral" />
-      <div className="flex-1">
-        <p className="text-[14px] font-medium text-text">{player.name}</p>
-        <p className="text-[12px] text-text opacity-55">Requested {formatRelativeTime(requestedAt)}</p>
+    <div className="flex flex-col gap-2 border-b border-divider px-5 py-3">
+      <div className="flex items-center gap-3">
+        <InitialSquare label={player.name} size={34} variant="neutral" />
+        <div className="flex-1">
+          <p className="text-[14px] font-medium text-text">{player.name}</p>
+          <p className="text-[12px] text-text opacity-55">Requested {formatRelativeTime(requestedAt)}</p>
+        </div>
+        <Button variant="secondary" compact disabled={isPending} onClick={handleDecline}>
+          Decline
+        </Button>
+        <Button variant="primary" compact disabled={isPending} onClick={handleApprove}>
+          Approve
+        </Button>
       </div>
-      <Button
-        variant="secondary"
-        compact
-        disabled={isPending}
-        onClick={() =>
-          startTransition(async () => {
-            await declineAccessRequest(player.externalId, clubId);
-            setResolved(true);
-          })
-        }
-      >
-        Decline
-      </Button>
-      <Button
-        variant="primary"
-        compact
-        disabled={isPending}
-        onClick={() =>
-          startTransition(async () => {
-            await addPlayerToClub(player.externalId, clubId);
-            setResolved(true);
-          })
-        }
-      >
-        Approve
-      </Button>
+      {error && <p className="text-[12px] text-accent-700">{error}</p>}
     </div>
   );
 }
