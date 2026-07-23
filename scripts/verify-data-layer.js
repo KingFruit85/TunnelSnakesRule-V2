@@ -483,7 +483,11 @@ async function main() {
       .insert(schema.games)
       .values({ name: `${MARKER}-Co-op Game`, winCondition: 'cooperative', scoringDirection: null })
       .returning();
-    fixtures.gameIds.push(gameTeamBased.id, gameCooperative.id);
+    const [gameSingleWinner] = await db
+      .insert(schema.games)
+      .values({ name: `${MARKER}-Single Winner Game`, winCondition: 'single_winner', scoringDirection: null })
+      .returning();
+    fixtures.gameIds.push(gameTeamBased.id, gameCooperative.id, gameSingleWinner.id);
 
     // Leaderboard play: low score wins this time (gameLeaderboard from
     // section 3 is 'high' - use a fresh low-scoring game so both directions
@@ -534,8 +538,18 @@ async function main() {
       { playId: playSingleLoser.id, playerId: memberPlayer.id, won: false },
     ]);
 
+    const [playSingleWinner] = await db
+      .insert(schema.plays)
+      .values({ sessionId: summarySession.id, gameId: gameSingleWinner.id })
+      .returning();
+    fixtures.playIds.push(playSingleWinner.id);
+    await db.insert(schema.outcomeResults).values([
+      { playId: playSingleWinner.id, playerId: ownerPlayer.id, won: true },
+      { playId: playSingleWinner.id, playerId: memberPlayer.id, won: false },
+    ]);
+
     const summaries = await results.getSessionPlaySummaries(club.id, summarySession.id);
-    assertEqual(summaries.length, 4, 'getSessionPlaySummaries should return one entry per play in this session');
+    assertEqual(summaries.length, 5, 'getSessionPlaySummaries should return one entry per play in this session');
 
     const leaderboardSummary = summaries.find((s) => s.playId === playLowScoreLeaderboard.id);
     assert(leaderboardSummary, 'missing leaderboard play summary');
@@ -565,7 +579,17 @@ async function main() {
         singleLoserSummary.detail.includes(memberPlayer.name),
       `single_loser detail should list both participants (got ${JSON.stringify(singleLoserSummary.detail)})`
     );
-    console.log('results.ts getSessionPlaySummaries OK (leaderboard both directions, team, cooperative, single_loser)');
+
+    const singleWinnerSummary = summaries.find((s) => s.playId === playSingleWinner.id);
+    assert(singleWinnerSummary, 'missing single_winner play summary');
+    assertEqual(singleWinnerSummary.summary, `${ownerPlayer.name} won`, 'single_winner summary should name the winner specifically');
+    assert(
+      singleWinnerSummary.detail.startsWith('Played: ') &&
+        singleWinnerSummary.detail.includes(ownerPlayer.name) &&
+        singleWinnerSummary.detail.includes(memberPlayer.name),
+      `single_winner detail should list both participants (got ${JSON.stringify(singleWinnerSummary.detail)})`
+    );
+    console.log('results.ts getSessionPlaySummaries OK (leaderboard both directions, team, cooperative, single_loser, single_winner)');
   } finally {
     // Explicit cleanup, not a transaction rollback - see header comment:
     // every db/lib call in this script shares the module-level `db`

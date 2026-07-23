@@ -14,9 +14,30 @@ import {
   outcomeResults,
   players,
 } from "@/db/schema";
-import { GameAndWinner, PlayerResult } from "@/app/lib/definitions";
+import { GameAndWinner, PlayerResult, BoardGame } from "@/app/lib/definitions";
 import { getBoardgameById } from "./games";
-import { resolveEffectiveRules } from "./rules";
+import { resolveEffectiveRules, type EffectiveRules } from "./rules";
+
+type LeaderboardResultRow = typeof leaderboardResults.$inferSelect;
+type TeamResultRow = typeof teamResults.$inferSelect;
+type OutcomeResultRow = typeof outcomeResults.$inferSelect;
+
+// Duplicated from stats.ts rather than imported/shared - it's a tiny, pure
+// helper, and importing it from stats.ts here (or results.ts from there)
+// risks the same kind of circular module dependency called out below for
+// sessions.ts.
+function groupByPlayId<T extends { playId: string }>(rows: T[]): Map<string, T[]> {
+  const grouped = new Map<string, T[]>();
+  for (const row of rows) {
+    const bucket = grouped.get(row.playId);
+    if (bucket) {
+      bucket.push(row);
+    } else {
+      grouped.set(row.playId, [row]);
+    }
+  }
+  return grouped;
+}
 
 /** Every result row recorded for one play, in the old PlayerResult shape UI already consumes. */
 export async function getPlayResultsForPlay(play: typeof plays.$inferSelect): Promise<PlayerResult[]> {
@@ -155,35 +176,68 @@ export async function getSessionPlaySummaries(clubId: string, sessionId: string)
   if (sessionPlays.length === 0) {
     return [];
   }
+  const playIds = sessionPlays.map((p) => p.id);
+
+  // Batched, not N+1: one query per result table across every play in this
+  // session, rather than one query per play. Same pattern as
+  // getClubStats in stats.ts.
+  const [leaderboardByPlay, teamByPlay, outcomeByPlay]: [
+    Map<string, LeaderboardResultRow[]>,
+    Map<string, TeamResultRow[]>,
+    Map<string, OutcomeResultRow[]>,
+  ] = await Promise.all([
+    db.select().from(leaderboardResults).where(inArray(leaderboardResults.playId, playIds)).then(groupByPlayId),
+    db.select().from(teamResults).where(inArray(teamResults.playId, playIds)).then(groupByPlayId),
+    db.select().from(outcomeResults).where(inArray(outcomeResults.playId, playIds)).then(groupByPlayId),
+  ]);
+
+  // Batched participant name lookup: one `players` query for every
+  // participant across the whole session, not one per play. Still a direct
+  // query against `players` rather than a reuse of sessions.ts's
+  // getAllPlayersBySessionId, to avoid a results.ts -> sessions.ts circular
+  // import (sessions.ts's toGameSession already imports getEventWinner /
+  // getPlayResultsForPlay FROM results.ts).
+  const allParticipantIds = [
+    ...[...leaderboardByPlay.values()].flat().map((r) => r.playerId),
+    ...[...teamByPlay.values()].flat().map((r) => r.playerId),
+    ...[...outcomeByPlay.values()].flat().map((r) => r.playerId),
+  ];
+  const uniqueParticipantIds = [...new Set(allParticipantIds)];
+  const nameRows = uniqueParticipantIds.length
+    ? await db
+        .select({ id: players.id, name: players.name })
+        .from(players)
+        .where(inArray(players.id, uniqueParticipantIds))
+    : [];
+  const nameById = new Map(nameRows.map((r) => [r.id, r.name]));
+  const nameFor = (id: string) => nameById.get(id) ?? "Unknown";
+
+  // The same game can recur across a session's plays - cache
+  // resolveEffectiveRules and getBoardgameById per gameId so each is only
+  // resolved once per call rather than once per play.
+  const rulesByGameId = new Map<string, EffectiveRules>();
+  async function getRules(gameId: string): Promise<EffectiveRules> {
+    const cached = rulesByGameId.get(gameId);
+    if (cached) return cached;
+    const rules = await resolveEffectiveRules(clubId, gameId);
+    rulesByGameId.set(gameId, rules);
+    return rules;
+  }
+  const gameByGameId = new Map<string, BoardGame>();
+  async function getGame(gameId: string): Promise<BoardGame> {
+    const cached = gameByGameId.get(gameId);
+    if (cached) return cached;
+    const game = await getBoardgameById(gameId);
+    gameByGameId.set(gameId, game);
+    return game;
+  }
 
   const summaries: PlaySummary[] = [];
   for (const play of sessionPlays) {
-    const [game, rules, leaderboardRows, teamRows, outcomeRows] = await Promise.all([
-      getBoardgameById(play.gameId),
-      resolveEffectiveRules(clubId, play.gameId),
-      db.select().from(leaderboardResults).where(eq(leaderboardResults.playId, play.id)),
-      db.select().from(teamResults).where(eq(teamResults.playId, play.id)),
-      db.select().from(outcomeResults).where(eq(outcomeResults.playId, play.id)),
-    ]);
-
-    // Looked up per play (not once for the whole session) so a play's
-    // participant list only ever needs the players who actually appear in
-    // ITS OWN result rows - a direct query against `players`, not a reuse
-    // of sessions.ts's getAllPlayersBySessionId (see the import note above
-    // for why: that would create a circular module dependency).
-    const participantIds = [
-      ...leaderboardRows.map((r) => r.playerId),
-      ...teamRows.map((r) => r.playerId),
-      ...outcomeRows.map((r) => r.playerId),
-    ];
-    const nameRows = participantIds.length
-      ? await db
-          .select({ id: players.id, name: players.name })
-          .from(players)
-          .where(inArray(players.id, participantIds))
-      : [];
-    const nameById = new Map(nameRows.map((r) => [r.id, r.name]));
-    const nameFor = (id: string) => nameById.get(id) ?? "Unknown";
+    const leaderboardRows = leaderboardByPlay.get(play.id) ?? [];
+    const teamRows = teamByPlay.get(play.id) ?? [];
+    const outcomeRows = outcomeByPlay.get(play.id) ?? [];
+    const [game, rules] = await Promise.all([getGame(play.gameId), getRules(play.gameId)]);
 
     let summary = "";
     let detail = "";
