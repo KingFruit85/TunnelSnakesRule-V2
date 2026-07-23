@@ -27,13 +27,13 @@
 //      redirect requests for "server-only" to a harmless stub module.
 //
 // Auth-gated write paths: addNewClub, addPlayerToClub, declineAccessRequest,
-// requestAccessToClub, addNewGameSession, endSession, and recordPlayResults
-// all call Clerk's auth() internally, which requires a real Next.js
-// request/middleware context and throws when called from a standalone Node
-// script. So this script never calls those seven functions directly -
-// instead it inserts the fixture rows they would have written straight
-// via Drizzle, then verifies the *read* functions return correct results
-// against that fixture data. The auth checks and recordPlayResults's
+// requestAccessToClub, addNewGameSession, endSession, recordPlayResults, and
+// addNewBoardGame all call Clerk's auth() internally, which requires a real
+// Next.js request/middleware context and throws when called from a
+// standalone Node script. So this script never calls those eight functions
+// directly - instead it inserts the fixture rows they would have written
+// straight via Drizzle, then verifies the *read* functions return correct
+// results against that fixture data. The auth checks and recordPlayResults's
 // write-side branching get real coverage in Task 13's manual browser
 // verification instead.
 //
@@ -84,7 +84,6 @@ function compile() {
       'src/app/lib/db/players.ts',
       'src/app/lib/db/clubs.ts',
       'src/app/lib/db/games.ts',
-      'src/app/lib/db/games-actions.ts',
       'src/app/lib/db/sessions.ts',
       'src/app/lib/db/results.ts',
       'src/app/lib/db/stats.ts',
@@ -145,19 +144,13 @@ async function main() {
   const players = require(path.join(OUT_DIR, 'app/lib/db/players.js'));
   const clubs = require(path.join(OUT_DIR, 'app/lib/db/clubs.js'));
   const games = require(path.join(OUT_DIR, 'app/lib/db/games.js'));
-  // addNewBoardGame lives in games-actions.ts, not games.ts - split out
-  // after the "use server" module-boundary fix (a per-function "use server"
-  // inside a file that also `import "server-only"`s and is reachable from
-  // client code doesn't work; see the header comment in
-  // src/app/lib/db/players.ts for the full story).
-  const gamesActions = require(path.join(OUT_DIR, 'app/lib/db/games-actions.js'));
   const rules = require(path.join(OUT_DIR, 'app/lib/db/rules.js'));
   const sessionsLib = require(path.join(OUT_DIR, 'app/lib/db/sessions.js'));
   const results = require(path.join(OUT_DIR, 'app/lib/db/results.js'));
   const stats = require(path.join(OUT_DIR, 'app/lib/db/stats.js'));
   const { db } = require(path.join(OUT_DIR, 'db/client.js'));
   const schema = require(path.join(OUT_DIR, 'db/schema.js'));
-  const { inArray, and, eq } = require('drizzle-orm');
+  const { inArray } = require('drizzle-orm');
 
   // Tracks every fixture id created so far, so the finally block can clean
   // up everything created up to whatever point an assertion throws at -
@@ -301,66 +294,6 @@ async function main() {
     const fetchedBaseGame = await games.getBoardgameById(gameBase.id);
     assertEqual(fetchedBaseGame.name, `${MARKER}-Base Game`, 'getBoardgameById mismatch');
     console.log('games.ts / rules.ts reads OK (resolveEffectiveRules variant-vs-default)');
-
-    // ------------------------------------------------------------------
-    // 3b. games.ts - addNewBoardGame's real write path, called directly.
-    //    Unlike the seven functions listed in the plan's amendment, this
-    //    one does not call auth() (confirmed by reading games.ts), so it
-    //    can be exercised for real rather than simulated via a fixture
-    //    insert. It does call next/navigation's redirect() at the end,
-    //    which throws a plain Error with a "NEXT_REDIRECT;..." digest and
-    //    needs no request context to throw - so that's expected control
-    //    flow to catch, not a real failure.
-    // ------------------------------------------------------------------
-    async function callAddNewBoardGame(formEntries) {
-      const formData = new FormData();
-      for (const [key, value] of Object.entries(formEntries)) {
-        formData.set(key, value);
-      }
-      try {
-        await gamesActions.addNewBoardGame(formData);
-      } catch (err) {
-        if (!(err && typeof err.digest === 'string' && err.digest.startsWith('NEXT_REDIRECT'))) {
-          throw err;
-        }
-      }
-    }
-
-    // New name -> becomes the new global default (no variant row).
-    const newGameName = `${MARKER}-New Game`;
-    await callAddNewBoardGame({
-      gameName: newGameName,
-      winCondition: '3', // single_winner, per games.ts's WIN_CONDITION_UI_TO_DB
-      clubId: club.id,
-      scoringDirection: '',
-    });
-    const [insertedNewGame] = await db.select().from(schema.games).where(eq(schema.games.name, newGameName));
-    assert(insertedNewGame, 'addNewBoardGame should insert a new games row for a name that does not exist yet');
-    assertEqual(insertedNewGame.winCondition, 'single_winner', 'addNewBoardGame new-game winCondition mismatch');
-    fixtures.gameIds.push(insertedNewGame.id);
-
-    // Same name again, different rules, from the same club -> creates a
-    // club_game_variants override rather than mutating the global default.
-    await callAddNewBoardGame({
-      gameName: newGameName,
-      winCondition: '0', // leaderboard
-      clubId: club.id,
-      scoringDirection: 'High',
-    });
-    const [unchangedGlobalGame] = await db.select().from(schema.games).where(eq(schema.games.id, insertedNewGame.id));
-    assertEqual(unchangedGlobalGame.winCondition, 'single_winner', 'addNewBoardGame should not mutate the global default when a club submits different rules');
-    const [createdVariant] = await db
-      .select()
-      .from(schema.clubGameVariants)
-      .where(
-        and(
-          eq(schema.clubGameVariants.clubId, club.id),
-          eq(schema.clubGameVariants.gameId, insertedNewGame.id)
-        )
-      );
-    assert(createdVariant, 'addNewBoardGame should create a club_game_variants row when the club submits different rules for an existing name');
-    assertEqual(createdVariant.winCondition, 'leaderboard', 'addNewBoardGame variant winCondition mismatch');
-    console.log('games.ts addNewBoardGame write path OK (new-game insert + variant creation)');
 
     // ------------------------------------------------------------------
     // 4. sessions.ts - both roster functions.
