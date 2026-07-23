@@ -1,7 +1,11 @@
 // src/app/lib/db/clubs.ts
 //
-// Reads only. Mutations live in clubs-actions.ts - see the header comment
-// in players.ts for why this split exists.
+// Reads only, plus addImageToClub (a write, but never called from
+// client-reachable code - only a future Route Handler, not yet built, so
+// it doesn't need "use server" and can stay here). Every Server Action
+// reachable from a "use client" component lives in clubs-actions.ts
+// instead - see the header comment in players.ts for why this split
+// exists.
 import "server-only";
 import { eq, notInArray } from "drizzle-orm";
 import { redirect } from "next/navigation";
@@ -92,5 +96,8 @@ export async function getUsersClubs(playerExternalId: string): Promise<Club[]> {
 
 export async function addImageToClub(blobUri: string, clubId: string) {
   await db.update(clubs).set({ avatar: blobUri }).where(eq(clubs.id, clubId));
+  // /clubs doesn't exist as a route yet - this is forward-looking for the
+  // Clubs tab a later phase builds. revalidatePath doesn't validate the
+  // route exists at call time, so this is safe to call now.
   revalidatePath("/clubs");
 }
