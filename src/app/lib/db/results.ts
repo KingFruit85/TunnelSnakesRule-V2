@@ -122,6 +122,21 @@ export async function recordPlayResults(formData: FormData) {
           ? formData.get("winner")?.toString()
           : formData.get("loser")?.toString();
       const participantIds = formData.getAll("participant").map((id) => id.toString());
+      // The participant checkboxes and the winner/loser avatar picker are two
+      // independent form controls (not wired together client-side), so a
+      // stale or tampered submission could name a selected player who was
+      // unchecked as a participant. Failing loudly here beats silently
+      // writing a play where nobody actually won/lost, or everybody did.
+      if (participantIds.length === 0) {
+        throw new Error("At least one participant must be selected");
+      }
+      if (!selectedPlayerId || !participantIds.includes(selectedPlayerId)) {
+        throw new Error(
+          rules.winCondition === "single_winner"
+            ? "The selected winner must be one of the checked participants"
+            : "The selected loser must be one of the checked participants"
+        );
+      }
       for (const playerId of participantIds) {
         const isSelected = playerId === selectedPlayerId;
         const won = rules.winCondition === "single_winner" ? isSelected : !isSelected;
