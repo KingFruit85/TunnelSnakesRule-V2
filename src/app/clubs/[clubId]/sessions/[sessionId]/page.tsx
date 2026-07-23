@@ -39,7 +39,14 @@ export default async function SessionDetailPage({
     redirect(`/clubs/${clubId}`);
   }
 
-  const images = session.imageurl ? (JSON.parse(session.imageurl) as string[]) : [];
+  let images: string[] = [];
+  if (session.imageurl) {
+    try {
+      images = JSON.parse(session.imageurl) as string[];
+    } catch {
+      images = [];
+    }
+  }
 
   return (
     <AppShell>
