@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Archivo } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
+import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import TopNav from "./ui/sessions/topNav";
 import { Suspense } from "react";
@@ -23,13 +24,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={archivo.variable}>
+    <html lang="en" className={archivo.variable} suppressHydrationWarning>
       <ClerkProvider>
         <body className="">
-          <Suspense>
-            <TopNav />
-          </Suspense>
-          {children}
+          <ThemeProvider attribute="data-theme" defaultTheme="light" enableSystem={false} storageKey="tsr-theme">
+            <Suspense>
+              <TopNav />
+            </Suspense>
+            {children}
+          </ThemeProvider>
         </body>
       </ClerkProvider>
     </html>
