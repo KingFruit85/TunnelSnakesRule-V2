@@ -101,12 +101,17 @@ export async function checkForOutstandingClubAccessRequests(clubId: string) {
   return rows.length > 0;
 }
 
-export async function getAllAcessRequests(clubId: string): Promise<Player[]> {
+export type AccessRequest = {
+  player: Player;
+  requestedAt: Date;
+};
+
+export async function getAllAcessRequests(clubId: string): Promise<AccessRequest[]> {
   const rows = await db
-    .select({ player: players })
+    .select({ player: players, requestedAt: joinRequests.requestedAt })
     .from(joinRequests)
     .innerJoin(players, eq(joinRequests.playerId, players.id))
     .where(eq(joinRequests.clubId, clubId));
 
-  return rows.map((row) => toPlayer(row.player));
+  return rows.map((row) => ({ player: toPlayer(row.player), requestedAt: row.requestedAt }));
 }

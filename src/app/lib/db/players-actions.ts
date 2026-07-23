@@ -78,7 +78,7 @@ export async function addPlayerToClub(playerExternalId: string, clubId: string) 
   await db
     .delete(joinRequests)
     .where(and(eq(joinRequests.playerId, player.id), eq(joinRequests.clubId, clubId)));
-  revalidatePath("/requests");
+  revalidatePath(`/clubs/${clubId}`);
 }
 
 export async function declineAccessRequest(playerExternalId: string, clubId: string) {
@@ -91,7 +91,7 @@ export async function declineAccessRequest(playerExternalId: string, clubId: str
   await db
     .delete(joinRequests)
     .where(and(eq(joinRequests.playerId, player.id), eq(joinRequests.clubId, clubId)));
-  revalidatePath("/requests");
+  revalidatePath(`/clubs/${clubId}`);
 }
 
 export async function requestAccessToClub(clubId: string) {

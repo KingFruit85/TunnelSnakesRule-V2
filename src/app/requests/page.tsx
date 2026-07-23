@@ -15,7 +15,7 @@ export default async function Home({
 
   return (
     <div className="flex-col border border-tunnel-snake-white bg-black ml-2 mr-2 mt-2">
-        <ClubAccessRequests players={requests} clubId={clubId} />
+        <ClubAccessRequests players={requests.map((r) => r.player)} clubId={clubId} />
     </div>
   );
 }
