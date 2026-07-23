@@ -69,6 +69,17 @@ export async function reopenSession(id: string) {
   revalidatePath("/sessions");
 }
 
+export async function updateSessionNotes(sessionId: string, notes: string) {
+  const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId));
+  if (!session) {
+    throw new Error(`Session ${sessionId} not found`);
+  }
+  await assertIsClubMember(session.clubId);
+
+  await db.update(sessions).set({ notes }).where(eq(sessions.id, sessionId));
+  revalidatePath(`/clubs/${session.clubId}/sessions/${sessionId}`);
+}
+
 export const redirectBackToSessions = async (clubId: string) => {
   revalidatePath("/sessions");
   redirect(`/sessions/?clubId=${clubId}`);
