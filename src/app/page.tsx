@@ -1,76 +1,38 @@
 import { currentUser } from "@clerk/nextjs/server";
-import UserClubs from "./ui/clubs/userClubs";
+import { redirect } from "next/navigation";
 import { SignInButton } from "@clerk/nextjs";
+import { Dices } from "lucide-react";
 import { checkIfUserHasPlayerProfile, createNewPlayerRecord } from "./lib/db/players";
-import Image from "next/image";
-import Link from "next/link";
+import AppShell from "./ui/ds/AppShell";
+import { buttonClasses } from "./ui/ds/buttonStyles";
 
-export default async function Home() {
+export default async function LoginPage() {
   const user = await currentUser();
-  let currentEnv = "";
-
-  if (process.env.VERCEL_ENV && process.env.VERCEL_ENV !== "production") {
-    currentEnv = process.env.VERCEL_ENV;
-  }
 
   if (user) {
-    const userHasCreatedAccount = await checkIfUserHasPlayerProfile(
-      user?.id as string
-    );
-
-    if (!userHasCreatedAccount) {
+    const hasProfile = await checkIfUserHasPlayerProfile(user.id);
+    if (!hasProfile) {
       await createNewPlayerRecord(user);
     }
+    redirect("/clubs");
   }
 
   return (
-    <div className="w-full flex flex-col space-items items-center py-5 bg-black dark:bg-black">
-      {!user && (
-        <div className="w-[95%] md:w-[35%] lg:w-[35%] xl:w-[25%] sm:w-[95%] flex-col  p-4 rounded-sm bg-black text-white dark:bg-black text-white">
-          <div className="p-4">
-            <Image
-              src={"/game.jpeg"}
-              alt={"home icon"}
-              width={0}
-              height={0}
-              sizes="100vw"
-              style={{ width: "100%", height: "auto" }} // optional
-            />
-            <h1 className="p-4 text-2xl font-bold">Let&apos;s get playing!</h1>
-            {currentEnv.length > 0 && (
-              <p className="p-4 text-xl text-red-500">{currentEnv}</p>
-            )}
-            <h2 className="p-4">
-              <Link
-                target="_blank"
-                className="text-tunnel-snake-green"
-                href={"https://www.youtube.com/watch?v=S0ximxe4XtU"}
-              >
-                Tunnel Snakes Rule!
-              </Link>
-              <b className="text-tunnel-snake-orange"> *</b> is a site that
-              enables you to create a boardgame group and log your gaming
-              sessions to keep a history of winners and losers. Remember
-              memorable moments by uploading photos to sessions, or tag your
-              games with house rules or just reminders of those hard to remember
-              rules!
-            </h2>
-            <h2 className="p-4">Log in to get started!</h2>
-            <div className="text-tunnel-snake-green flex border border-tunnel-snake-green rounded-sm p-4 gap-2 items-center justify-center hover:bg-tunnel-snake-green hover:text-white">
-              <SignInButton>Tunnel Snakes Rule!</SignInButton>
-            </div>
-            <i className="text-xs text-tunnel-snake-orange">(name pending*)</i>
-          </div>
+    <AppShell>
+      <div className="flex flex-1 flex-col justify-center px-6">
+        <div className="flex h-24 w-24 items-center justify-center border-2 border-divider">
+          <Dices size={40} strokeWidth={2} className="text-accent" />
         </div>
-      )}
-
-      {user ? (
-        <>
-          <div className="w-full flex flex-col space-items items-center py-5">
-            <UserClubs />
-          </div>
-        </>
-      ) : null}
-    </div>
+        <h1 className="mt-6 text-[34px] font-bold leading-[1.05] text-text">Tunnel Snakes Rule!</h1>
+        <p className="mt-3 text-[14px] text-text opacity-65">
+          Log your club&apos;s sessions and keep a history of winners and losers.
+        </p>
+      </div>
+      <div className="border-t-2 border-divider px-6 pb-12 pt-5">
+        <SignInButton mode="modal">
+          <button className={buttonClasses({ block: true })}>Log in</button>
+        </SignInButton>
+      </div>
+    </AppShell>
   );
 }
