@@ -33,3 +33,50 @@ body {
 
 }
 
+/* Mobile redesign design tokens (see design_handoff_mobile_redesign/README.md).
+   Tailwind 3.3 has no attribute-based dark mode, so these are plain CSS
+   variables flipped by next-themes setting data-theme on <html>, not
+   Tailwind's dark: class variant. */
+:root {
+  --color-bg: #f3f2f2;
+  --color-bg-page: #f3f2f2;
+  --color-surface: #eae9e9;
+  --color-text: #201e1d;
+  --color-divider: color-mix(in srgb, #201e1d 40%, transparent);
+
+  --color-accent: #ec3013;
+  --color-accent-100: #fff2ef;
+  --color-accent-200: #ffe0d9;
+  --color-accent-300: #ffc4b8;
+  --color-accent-600: #dd2b0f;
+  --color-accent-700: #ae1800;
+  --color-accent-800: #7c1405;
+  --color-accent-900: #4d170e;
+
+  --color-neutral-100: #f8f4f4;
+  --color-neutral-200: #eae7e7;
+  --color-neutral-300: #d7d3d3;
+  --color-neutral-400: #bab6b6;
+  --color-neutral-500: #9b9797;
+}
+
+:root[data-theme="dark"] {
+  --color-bg: #1b1918;
+  --color-bg-page: #141211;
+  --color-surface: #242120;
+  --color-text: #f0eeec;
+  --color-divider: color-mix(in srgb, #f0eeec 40%, transparent);
+
+  --color-accent-100: #4d170e;
+  --color-accent-200: #7c1405;
+  --color-accent-300: #ae1800;
+  --color-accent-600: #ff7a61;
+  --color-accent-700: #ffc4b8;
+  --color-accent-800: #ffe0d9;
+
+  --color-neutral-100: #2a2726;
+  --color-neutral-200: #343130;
+  --color-neutral-300: #454140;
+  --color-neutral-400: #5d5958;
+}
+

@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
-import { Montserrat } from "next/font/google";
+import { Archivo } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import TopNav from "./ui/sessions/topNav";
 import { Suspense } from "react";
 
-const montserrat = Montserrat({
-  weight: "400",
+const archivo = Archivo({
+  weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
+  variable: "--font-archivo",
   display: "swap",
 });
 
@@ -22,10 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${montserrat.className} bg-black text-white dark:bg-black text-white`}
-    >
+    <html lang="en" className={archivo.variable}>
       <ClerkProvider>
         <body className="">
           <Suspense>
