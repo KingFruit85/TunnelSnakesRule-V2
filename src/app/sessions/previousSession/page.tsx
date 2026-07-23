@@ -1,14 +1,12 @@
 "use server";
 
 import {
-  GetClubNameByEventId,
   getAllPlayersBySessionId,
-  getBoardgameById,
-  getClubDetails,
-  getEventNotes,
-  getEventWinner,
   getSessionDetails,
-} from "@/app/lib/data";
+} from "@/app/lib/db/sessions";
+import { getBoardgameById } from "@/app/lib/db/games";
+import { getClubDetails } from "@/app/lib/db/clubs";
+import { getEventNotes, getEventWinner } from "@/app/lib/db/results";
 import { Player, PlayerResult } from "@/app/lib/definitions";
 import { UUID } from "crypto";
 import Image from "next/image";

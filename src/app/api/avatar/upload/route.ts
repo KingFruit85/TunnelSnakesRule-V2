@@ -1,5 +1,4 @@
-import { addImageToPlayer } from "@/app/lib/actions";
-import { getPlayerByExternalId } from "@/app/lib/data";
+import { addImageToPlayer, getPlayerByExternalId } from "@/app/lib/db/players";
 import { auth } from "@clerk/nextjs/server";
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { NextResponse } from "next/server";

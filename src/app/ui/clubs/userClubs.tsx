@@ -2,7 +2,7 @@ import { currentUser } from "@clerk/nextjs/server";
 import RedirectButton from "../Common/sessionRedirectButton";
 import { Destination } from "@/app/lib/definitions";
 import PageRedirectButton from "../Common/pageRedirectButton";
-import { getUsersClubs } from "@/app/lib/data";
+import { getUsersClubs } from "@/app/lib/db/clubs";
 import Image from "next/image";
 
 export interface UserClubsProps {}

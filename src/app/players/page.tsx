@@ -1,7 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 import BackButton from "@/app/ui/Common/backButton";
 import PlayerPage from "../ui/players/playerPage";
-import { getPlayerById, getPlayerEvents } from "../lib/data";
+import { getPlayerById } from "../lib/db/players";
+import { getPlayerEvents } from "../lib/db/results";
 import { UUID } from "crypto";
 
 export default async function Page({

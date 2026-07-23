@@ -1,11 +1,10 @@
+import { checkForOutstandingClubAccessRequests } from "@/app/lib/db/players";
 import {
-  checkForOutstandingClubAccessRequests,
-  checkIfPlayerIsClubOwner,
   getAllActiveSessionDetails,
-  getAllBoardgames,
   getAllInactiveSessions,
-  getClubDetails,
-} from "@/app/lib/data";
+} from "@/app/lib/db/sessions";
+import { getAllBoardgames } from "@/app/lib/db/games";
+import { getClubDetails, checkIfPlayerIsClubOwner } from "@/app/lib/db/clubs";
 import SessionContextWrapper from "./sessionContextWrapper";
 import { currentUser } from "@clerk/nextjs/server";
 

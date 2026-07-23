@@ -1,6 +1,6 @@
 "use client";
 
-import { GroupedBoardgameTotalPlays } from "@/app/lib/data";
+import { GroupedBoardgameTotalPlays } from "@/app/lib/db/results";
 import { Player } from "@/app/lib/definitions";
 import { Table } from "@geist-ui/core";
 import Image from "next/image";

@@ -1,6 +1,6 @@
 "use client";
 
-import { redirectBackToSessions } from "@/app/lib/actions";
+import { redirectBackToSessions } from "@/app/lib/db/sessions";
 import CancelButton from "@/app/ui/Common/cancelButton";
 import { upload } from "@vercel/blob/client";
 import { useSearchParams } from "next/navigation";

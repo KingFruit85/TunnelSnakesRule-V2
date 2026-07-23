@@ -1,9 +1,7 @@
 import { UUID } from "crypto";
 import JoinClubButton from "./joinClubButton";
-import {
-  checkAccessRequestStatus,
-  getClubsPlayerIsNotAMemberOf,
-} from "@/app/lib/data";
+import { checkAccessRequestStatus } from "@/app/lib/db/players";
+import { getClubsPlayerIsNotAMemberOf } from "@/app/lib/db/clubs";
 import { Club, ClubAndRequestStatus } from "@/app/lib/definitions";
 import BackButton from "../Common/backButton";
 

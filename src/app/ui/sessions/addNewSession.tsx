@@ -1,6 +1,6 @@
 "use client";
 import { Player } from "@/app/lib/definitions";
-import { addNewGameSession } from "@/app/lib/actions";
+import { addNewGameSession } from "@/app/lib/db/sessions";
 import CancelButton from "../Common/cancelButton";
 import SubmitButton from "../Common/submitButton";
 import Image from "next/image";

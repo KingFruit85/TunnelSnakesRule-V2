@@ -1,8 +1,7 @@
 import { currentUser } from "@clerk/nextjs/server";
 import UserClubs from "./ui/clubs/userClubs";
 import { SignInButton } from "@clerk/nextjs";
-import { checkIfUserHasPlayerProfile } from "./lib/data";
-import { createNewPlayerRecord } from "./lib/actions";
+import { checkIfUserHasPlayerProfile, createNewPlayerRecord } from "./lib/db/players";
 import Image from "next/image";
 import Link from "next/link";
 

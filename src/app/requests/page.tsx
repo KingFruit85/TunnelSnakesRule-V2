@@ -1,4 +1,4 @@
-import { getAllAcessRequests } from "../lib/data";
+import { getAllAcessRequests } from "../lib/db/players";
 import ClubAccessRequests from "../ui/requests/clubAccessRequests";
 
 export default async function Home({
