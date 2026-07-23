@@ -1,83 +1,38 @@
 const { db } = require('@vercel/postgres');
-const {users} = require('../src/app/lib/seedData.js');
+const { v4: uuidv4 } = require('uuid');
 
-async function seedUsers(client) {
-    try {
-      await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
-      // Create the "users" table if it doesn't exist
-      const createTable = await client.sql`
-        CREATE TABLE IF NOT EXISTS players (
-          id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-          name VARCHAR(255) NOT NULL,
-          email TEXT NOT NULL UNIQUE,
-          avatar TEXT
-        );
-      `;
-  
-      console.log(`Created "users" table`);
-  
-      // Insert data into the "users" table
-      const insertedUsers = await Promise.all(
-        users.map(async (user) => {
-          return client.sql`
-          INSERT INTO players (id, name, email, avatar)
-          VALUES (${user.id}, ${user.name}, ${user.email}, ${user.avatar})
-          ON CONFLICT (id) DO NOTHING;
-        `;
-        }),
-      );
-  
-      console.log(`Seeded ${insertedUsers.length} users`);
-  
-      return {
-        createTable,
-        users: insertedUsers,
-      };
-    } catch (error) {
-      console.error('Error seeding users:', error);
-      throw error;
-    }
-  }
+async function main() {
+  const client = await db.connect();
+  try {
+    const playerId = uuidv4();
+    await client.query(
+      `INSERT INTO players (id, external_id, name) VALUES ($1, $2, $3)`,
+      [playerId, 'seed-admin', 'Admin']
+    );
 
-  async function createPlayerTable(client) {
-    try {
-      await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
-      // Create the "users" table if it doesn't exist
-      const createTable = await client.sql`
-        CREATE TABLE IF NOT EXISTS Sessions (
-          id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-          name VARCHAR(255) NOT NULL,
-          date TIMESTAMP NOT NULL,
-          active BOOLEAN NOT NULL,
-          playerIds TEXT[] NOT NULL,
-          gameResults TEXT[] NOT NULL
-        );
-      `;
-  
-      console.log(`created player table`);
-  
-      return {
-        createTable,
-      };
-    } catch (error) {
-      console.error('Error seeding users:', error);
-      throw error;
-    }
-  }
+    const clubId = uuidv4();
+    await client.query(
+      `INSERT INTO clubs (id, name, owner_id) VALUES ($1, $2, $3)`,
+      [clubId, 'Seed Club', playerId]
+    );
+    await client.query(
+      `INSERT INTO club_members (player_id, club_id) VALUES ($1, $2)`,
+      [playerId, clubId]
+    );
 
-  async function main() {
-    console.log('Starting to seed...');
-    const client = await db.connect();
-  
-    // await seedUsers(client);
-    await createPlayerTable(client);
-  
+    const catanId = uuidv4();
+    await client.query(
+      `INSERT INTO games (id, name, win_condition, scoring_direction) VALUES ($1, $2, 'leaderboard', 'high')`,
+      [catanId, 'Catan']
+    );
+
+    console.log('Seeded: 1 player, 1 club, 1 game.');
+  } finally {
     await client.end();
   }
-  
-  main().catch((err) => {
-    console.error(
-      'An error occurred while attempting to seed the database:',
-      err,
-    );
-  });
+}
+
+main().catch((err) => {
+  console.error('Seed failed:', err);
+  process.exit(1);
+});
