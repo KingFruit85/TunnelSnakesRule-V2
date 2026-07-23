@@ -87,6 +87,7 @@ function compile() {
       'src/app/lib/db/games-actions.ts',
       'src/app/lib/db/sessions.ts',
       'src/app/lib/db/results.ts',
+      'src/app/lib/db/stats.ts',
       'src/app/lib/definitions.ts',
     ],
   };
@@ -153,6 +154,7 @@ async function main() {
   const rules = require(path.join(OUT_DIR, 'app/lib/db/rules.js'));
   const sessionsLib = require(path.join(OUT_DIR, 'app/lib/db/sessions.js'));
   const results = require(path.join(OUT_DIR, 'app/lib/db/results.js'));
+  const stats = require(path.join(OUT_DIR, 'app/lib/db/stats.js'));
   const { db } = require(path.join(OUT_DIR, 'db/client.js'));
   const schema = require(path.join(OUT_DIR, 'db/schema.js'));
   const { inArray, and, eq } = require('drizzle-orm');
@@ -433,6 +435,99 @@ async function main() {
       'getAllPlayersBySessionId should return exactly the players appearing in result-table fixtures for this session'
     );
     console.log('sessions.ts getAllPlayersBySessionId OK');
+
+    // ------------------------------------------------------------------
+    // 6. stats.ts - getClubStats. Reuses club/session fixtures from steps
+    //    2 and 4 above; adds a fourth member (fourthPlayer) who never
+    //    plays, to prove the leaderboard excludes zero-played members.
+    // ------------------------------------------------------------------
+    const [fourthPlayer] = await db
+      .insert(schema.players)
+      .values({ externalId: `${MARKER}-fourth`, name: `${MARKER}-Fourth` })
+      .returning();
+    fixtures.playerIds.push(fourthPlayer.id);
+    await db.insert(schema.clubMembers).values({ playerId: fourthPlayer.id, clubId: club.id });
+
+    const [gameSingleLoser] = await db
+      .insert(schema.games)
+      .values({ name: `${MARKER}-Single Loser Game`, winCondition: 'single_loser', scoringDirection: null })
+      .returning();
+    fixtures.gameIds.push(gameSingleLoser.id);
+
+    const [statsSession] = await db
+      .insert(schema.sessions)
+      .values({ clubId: club.id, name: `${MARKER}-Stats Session`, date: new Date(), active: true })
+      .returning();
+    fixtures.sessionIds.push(statsSession.id);
+
+    // Leaderboard play: high score wins. otherPlayer scores highest (20) so
+    // otherPlayer should get the win; memberPlayer and ownerPlayer both played
+    // but didn't win.
+    const [statsPlayLeaderboard] = await db
+      .insert(schema.plays)
+      .values({ sessionId: statsSession.id, gameId: gameLeaderboard.id })
+      .returning();
+    fixtures.playIds.push(statsPlayLeaderboard.id);
+    await db.insert(schema.leaderboardResults).values([
+      { playId: statsPlayLeaderboard.id, playerId: ownerPlayer.id, score: 5 },
+      { playId: statsPlayLeaderboard.id, playerId: memberPlayer.id, score: 10 },
+      { playId: statsPlayLeaderboard.id, playerId: otherPlayer.id, score: 20 },
+    ]);
+
+    // Single-loser play: outcomeResults already encodes "won" per player at
+    // write time (see writeResultRows) - otherPlayer is the loser (won:
+    // false), ownerPlayer and memberPlayer both "won" (won: true).
+    const [statsPlaySingleLoser] = await db
+      .insert(schema.plays)
+      .values({ sessionId: statsSession.id, gameId: gameSingleLoser.id })
+      .returning();
+    fixtures.playIds.push(statsPlaySingleLoser.id);
+    await db.insert(schema.outcomeResults).values([
+      { playId: statsPlaySingleLoser.id, playerId: ownerPlayer.id, won: true },
+      { playId: statsPlaySingleLoser.id, playerId: memberPlayer.id, won: true },
+      { playId: statsPlaySingleLoser.id, playerId: otherPlayer.id, won: false },
+    ]);
+
+    const clubStats = await stats.getClubStats(club.id);
+    assertEqual(clubStats.sessionCount, 2, 'getClubStats sessionCount should count both fixture sessions for this club');
+    assertEqual(clubStats.resultCount, 5, 'getClubStats resultCount should count every play across both sessions (3 from step 5 + 2 here)');
+
+    // otherPlayer is deliberately NOT a club_members row (see section 2's
+    // comment above) despite having the most wins and the most plays of anyone -
+    // getAllPlayersInClub only returns current members, so the tally map
+    // never has an entry for otherPlayer, and they must not appear here no
+    // matter how many plays/wins their result rows show.
+    assert(
+      !clubStats.leaderboard.some((r) => r.playerId === otherPlayer.id),
+      'getClubStats leaderboard should exclude otherPlayer, who is not a club member'
+    );
+
+    // ownerPlayer only appears in this task's two new plays: statsPlayLeaderboard
+    // (played, didn't win - otherPlayer's score of 20 beats their 5) and
+    // statsPlaySingleLoser (played, won: true). played:2, wins:1.
+    const ownerRow = clubStats.leaderboard.find((r) => r.playerId === ownerPlayer.id);
+    assert(ownerRow, 'getClubStats leaderboard should include ownerPlayer');
+    assertEqual(ownerRow.played, 2, 'ownerPlayer should show played:2 (both of this task\'s new plays)');
+    assertEqual(ownerRow.wins, 1, 'ownerPlayer should have exactly 1 win (the single_loser play, since they were not the loser)');
+
+    // memberPlayer appears in all 5 plays across both sessions: the 3 from
+    // step 5 (playOutcome: won; playLeaderboard: played, lost to otherPlayer's
+    // higher score; playTeamTied: played, no winner) plus this task's 2
+    // (statsPlayLeaderboard: played, lost; statsPlaySingleLoser: won).
+    // played:5, wins:2 (playOutcome + statsPlaySingleLoser).
+    const memberRow = clubStats.leaderboard.find((r) => r.playerId === memberPlayer.id);
+    assert(memberRow, 'getClubStats leaderboard should include memberPlayer');
+    assertEqual(memberRow.played, 5, 'memberPlayer should show played:5 across both sessions');
+    assertEqual(memberRow.wins, 2, 'memberPlayer should have exactly 2 wins (playOutcome + statsPlaySingleLoser)');
+
+    assert(
+      !clubStats.leaderboard.some((r) => r.playerId === fourthPlayer.id),
+      'getClubStats leaderboard should exclude fourthPlayer, who never played'
+    );
+
+    assertEqual(clubStats.leaderboard.length, 2, 'getClubStats leaderboard should have exactly 2 rows: memberPlayer and ownerPlayer');
+    assertEqual(clubStats.leaderboard[0].playerId, memberPlayer.id, 'getClubStats leaderboard should sort by wins desc, placing memberPlayer (2 wins) before ownerPlayer (1 win)');
+    console.log('stats.ts getClubStats OK (leaderboard direction + outcome-based winners + non-member exclusion + wins-desc sort)');
   } finally {
     // Explicit cleanup, not a transaction rollback - see header comment:
     // every db/lib call in this script shares the module-level `db`
