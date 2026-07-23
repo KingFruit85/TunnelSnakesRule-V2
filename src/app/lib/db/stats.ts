@@ -1,7 +1,7 @@
 // src/app/lib/db/stats.ts
 //
 // Reads only. Aggregates the per-club "Club stats" screen: total
-// sessions/results, and a per-member wins/played leaderboard.
+// sessions/plays, and a per-member wins/played leaderboard.
 //
 // Win attribution reuses the "won" boolean writeResultRows (in
 // results-actions.ts) already writes for every non-leaderboard condition -
@@ -21,7 +21,11 @@ import {
   teamResults,
   outcomeResults,
 } from "@/db/schema";
-import { resolveEffectiveRules } from "./rules";
+
+type LeaderboardResultRow = typeof leaderboardResults.$inferSelect;
+type TeamResultRow = typeof teamResults.$inferSelect;
+type OutcomeResultRow = typeof outcomeResults.$inferSelect;
+import { resolveEffectiveRules, type EffectiveRules } from "./rules";
 import { getAllPlayersInClub } from "./sessions";
 
 export type ClubStatsRow = {
@@ -33,9 +37,22 @@ export type ClubStatsRow = {
 
 export type ClubStats = {
   sessionCount: number;
-  resultCount: number;
+  playCount: number;
   leaderboard: ClubStatsRow[];
 };
+
+function groupByPlayId<T extends { playId: string }>(rows: T[]): Map<string, T[]> {
+  const grouped = new Map<string, T[]>();
+  for (const row of rows) {
+    const bucket = grouped.get(row.playId);
+    if (bucket) {
+      bucket.push(row);
+    } else {
+      grouped.set(row.playId, [row]);
+    }
+  }
+  return grouped;
+}
 
 export async function getClubStats(clubId: string): Promise<ClubStats> {
   const clubSessions = await db.select().from(sessions).where(eq(sessions.clubId, clubId));
@@ -47,17 +64,56 @@ export async function getClubStats(clubId: string): Promise<ClubStats> {
   );
 
   if (sessionIds.length === 0) {
-    return { sessionCount: 0, resultCount: 0, leaderboard: [] };
+    return { sessionCount: 0, playCount: 0, leaderboard: [] };
   }
 
   const sessionPlays = await db.select().from(plays).where(inArray(plays.sessionId, sessionIds));
+  const playIds = sessionPlays.map((p) => p.id);
+
+  // Batched, not N+1: one query per result table across every play id in
+  // this club's entire history, rather than one query per play. Same
+  // pattern as getAllPlayersBySessionId in sessions.ts.
+  const [leaderboardByPlay, teamByPlay, outcomeByPlay]: [
+    Map<string, LeaderboardResultRow[]>,
+    Map<string, TeamResultRow[]>,
+    Map<string, OutcomeResultRow[]>,
+  ] =
+    playIds.length === 0
+      ? [new Map(), new Map(), new Map()]
+      : await Promise.all([
+          db
+            .select()
+            .from(leaderboardResults)
+            .where(inArray(leaderboardResults.playId, playIds))
+            .then(groupByPlayId),
+          db
+            .select()
+            .from(teamResults)
+            .where(inArray(teamResults.playId, playIds))
+            .then(groupByPlayId),
+          db
+            .select()
+            .from(outcomeResults)
+            .where(inArray(outcomeResults.playId, playIds))
+            .then(groupByPlayId),
+        ]);
+
+  // The same game can recur across many plays in a club's history - cache
+  // resolveEffectiveRules per gameId so it's only resolved once per call
+  // rather than once per play.
+  const rulesByGameId = new Map<string, EffectiveRules>();
+  async function getRules(gameId: string): Promise<EffectiveRules> {
+    const cached = rulesByGameId.get(gameId);
+    if (cached) return cached;
+    const rules = await resolveEffectiveRules(clubId, gameId);
+    rulesByGameId.set(gameId, rules);
+    return rules;
+  }
 
   for (const play of sessionPlays) {
-    const [leaderboardRows, teamRows, outcomeRows] = await Promise.all([
-      db.select().from(leaderboardResults).where(eq(leaderboardResults.playId, play.id)),
-      db.select().from(teamResults).where(eq(teamResults.playId, play.id)),
-      db.select().from(outcomeResults).where(eq(outcomeResults.playId, play.id)),
-    ]);
+    const leaderboardRows = leaderboardByPlay.get(play.id) ?? [];
+    const teamRows = teamByPlay.get(play.id) ?? [];
+    const outcomeRows = outcomeByPlay.get(play.id) ?? [];
 
     const participantIds = [
       ...leaderboardRows.map((r) => r.playerId),
@@ -71,7 +127,13 @@ export async function getClubStats(clubId: string): Promise<ClubStats> {
 
     let winnerIds: string[];
     if (leaderboardRows.length > 0) {
-      const rules = await resolveEffectiveRules(clubId, play.gameId);
+      // NOTE: this deliberately resolves scoring direction via
+      // resolveEffectiveRules (club-variant-aware), which can disagree with
+      // results.ts's getEventWinner - that function reads games.scoringDirection
+      // directly off the base game and ignores any clubGameVariants override.
+      // getClubStats is intentionally more correct here; reconciling the two
+      // is a known follow-up, out of scope for this task.
+      const rules = await getRules(play.gameId);
       const highScoreWins = rules.scoringDirection !== "low";
       const best = leaderboardRows.reduce((acc, row) =>
         highScoreWins ? (row.score > acc.score ? row : acc) : (row.score < acc.score ? row : acc)
@@ -94,7 +156,7 @@ export async function getClubStats(clubId: string): Promise<ClubStats> {
 
   return {
     sessionCount: clubSessions.length,
-    resultCount: sessionPlays.length,
+    playCount: sessionPlays.length,
     leaderboard,
   };
 }

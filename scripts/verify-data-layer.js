@@ -490,7 +490,7 @@ async function main() {
 
     const clubStats = await stats.getClubStats(club.id);
     assertEqual(clubStats.sessionCount, 2, 'getClubStats sessionCount should count both fixture sessions for this club');
-    assertEqual(clubStats.resultCount, 5, 'getClubStats resultCount should count every play across both sessions (3 from step 5 + 2 here)');
+    assertEqual(clubStats.playCount, 5, 'getClubStats playCount should count every play across both sessions (3 from step 5 + 2 here)');
 
     // otherPlayer is deliberately NOT a club_members row (see section 2's
     // comment above) despite having the most wins and the most plays of anyone -
