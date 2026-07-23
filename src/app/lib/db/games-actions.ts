@@ -6,9 +6,11 @@
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
+import { auth } from "@clerk/nextjs/server";
 import { db } from "@/db/client";
 import { games, clubGameVariants } from "@/db/schema";
 import { WIN_CONDITION_UI_TO_DB, SCORING_DIRECTION_UI_TO_DB } from "./games";
+import { checkIfPlayerIsClubMember } from "./players";
 
 export async function addNewBoardGame(formData: FormData) {
   const name = formData.get("gameName")?.toString();
@@ -18,6 +20,15 @@ export async function addNewBoardGame(formData: FormData) {
 
   if (!name || !winConditionUi || !clubId) {
     throw new Error("Missing required fields");
+  }
+
+  const { userId } = await auth();
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
+  const isMember = await checkIfPlayerIsClubMember(userId, clubId);
+  if (!isMember) {
+    throw new Error("Forbidden");
   }
 
   const winCondition = WIN_CONDITION_UI_TO_DB[winConditionUi];
