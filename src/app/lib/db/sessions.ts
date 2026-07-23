@@ -140,6 +140,5 @@ export async function addImageToSession(blobUri: string, sessionId: string, club
     .set({ imageUrls: updatedImages })
     .where(and(eq(sessions.id, sessionId), eq(sessions.clubId, clubId)));
 
-  revalidatePath("/sessions");
-  redirect(`/sessions/?clubId=${clubId}`);
+  revalidatePath(`/clubs/${clubId}/sessions/${sessionId}`);
 }
