@@ -461,6 +461,111 @@ async function main() {
     assertEqual(clubStats.leaderboard.length, 2, 'getClubStats leaderboard should have exactly 2 rows: memberPlayer and ownerPlayer');
     assertEqual(clubStats.leaderboard[0].playerId, memberPlayer.id, 'getClubStats leaderboard should sort by wins desc, placing memberPlayer (2 wins) before ownerPlayer (1 win)');
     console.log('stats.ts getClubStats OK (leaderboard direction + outcome-based winners + non-member exclusion + wins-desc sort)');
+
+    // ------------------------------------------------------------------
+    // 7. results.ts - getSessionPlaySummaries. One play per win condition,
+    //    reusing the club/session fixtures already in scope (club.id,
+    //    memberPlayer, ownerPlayer, statsSession from step 6 above), plus
+    //    one brand-new session so this section's plays don't interfere
+    //    with step 6's own wins/played counts.
+    // ------------------------------------------------------------------
+    const [summarySession] = await db
+      .insert(schema.sessions)
+      .values({ clubId: club.id, name: `${MARKER}-Summary Session`, date: new Date(), active: true })
+      .returning();
+    fixtures.sessionIds.push(summarySession.id);
+
+    const [gameTeamBased] = await db
+      .insert(schema.games)
+      .values({ name: `${MARKER}-Team Game`, winCondition: 'team_based', scoringDirection: null })
+      .returning();
+    const [gameCooperative] = await db
+      .insert(schema.games)
+      .values({ name: `${MARKER}-Co-op Game`, winCondition: 'cooperative', scoringDirection: null })
+      .returning();
+    fixtures.gameIds.push(gameTeamBased.id, gameCooperative.id);
+
+    // Leaderboard play: low score wins this time (gameLeaderboard from
+    // section 3 is 'high' - use a fresh low-scoring game so both directions
+    // get exercised across this file's tests).
+    const [gameLowScore] = await db
+      .insert(schema.games)
+      .values({ name: `${MARKER}-Golf Game`, winCondition: 'leaderboard', scoringDirection: 'low' })
+      .returning();
+    fixtures.gameIds.push(gameLowScore.id);
+
+    const [playLowScoreLeaderboard] = await db
+      .insert(schema.plays)
+      .values({ sessionId: summarySession.id, gameId: gameLowScore.id, notes: `${MARKER}-house rule` })
+      .returning();
+    fixtures.playIds.push(playLowScoreLeaderboard.id);
+    await db.insert(schema.leaderboardResults).values([
+      { playId: playLowScoreLeaderboard.id, playerId: ownerPlayer.id, score: 72 },
+      { playId: playLowScoreLeaderboard.id, playerId: memberPlayer.id, score: 68 },
+    ]);
+
+    const [playTeam] = await db
+      .insert(schema.plays)
+      .values({ sessionId: summarySession.id, gameId: gameTeamBased.id })
+      .returning();
+    fixtures.playIds.push(playTeam.id);
+    await db.insert(schema.teamResults).values([
+      { playId: playTeam.id, playerId: ownerPlayer.id, team: 'A', won: true },
+      { playId: playTeam.id, playerId: memberPlayer.id, team: 'B', won: false },
+    ]);
+
+    const [playCoop] = await db
+      .insert(schema.plays)
+      .values({ sessionId: summarySession.id, gameId: gameCooperative.id })
+      .returning();
+    fixtures.playIds.push(playCoop.id);
+    await db.insert(schema.outcomeResults).values([
+      { playId: playCoop.id, playerId: ownerPlayer.id, won: true },
+      { playId: playCoop.id, playerId: memberPlayer.id, won: true },
+    ]);
+
+    const [playSingleLoser] = await db
+      .insert(schema.plays)
+      .values({ sessionId: summarySession.id, gameId: gameSingleLoser.id })
+      .returning();
+    fixtures.playIds.push(playSingleLoser.id);
+    await db.insert(schema.outcomeResults).values([
+      { playId: playSingleLoser.id, playerId: ownerPlayer.id, won: true },
+      { playId: playSingleLoser.id, playerId: memberPlayer.id, won: false },
+    ]);
+
+    const summaries = await results.getSessionPlaySummaries(club.id, summarySession.id);
+    assertEqual(summaries.length, 4, 'getSessionPlaySummaries should return one entry per play in this session');
+
+    const leaderboardSummary = summaries.find((s) => s.playId === playLowScoreLeaderboard.id);
+    assert(leaderboardSummary, 'missing leaderboard play summary');
+    assertEqual(leaderboardSummary.summary, `${memberPlayer.name} won · 68 pts`, 'low-score-wins leaderboard summary should name the lowest scorer');
+    assertEqual(leaderboardSummary.detail, `${memberPlayer.name} 68 · ${ownerPlayer.name} 72`, 'leaderboard detail should be sorted low-to-high for a low-wins game');
+    assertEqual(leaderboardSummary.notes, `${MARKER}-house rule`, 'leaderboard play notes should pass through unchanged');
+    assertEqual(leaderboardSummary.gameName, `${MARKER}-Golf Game`, 'leaderboard play should resolve its game name');
+
+    const teamSummary = summaries.find((s) => s.playId === playTeam.id);
+    assert(teamSummary, 'missing team play summary');
+    assertEqual(teamSummary.summary, 'Team A won', 'team summary should name the winning team');
+    assertEqual(teamSummary.detail, `${ownerPlayer.name} beat ${memberPlayer.name}`, 'team detail should read "winners beat losers"');
+
+    const coopSummary = summaries.find((s) => s.playId === playCoop.id);
+    assert(coopSummary, 'missing cooperative play summary');
+    assertEqual(coopSummary.summary, 'Everyone won', 'cooperative summary should say Everyone won, not name a player');
+
+    const singleLoserSummary = summaries.find((s) => s.playId === playSingleLoser.id);
+    assert(singleLoserSummary, 'missing single_loser play summary');
+    assertEqual(singleLoserSummary.summary, `${memberPlayer.name} lost`, 'single_loser summary should name the loser specifically');
+    // Built from a plain SELECT with no ORDER BY across 2 rows, so row order
+    // isn't guaranteed by SQL semantics - assert membership/shape, not an
+    // exact ordering, to avoid a flaky test tied to incidental scan order.
+    assert(
+      singleLoserSummary.detail.startsWith('Played: ') &&
+        singleLoserSummary.detail.includes(ownerPlayer.name) &&
+        singleLoserSummary.detail.includes(memberPlayer.name),
+      `single_loser detail should list both participants (got ${JSON.stringify(singleLoserSummary.detail)})`
+    );
+    console.log('results.ts getSessionPlaySummaries OK (leaderboard both directions, team, cooperative, single_loser)');
   } finally {
     // Explicit cleanup, not a transaction rollback - see header comment:
     // every db/lib call in this script shares the module-level `db`
