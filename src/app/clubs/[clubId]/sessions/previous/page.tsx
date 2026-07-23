@@ -1,12 +1,21 @@
+import { currentUser } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { getClubDetails } from "@/app/lib/db/clubs";
 import { getAllInactiveSessions } from "@/app/lib/db/sessions";
+import { checkIfPlayerIsClubMember } from "@/app/lib/db/players";
 import AppShell from "@/app/ui/ds/AppShell";
 import BackHeader from "@/app/ui/ds/BackHeader";
 
 export default async function PreviousSessionsPage({ params }: { params: Promise<{ clubId: string }> }) {
   const { clubId } = await params;
+  const user = await currentUser();
+  if (!user) redirect("/");
+
+  const isMember = await checkIfPlayerIsClubMember(user.id, clubId);
+  if (!isMember) redirect("/clubs");
+
   const [club, sessions] = await Promise.all([
     getClubDetails(clubId),
     getAllInactiveSessions(clubId),
