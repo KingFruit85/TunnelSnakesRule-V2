@@ -39,3 +39,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .env*
+
+# scripts/verify-data-layer.js scratch build output (survives a hard kill)
+/.verify-data-layer-out/
+/tsconfig.verify-data-layer.json
+/.verify-data-layer-server-only-stub.js
