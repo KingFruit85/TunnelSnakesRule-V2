@@ -1,4 +1,6 @@
 // src/app/ui/ds/buttonStyles.ts
+import { HOVER_TINT, ACTIVE_TINT } from "./tint";
+
 export type ButtonVariant = "primary" | "secondary" | "ghost";
 
 export interface ButtonStyleOptions {
@@ -10,10 +12,8 @@ export interface ButtonStyleOptions {
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   primary: "bg-accent text-white hover:bg-accent-600 active:bg-accent-700",
-  secondary:
-    "bg-canvas text-text border border-divider hover:bg-[color-mix(in_srgb,var(--color-text)_7%,transparent)] active:bg-[color-mix(in_srgb,var(--color-text)_14%,transparent)]",
-  ghost:
-    "bg-transparent text-text hover:bg-[color-mix(in_srgb,var(--color-text)_7%,transparent)] active:bg-[color-mix(in_srgb,var(--color-text)_14%,transparent)]",
+  secondary: `bg-canvas text-text border border-divider hover:bg-[${HOVER_TINT}] active:bg-[${ACTIVE_TINT}]`,
+  ghost: `bg-transparent text-text hover:bg-[${HOVER_TINT}] active:bg-[${ACTIVE_TINT}]`,
 };
 
 export function buttonClasses({

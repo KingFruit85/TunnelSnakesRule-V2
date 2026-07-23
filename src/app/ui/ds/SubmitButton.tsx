@@ -9,6 +9,7 @@ export interface SubmitButtonProps {
   block?: boolean;
   compact?: boolean;
   disabled?: boolean;
+  className?: string;
 }
 
 export default function SubmitButton({
@@ -17,13 +18,14 @@ export default function SubmitButton({
   block,
   compact,
   disabled,
+  className,
 }: SubmitButtonProps) {
   const { pending } = useFormStatus();
   return (
     <button
       type="submit"
       disabled={disabled || pending}
-      className={buttonClasses({ variant, block, compact })}
+      className={buttonClasses({ variant, block, compact, className })}
     >
       {children}
     </button>
