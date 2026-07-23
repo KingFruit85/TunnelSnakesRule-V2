@@ -35,5 +35,6 @@ export async function addNewClub(formData: FormData) {
   await addPlayerToClub(userId, insertedClub.id);
 
   revalidatePath("/join/club");
-  redirect("/");
+  revalidatePath("/clubs");
+  redirect(`/clubs/${insertedClub.id}`);
 }
