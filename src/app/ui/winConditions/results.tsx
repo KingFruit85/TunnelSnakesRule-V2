@@ -8,9 +8,10 @@ import Image from "next/image";
 export interface ResultsProps {
   games: BoardGame[];
   players: Player[];
+  clubName: string;
 }
 
-export default function Results({ games, players }: ResultsProps) {
+export default function Results({ games, players, clubName }: ResultsProps) {
   const [game, setGame] = useState<BoardGame>(games[0]);
   const [showNotes, setShowNotes] = useState<boolean>(false);
   const [notes, setNotes] = useState<string>("");
@@ -68,6 +69,7 @@ export default function Results({ games, players }: ResultsProps) {
                 {games.map((game) => (
                   <option key={game.id} value={game.name}>
                     {game.name}
+                    {game.hasVariant ? " *" : ""}
                   </option>
                 ))}
               </select>
@@ -82,6 +84,12 @@ export default function Results({ games, players }: ResultsProps) {
               />
             </button>
           </div>
+
+          {game?.hasVariant && (
+            <p className="text-tunnel-snake-orange text-xs">
+              {clubName}&apos;s house rules
+            </p>
+          )}
 
           <input type="hidden" name={"gameId"} value={game?.id || ""} />
           <input

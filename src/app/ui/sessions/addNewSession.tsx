@@ -1,17 +1,14 @@
 "use client";
-import { Player } from "@/app/lib/definitions";
 import { addNewGameSession } from "@/app/lib/db/sessions";
 import CancelButton from "../Common/cancelButton";
 import SubmitButton from "../Common/submitButton";
-import Image from "next/image";
 import { SetStateAction, useState } from "react";
 
 export interface AddNewSessionProps {
-  players: Player[];
   clubId: string;
 }
 
-export default function AddNewSession({ players, clubId }: AddNewSessionProps) {
+export default function AddNewSession({ clubId }: AddNewSessionProps) {
   const [sessionName, setSessionName] = useState("");
   const maxChars = 25;
 
@@ -45,39 +42,6 @@ export default function AddNewSession({ players, clubId }: AddNewSessionProps) {
             />
             <div className=" font-['Montserrat'] flex w-[100%] justify-end text-sm text-tunnel-snake-orange">
               {charsLeft} / {maxChars}
-            </div>
-          </div>
-
-          <div className="flex-col justify-start items-start gap-4 flex">
-            <div className="text-white text-sm font-medium font-['Montserrat']">
-              Players
-            </div>
-            <div className="flex-col justify-start items-start gap-5 flex">
-              {players.map((player) => (
-                <div
-                  className="justify-start items-center gap-3 inline-flex text-white"
-                  key={player.name}
-                >
-                  <input
-                    type="checkbox"
-                    name="player"
-                    id={player.id}
-                    value={player.id}
-                    defaultChecked
-                    className="w-8 h-8 relative text-white rounded-sm accent-tunnel-snake-green"
-                  />
-                  <Image
-                    src={player.avatar}
-                    alt={player.name}
-                    width={35}
-                    height={35}
-                    className="rounded-full"
-                  />
-                  <div className="text-white text-base font-normal font-['Montserrat']">
-                    {player.name}
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
         </div>

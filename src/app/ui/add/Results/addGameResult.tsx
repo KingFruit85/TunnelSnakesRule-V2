@@ -1,6 +1,7 @@
 import { getAllBoardgames } from "@/app/lib/db/games";
 import { getAllPlayersInClub } from "@/app/lib/db/sessions";
 import { recordPlayResults } from "@/app/lib/db/results";
+import { getClubDetails } from "@/app/lib/db/clubs";
 import Results from "../../winConditions/results";
 import CancelButton from "../../Common/cancelButton";
 import SubmitButton from "../../Common/submitButton";
@@ -16,6 +17,7 @@ export default async function AddGameResult({
 }: AddGameResultProps) {
   const players = await getAllPlayersInClub(clubId);
   const boardGames = await getAllBoardgames(clubId);
+  const club = await getClubDetails(clubId);
 
   return (
     <div className="w-full flex flex-col space-items items-center py-5 bg-black text-white dark:bg-black text-white">
@@ -31,7 +33,7 @@ export default async function AddGameResult({
             Add Result
           </div>
 
-          <Results games={boardGames} players={players}></Results>
+          <Results games={boardGames} players={players} clubName={club.name}></Results>
 
           <div className="flex flex-row gap-4 items-center ">
             {boardGames.length > 0 && <SubmitButton label="Submit" />}

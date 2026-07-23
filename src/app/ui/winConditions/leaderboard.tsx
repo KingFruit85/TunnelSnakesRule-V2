@@ -18,51 +18,34 @@ export default function Leaderboard(props: LeaderboardProps) {
 
   switch (parseInt(game.winCondition)) {
     case WinCondition.SingleLoser:
+    case WinCondition.SinglerWinner: {
+      const isLoser = parseInt(game.winCondition) === WinCondition.SingleLoser;
       return (
-        <div className=" pb-6">
-          <p className="p-4 text-xl">Select the loser</p>
-          <div className="grid grid-cols-3 gap-4">
+        <div className="pb-6">
+          <p className="p-4 text-sm text-gray-400">Who&apos;s playing?</p>
+          <div className="flex flex-wrap gap-4 px-4 pb-4">
             {players.map((player: Player) => (
-              <div key={player.id} className="flex flex-col items-center">
+              <label key={player.id} className="flex flex-col items-center gap-1 text-xs">
                 <input
-                  type="radio"
-                  id={player.id}
-                  name="loser"
+                  type="checkbox"
+                  name="participant"
                   value={player.id}
-                  required
-                  className="hidden"
+                  defaultChecked
+                  className="accent-tunnel-snake-green w-5 h-5"
                 />
-                <label htmlFor={player.id} className="relative">
-                  <Image
-                    src={player.avatar}
-                    alt={player.name}
-                    width={50}
-                    height={50}
-                    className={`rounded-full ${
-                      selectedPlayerId === player.id
-                        ? "ring-4 ring-tunnel-snake-green"
-                        : ""
-                    }`}
-                    onClick={() => setSelectedPlayerId(player.id)}
-                  />
-                </label>
-              </div>
+                {player.name}
+              </label>
             ))}
           </div>
-        </div>
-      );
 
-    case WinCondition.SinglerWinner:
-      return (
-        <div className=" pb-6">
-          <p className="p-4 text-xl">Select the winner</p>
+          <p className="p-4 text-xl">{isLoser ? "Select the loser" : "Select the winner"}</p>
           <div className="grid grid-cols-3 gap-4">
             {players.map((player: Player) => (
               <div key={player.id} className="flex flex-col items-center">
                 <input
                   type="radio"
                   id={player.id}
-                  name="winner"
+                  name={isLoser ? "loser" : "winner"}
                   value={player.id}
                   required
                   className="hidden"
@@ -86,6 +69,7 @@ export default function Leaderboard(props: LeaderboardProps) {
           </div>
         </div>
       );
+    }
 
     case WinCondition.TeamBased:
       return (

@@ -70,14 +70,16 @@ export default function PlayerRow({ player, game }: PlayerRowProps) {
         />
       </div>
 
-      <div className="flex border rounded-sm w-[25%]">
-        <input
-          type="number"
-          id="score"
-          onChange={handleScoreChange}
-          className="bg-tunnel-snake-grey text-tunnel-snake-green text-center w-[100%]"
-        />
-      </div>
+      {parseInt(game.winCondition) === WinCondition.LeaderBoard && (
+        <div className="flex border rounded-sm w-[25%]">
+          <input
+            type="number"
+            id="score"
+            onChange={handleScoreChange}
+            className="bg-tunnel-snake-grey text-tunnel-snake-green text-center w-[100%]"
+          />
+        </div>
+      )}
 
       <div className="flex">
         {parseInt(game.winCondition) === WinCondition.TeamBased && (
