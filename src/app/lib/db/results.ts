@@ -13,9 +13,11 @@ import {
   outcomeResults,
   players,
 } from "@/db/schema";
+import { auth } from "@clerk/nextjs/server";
 import { GameAndWinner, PlayerResult } from "@/app/lib/definitions";
 import { resolveEffectiveRules } from "./rules";
 import { getBoardgameById } from "./games";
+import { checkIfPlayerIsClubMember } from "./players";
 
 type CheckedPlayerEntry = {
   playerId: string;
@@ -45,6 +47,15 @@ export async function recordPlayResults(formData: FormData) {
 
   if (!sessionId || !clubId || !gameId) {
     throw new Error("Missing required fields");
+  }
+
+  const { userId } = await auth();
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
+  const isMember = await checkIfPlayerIsClubMember(userId, clubId);
+  if (!isMember) {
+    throw new Error("Forbidden");
   }
 
   const rules = await resolveEffectiveRules(clubId, gameId);
