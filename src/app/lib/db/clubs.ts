@@ -5,6 +5,7 @@
 import "server-only";
 import { eq, notInArray } from "drizzle-orm";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { db } from "@/db/client";
 import { clubs, clubMembers, players } from "@/db/schema";
 import { Club } from "@/app/lib/definitions";
@@ -15,6 +16,7 @@ function toClub(row: typeof clubs.$inferSelect): Club {
     name: row.name,
     createdDate: row.createdAt,
     owner: row.ownerId,
+    avatar: row.avatar ?? "",
   };
 }
 
@@ -86,4 +88,9 @@ export async function getUsersClubs(playerExternalId: string): Promise<Club[]> {
     .where(eq(clubMembers.playerId, playerId));
 
   return rows.map((row) => toClub(row.club));
+}
+
+export async function addImageToClub(blobUri: string, clubId: string) {
+  await db.update(clubs).set({ avatar: blobUri }).where(eq(clubs.id, clubId));
+  revalidatePath("/clubs");
 }

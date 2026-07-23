@@ -36,6 +36,7 @@ export const clubs = pgTable("clubs", {
     .notNull()
     .references(() => players.id),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  avatar: text("avatar"),
 });
 
 export const clubMembers = pgTable(

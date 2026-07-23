@@ -77,6 +77,7 @@ export type Club = {
   name: string;
   createdDate: Date;
   owner: string;
+  avatar: string;
 };
 
 export enum Destination {

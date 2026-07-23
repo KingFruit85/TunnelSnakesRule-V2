@@ -54,10 +54,20 @@ async function checkRoundTripAndConstraints(client) {
     const playerId = player.rows[0].id;
 
     const club = await client.query(
-      `INSERT INTO clubs (name, owner_id) VALUES ('Verify Schema Club', $1) RETURNING id`,
+      `INSERT INTO clubs (name, owner_id) VALUES ('Verify Schema Club', $1) RETURNING id, avatar`,
       [playerId]
     );
     const clubId = club.rows[0].id;
+    if (club.rows[0].avatar !== null) {
+      throw new Error(`Expected clubs.avatar to default to null, got ${JSON.stringify(club.rows[0].avatar)}`);
+    }
+
+    await client.query(`UPDATE clubs SET avatar = 'https://example.com/photo.jpg' WHERE id = $1`, [clubId]);
+    const updated = await client.query(`SELECT avatar FROM clubs WHERE id = $1`, [clubId]);
+    if (updated.rows[0].avatar !== 'https://example.com/photo.jpg') {
+      throw new Error('clubs.avatar did not round-trip a written value');
+    }
+    console.log('clubs.avatar column present, nullable, and round-trips correctly.');
 
     await client.query(
       `INSERT INTO club_members (player_id, club_id) VALUES ($1, $2)`,
