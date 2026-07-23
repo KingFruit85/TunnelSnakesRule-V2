@@ -8,6 +8,7 @@ import { db } from "@/db/client";
 import {
   plays,
   games,
+  sessions,
   leaderboardResults,
   teamResults,
   outcomeResults,
@@ -41,11 +42,10 @@ function parseCheckedPlayers(formData: FormData): CheckedPlayerEntry[] {
 export async function recordPlayResults(formData: FormData) {
   "use server";
   const sessionId = formData.get("sessionId")?.toString();
-  const clubId = formData.get("clubId")?.toString();
   const gameId = formData.get("gameId")?.toString();
   const notes = formData.get("gameResultNotes")?.toString() ?? null;
 
-  if (!sessionId || !clubId || !gameId) {
+  if (!sessionId || !gameId) {
     throw new Error("Missing required fields");
   }
 
@@ -53,6 +53,18 @@ export async function recordPlayResults(formData: FormData) {
   if (!userId) {
     throw new Error("Unauthorized");
   }
+
+  // Authorize against the session's own clubId, resolved server-side, rather
+  // than a client-supplied clubId field: sessionId and clubId arrive as two
+  // independent form values, and checking membership against a clubId the
+  // caller can set independently of sessionId would let a member of one
+  // club record results against another club's session (the same class of
+  // cross-tenant IDOR already fixed in addImageToSession).
+  const [session] = await db.select().from(sessions).where(eq(sessions.id, sessionId));
+  if (!session) {
+    throw new Error(`Session ${sessionId} not found`);
+  }
+  const clubId = session.clubId;
   const isMember = await checkIfPlayerIsClubMember(userId, clubId);
   if (!isMember) {
     throw new Error("Forbidden");
