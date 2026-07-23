@@ -3,8 +3,6 @@ import { Archivo } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
-import TopNav from "./ui/sessions/topNav";
-import { Suspense } from "react";
 
 const archivo = Archivo({
   weight: ["400", "500", "600", "700"],
@@ -28,9 +26,6 @@ export default function RootLayout({
       <ClerkProvider>
         <body className="">
           <ThemeProvider attribute="data-theme" defaultTheme="light" enableSystem={false} storageKey="tsr-theme">
-            <Suspense>
-              <TopNav />
-            </Suspense>
             {children}
           </ThemeProvider>
         </body>
