@@ -4,10 +4,11 @@
 // results-actions.ts - see the header comment in players.ts for why this
 // split exists.
 import "server-only";
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db/client";
 import {
   plays,
+  sessions,
   games,
   leaderboardResults,
   teamResults,
@@ -172,6 +173,18 @@ export type PlaySummary = {
 // function uses resolveEffectiveRules instead, matching getClubStats's
 // approach, so both screens agree on which play a club's rules make a win.
 export async function getSessionPlaySummaries(clubId: string, sessionId: string): Promise<PlaySummary[]> {
+  // Scoped by clubId as well as sessionId, same reasoning as getSessionDetails
+  // in sessions.ts: without this, a caller could read another club's play
+  // results (scores, notes) by pairing its own clubId with a different
+  // club's sessionId. A mismatched pair returns [] instead of leaking data.
+  const [session] = await db
+    .select({ id: sessions.id })
+    .from(sessions)
+    .where(and(eq(sessions.id, sessionId), eq(sessions.clubId, clubId)));
+  if (!session) {
+    return [];
+  }
+
   const sessionPlays = await db.select().from(plays).where(eq(plays.sessionId, sessionId));
   if (sessionPlays.length === 0) {
     return [];

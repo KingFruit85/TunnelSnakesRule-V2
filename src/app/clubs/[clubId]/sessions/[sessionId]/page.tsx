@@ -30,7 +30,7 @@ export default async function SessionDetailPage({
 
   const [club, sessionRows, games, plays] = await Promise.all([
     getClubDetails(clubId),
-    getSessionDetails(sessionId),
+    getSessionDetails(sessionId, clubId),
     getAllBoardgames(clubId),
     getSessionPlaySummaries(clubId, sessionId),
   ]);

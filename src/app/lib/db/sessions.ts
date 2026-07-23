@@ -113,8 +113,18 @@ export async function getAllInactiveSessions(clubId: string): Promise<GameSessio
   return Promise.all(rows.map(toGameSession));
 }
 
-export async function getSessionDetails(id: string): Promise<GameSession[]> {
-  const rows = await db.select().from(sessions).where(eq(sessions.id, id));
+// Scoped by clubId as well as id, same reasoning as addImageToSession below:
+// the only caller (the Session Detail page) resolves clubId from the URL
+// and id from a separate URL segment - without this, a member of one club
+// could view another club's private session (notes, photos, results) by
+// pairing their own clubId with a different club's sessionId. Scoping the
+// read to both together makes a mismatched pair return nothing instead of
+// leaking cross-tenant data.
+export async function getSessionDetails(id: string, clubId: string): Promise<GameSession[]> {
+  const rows = await db
+    .select()
+    .from(sessions)
+    .where(and(eq(sessions.id, id), eq(sessions.clubId, clubId)));
   return Promise.all(rows.map(toGameSession));
 }
 
