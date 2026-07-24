@@ -18,6 +18,7 @@ export const winConditionEnum = pgEnum("win_condition", [
   "cooperative",
   "single_winner",
   "single_loser",
+  "hidden_traitor",
 ]);
 
 export const scoringDirectionEnum = pgEnum("scoring_direction", ["high", "low"]);
@@ -71,12 +72,26 @@ export const games = pgTable(
     name: text("name").notNull(),
     winCondition: winConditionEnum("win_condition").notNull(),
     scoringDirection: scoringDirectionEnum("scoring_direction"),
+    roleOneLabel: text("role_one_label"),
+    roleTwoLabel: text("role_two_label"),
+    neitherLabel: text("neither_label"),
   },
   (table) => [
     check(
       "games_scoring_direction_matches_win_condition",
       sql`(${table.winCondition} = 'leaderboard' AND ${table.scoringDirection} IS NOT NULL)
           OR (${table.winCondition} <> 'leaderboard' AND ${table.scoringDirection} IS NULL)`
+    ),
+    check(
+      "games_hidden_traitor_labels_required",
+      sql`(${table.winCondition} = 'hidden_traitor'
+            AND ${table.roleOneLabel} IS NOT NULL
+            AND ${table.roleTwoLabel} IS NOT NULL
+            AND ${table.neitherLabel} IS NOT NULL)
+          OR (${table.winCondition} <> 'hidden_traitor'
+            AND ${table.roleOneLabel} IS NULL
+            AND ${table.roleTwoLabel} IS NULL
+            AND ${table.neitherLabel} IS NULL)`
     ),
   ]
 );
@@ -92,6 +107,9 @@ export const clubGameVariants = pgTable(
       .references(() => games.id),
     winCondition: winConditionEnum("win_condition").notNull(),
     scoringDirection: scoringDirectionEnum("scoring_direction"),
+    roleOneLabel: text("role_one_label"),
+    roleTwoLabel: text("role_two_label"),
+    neitherLabel: text("neither_label"),
   },
   (table) => [
     primaryKey({ columns: [table.clubId, table.gameId] }),
@@ -99,6 +117,17 @@ export const clubGameVariants = pgTable(
       "club_game_variants_scoring_direction_matches_win_condition",
       sql`(${table.winCondition} = 'leaderboard' AND ${table.scoringDirection} IS NOT NULL)
           OR (${table.winCondition} <> 'leaderboard' AND ${table.scoringDirection} IS NULL)`
+    ),
+    check(
+      "club_game_variants_hidden_traitor_labels_required",
+      sql`(${table.winCondition} = 'hidden_traitor'
+            AND ${table.roleOneLabel} IS NOT NULL
+            AND ${table.roleTwoLabel} IS NOT NULL
+            AND ${table.neitherLabel} IS NOT NULL)
+          OR (${table.winCondition} <> 'hidden_traitor'
+            AND ${table.roleOneLabel} IS NULL
+            AND ${table.roleTwoLabel} IS NULL
+            AND ${table.neitherLabel} IS NULL)`
     ),
   ]
 );
