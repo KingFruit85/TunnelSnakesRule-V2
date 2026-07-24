@@ -60,6 +60,9 @@ export async function getAllBoardgames(clubId: string): Promise<BoardGame[]> {
         ? SCORING_DIRECTION_DB_TO_UI[effective.scoringDirection]
         : "",
       hasVariant: Boolean(variant),
+      roleOneLabel: effective.roleOneLabel,
+      roleTwoLabel: effective.roleTwoLabel,
+      neitherLabel: effective.neitherLabel,
     } as BoardGame;
   });
 }
@@ -78,5 +81,8 @@ export async function getBoardgameById(id: string): Promise<BoardGame> {
       ? SCORING_DIRECTION_DB_TO_UI[game.scoringDirection]
       : "",
     hasVariant: false,
+    roleOneLabel: game.roleOneLabel,
+    roleTwoLabel: game.roleTwoLabel,
+    neitherLabel: game.neitherLabel,
   } as unknown as BoardGame;
 }
