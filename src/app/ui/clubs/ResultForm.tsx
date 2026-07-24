@@ -1,12 +1,12 @@
 "use client";
 import { useState } from "react";
 import { recordPlayResults, updatePlayResults } from "@/app/lib/db/results-actions";
-import { BoardGame, Player } from "@/app/lib/definitions";
+import { BoardGame, Player, NO_WINNER_SENTINEL } from "@/app/lib/definitions";
 import type { PlayEditData } from "@/app/lib/db/results";
 import SubmitButton from "@/app/ui/ds/SubmitButton";
 import LinkButton from "@/app/ui/ds/LinkButton";
 
-// BoardGame.winCondition is the UI-coded string ("0".."4") already produced
+// BoardGame.winCondition is the UI-coded string ("0".."5") already produced
 // by getAllBoardgames via WIN_CONDITION_DB_TO_UI - matching the same codes
 // AddGameForm's radio values already use, so no new mapping is invented
 // here, just reused.
@@ -16,6 +16,7 @@ const WIN_LABELS: Record<string, string> = {
   "2": "Co-operative",
   "3": "Single winner",
   "4": "Single loser",
+  "5": "Hidden traitor",
 };
 
 export interface ResultFormProps {
@@ -44,20 +45,30 @@ export default function ResultForm({
   const [scores, setScores] = useState<Record<string, string>>(() =>
     Object.fromEntries(members.map((m) => [m.id, String(initialData?.scoresByPlayerId[m.id] ?? "")]))
   );
+  const selectedGame = games.find((g) => g.id === gameId);
+  const winCode = selectedGame?.winCondition ?? "";
+  const roleOneLabel = selectedGame?.roleOneLabel ?? "Role one";
+  const roleTwoLabel = selectedGame?.roleTwoLabel ?? "Role two";
+  const neitherLabel = selectedGame?.neitherLabel ?? "Neither";
   const editTeamLabels = initialData ? [...new Set(Object.values(initialData.teamByPlayerId))].sort() : [];
   const [teamLabels] = useState<[string, string]>(
     editTeamLabels.length === 2 ? (editTeamLabels as [string, string]) : ["A", "B"]
   );
   const [teams, setTeams] = useState<Record<string, string>>(() =>
-    Object.fromEntries(members.map((m) => [m.id, initialData?.teamByPlayerId[m.id] ?? teamLabels[0]]))
+    Object.fromEntries(
+      members.map((m) => [
+        m.id,
+        initialData?.teamByPlayerId[m.id] ?? (winCode === "5" ? roleOneLabel : teamLabels[0]),
+      ])
+    )
   );
-  const [winningTeam, setWinningTeam] = useState(initialData?.winningTeam ?? "Tie");
+  const [winningTeam, setWinningTeam] = useState(
+    initialData?.winningTeam ?? (winCode === "5" ? NO_WINNER_SENTINEL : "Tie")
+  );
   const [coopWon, setCoopWon] = useState(initialData?.cooperativeWon ?? true);
   const [pickedPlayerId, setPickedPlayerId] = useState(initialData?.pickedPlayerId ?? "");
   const [notes, setNotes] = useState(initialData?.notes ?? "");
 
-  const selectedGame = games.find((g) => g.id === gameId);
-  const winCode = selectedGame?.winCondition ?? "";
   const selectedMembers = members.filter((m) => checked[m.id]);
 
   const validationError = (() => {
@@ -70,6 +81,9 @@ export default function ResultForm({
     }
     if (winCode === "4" && (!pickedPlayerId || !checked[pickedPlayerId])) {
       return "Pick the loser.";
+    }
+    if (winCode === "5" && selectedMembers.some((m) => teams[m.id] !== roleOneLabel && teams[m.id] !== roleTwoLabel)) {
+      return "Assign every player to a role.";
     }
     return null;
   })();
@@ -86,6 +100,7 @@ export default function ResultForm({
       {winCode === "2" && <input type="hidden" name="winner" value={coopWon ? "Players" : "Game"} />}
       {winCode === "3" && <input type="hidden" name="winner" value={pickedPlayerId} />}
       {winCode === "4" && <input type="hidden" name="loser" value={pickedPlayerId} />}
+      {winCode === "5" && <input type="hidden" name="winner" value={winningTeam} />}
 
       {(winCode === "0" || winCode === "1" || winCode === "2") &&
         selectedMembers.map((m) => {
@@ -93,6 +108,10 @@ export default function ResultForm({
             winCode === "0" ? `true,${scores[m.id] || "0"},` : winCode === "1" ? `true,,${teams[m.id]}` : `true,,`;
           return <input key={m.id} type="hidden" name={`player_${m.id}`} value={csv} />;
         })}
+      {winCode === "5" &&
+        selectedMembers.map((m) => (
+          <input key={m.id} type="hidden" name={`player_${m.id}`} value={`true,,${teams[m.id]}`} />
+        ))}
       {(winCode === "3" || winCode === "4") &&
         selectedMembers.map((m) => <input key={m.id} type="hidden" name="participant" value={m.id} />)}
 
@@ -252,6 +271,59 @@ export default function ResultForm({
                 <span className="text-[14px] text-text">{m.name}</span>
               </label>
             ))}
+          </div>
+        </div>
+      )}
+
+      {winCode === "5" && selectedMembers.length > 0 && (
+        <div className="mt-5">
+          <p className="text-[14px] font-medium text-text">Roles</p>
+          <div className="mt-2 flex flex-col gap-2">
+            {selectedMembers.map((m) => (
+              <div key={m.id} className="flex items-center justify-between">
+                <span className="text-[14px] text-text">{m.name}</span>
+                <div className="flex border border-divider">
+                  {[roleOneLabel, roleTwoLabel].map((label) => (
+                    <button
+                      key={label}
+                      type="button"
+                      aria-pressed={teams[m.id] === label}
+                      aria-label={`Assign ${m.name} to ${label}`}
+                      onClick={() => setTeams((prev) => ({ ...prev, [m.id]: label }))}
+                      className={`px-3 py-1 text-[13px] font-semibold ${
+                        teams[m.id] === label ? "bg-accent text-white" : "bg-canvas text-text"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          <p className="mt-3 text-[14px] font-medium text-text">Who won?</p>
+          <div className="mt-2 flex border border-divider">
+            {[roleOneLabel, roleTwoLabel].map((label) => (
+              <button
+                key={label}
+                type="button"
+                onClick={() => setWinningTeam(label)}
+                className={`flex-1 py-2 text-[13px] font-semibold ${
+                  winningTeam === label ? "bg-accent text-white" : "bg-canvas text-text"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => setWinningTeam(NO_WINNER_SENTINEL)}
+              className={`flex-1 py-2 text-[13px] font-semibold ${
+                winningTeam === NO_WINNER_SENTINEL ? "bg-accent text-white" : "bg-canvas text-text"
+              }`}
+            >
+              {neitherLabel}
+            </button>
           </div>
         </div>
       )}
