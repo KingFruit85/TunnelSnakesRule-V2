@@ -1,5 +1,11 @@
 import { UUID } from "crypto";
 
+// Reserved sentinel for the hidden_traitor win condition's "neither role
+// won" outcome, submitted as the winner form field's value instead of a
+// role's literal label text - keeps "nobody won" detection independent of
+// whatever free-text label a club chose for roleOneLabel/roleTwoLabel.
+export const NO_WINNER_SENTINEL = "__no_winner__";
+
 export type Player = {
   id: string;
   externalId: string;
@@ -70,6 +76,9 @@ export type BoardGame = {
   winCondition: string;
   scoringDirection: string;
   hasVariant: boolean;
+  roleOneLabel: string | null;
+  roleTwoLabel: string | null;
+  neitherLabel: string | null;
 };
 
 export type Club = {
