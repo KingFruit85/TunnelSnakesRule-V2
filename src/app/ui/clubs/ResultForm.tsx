@@ -51,7 +51,7 @@ export default function ResultForm({
   const [teams, setTeams] = useState<Record<string, string>>(() =>
     Object.fromEntries(members.map((m) => [m.id, initialData?.teamByPlayerId[m.id] ?? teamLabels[0]]))
   );
-  const [winningTeam, setWinningTeam] = useState(initialData?.winningTeam ?? teamLabels[0]);
+  const [winningTeam, setWinningTeam] = useState(initialData?.winningTeam ?? "Tie");
   const [coopWon, setCoopWon] = useState(initialData?.cooperativeWon ?? true);
   const [pickedPlayerId, setPickedPlayerId] = useState(initialData?.pickedPlayerId ?? "");
   const [notes, setNotes] = useState(initialData?.notes ?? "");
@@ -195,6 +195,15 @@ export default function ResultForm({
                 Team {label}
               </button>
             ))}
+            <button
+              type="button"
+              onClick={() => setWinningTeam("Tie")}
+              className={`flex-1 py-2 text-[13px] font-semibold ${
+                winningTeam === "Tie" ? "bg-accent text-white" : "bg-canvas text-text"
+              }`}
+            >
+              Tie
+            </button>
           </div>
         </div>
       )}
