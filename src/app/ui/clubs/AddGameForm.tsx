@@ -10,19 +10,40 @@ const CONDITIONS = [
   { value: "2", label: "Co-operative", helper: "Everyone wins or loses together" },
   { value: "3", label: "Single winner", helper: "One player wins" },
   { value: "4", label: "Single loser", helper: "One player loses" },
+  {
+    value: "5",
+    label: "Hidden traitor",
+    helper: "One or more players may secretly work against the rest",
+  },
 ];
 
 export default function AddGameForm({ clubId }: { clubId: string }) {
   const [name, setName] = useState("");
   const [winCondition, setWinCondition] = useState("");
   const [direction, setDirection] = useState<"High" | "Low">("High");
+  const [roleOneLabel, setRoleOneLabel] = useState("");
+  const [roleTwoLabel, setRoleTwoLabel] = useState("");
+  const [neitherLabel, setNeitherLabel] = useState("");
   const isLeaderboard = winCondition === "0";
-  const canSubmit = name.trim().length > 0 && winCondition !== "";
+  const isHiddenTraitor = winCondition === "5";
+  const hiddenTraitorLabels = [roleOneLabel.trim(), roleTwoLabel.trim(), neitherLabel.trim()];
+  const hiddenTraitorLabelsValid =
+    hiddenTraitorLabels.every((label) => label.length > 0) &&
+    new Set(hiddenTraitorLabels).size === hiddenTraitorLabels.length;
+  const canSubmit =
+    name.trim().length > 0 && winCondition !== "" && (!isHiddenTraitor || hiddenTraitorLabelsValid);
 
   return (
     <form action={addNewBoardGame} className="flex flex-1 flex-col px-5 pt-5">
       <input type="hidden" name="clubId" value={clubId} />
       {isLeaderboard && <input type="hidden" name="scoringDirection" value={direction} />}
+      {isHiddenTraitor && (
+        <>
+          <input type="hidden" name="roleOneLabel" value={roleOneLabel} />
+          <input type="hidden" name="roleTwoLabel" value={roleTwoLabel} />
+          <input type="hidden" name="neitherLabel" value={neitherLabel} />
+        </>
+      )}
 
       <label className="text-[14px] font-medium text-text" htmlFor="gameName">
         Game name
@@ -76,6 +97,50 @@ export default function AddGameForm({ clubId }: { clubId: string }) {
               {dir} score wins
             </button>
           ))}
+        </div>
+      )}
+
+      {isHiddenTraitor && (
+        <div className="mt-3 flex flex-col gap-3">
+          <div>
+            <label className="text-[13px] font-medium text-text" htmlFor="roleOneLabel">
+              Role one
+            </label>
+            <input
+              id="roleOneLabel"
+              type="text"
+              placeholder="e.g. Heroes"
+              value={roleOneLabel}
+              onChange={(e) => setRoleOneLabel(e.target.value)}
+              className="mt-1 w-full border border-divider bg-surface px-3 py-2 text-[14px] text-text"
+            />
+          </div>
+          <div>
+            <label className="text-[13px] font-medium text-text" htmlFor="roleTwoLabel">
+              Role two
+            </label>
+            <input
+              id="roleTwoLabel"
+              type="text"
+              placeholder="e.g. Traitor"
+              value={roleTwoLabel}
+              onChange={(e) => setRoleTwoLabel(e.target.value)}
+              className="mt-1 w-full border border-divider bg-surface px-3 py-2 text-[14px] text-text"
+            />
+          </div>
+          <div>
+            <label className="text-[13px] font-medium text-text" htmlFor="neitherLabel">
+              If neither role wins
+            </label>
+            <input
+              id="neitherLabel"
+              type="text"
+              placeholder="e.g. The house wins"
+              value={neitherLabel}
+              onChange={(e) => setNeitherLabel(e.target.value)}
+              className="mt-1 w-full border border-divider bg-surface px-3 py-2 text-[14px] text-text"
+            />
+          </div>
         </div>
       )}
 
