@@ -98,6 +98,10 @@ async function checkRoundTripAndConstraints(client) {
 
     console.log('Round-trip insert across players -> clubs -> club_members -> games -> sessions -> plays -> leaderboard_results succeeded.');
 
+    // Postgres marks a transaction aborted after any statement error, so each constraint-violation test
+    // that's expected to fail needs a SAVEPOINT beforehand and a ROLLBACK TO after, to keep the
+    // transaction usable for subsequent statements in the same test run.
+    await client.query('SAVEPOINT sp_scoring_direction');
     let checkConstraintFired = false;
     try {
       await client.query(
@@ -106,10 +110,57 @@ async function checkRoundTripAndConstraints(client) {
     } catch (err) {
       checkConstraintFired = /scoring_direction_matches_win_condition/.test(err.message);
     }
+    await client.query('ROLLBACK TO sp_scoring_direction');
     if (!checkConstraintFired) {
       throw new Error('Expected the scoring_direction/win_condition CHECK constraint to reject a cooperative game with a scoring_direction set, but it did not.');
     }
     console.log('CHECK constraint correctly rejected an invalid win_condition/scoring_direction combination.');
+
+    const hiddenTraitorGame = await client.query(
+      `INSERT INTO games (name, win_condition, role_one_label, role_two_label, neither_label)
+       VALUES ('Verify Hidden Traitor Game', 'hidden_traitor', 'Heroes', 'Traitor', 'The house wins')
+       RETURNING id, role_one_label, role_two_label, neither_label`
+    );
+    if (
+      hiddenTraitorGame.rows[0].role_one_label !== 'Heroes' ||
+      hiddenTraitorGame.rows[0].role_two_label !== 'Traitor' ||
+      hiddenTraitorGame.rows[0].neither_label !== 'The house wins'
+    ) {
+      throw new Error('hidden_traitor role/neither labels did not round-trip correctly');
+    }
+    console.log('hidden_traitor game round-trips role_one_label/role_two_label/neither_label correctly.');
+
+    await client.query('SAVEPOINT sp_hidden_traitor_1');
+    let hiddenTraitorMissingLabelRejected = false;
+    try {
+      await client.query(
+        `INSERT INTO games (name, win_condition, role_one_label, role_two_label)
+         VALUES ('Bad Hidden Traitor Game', 'hidden_traitor', 'Heroes', 'Traitor')`
+      );
+    } catch (err) {
+      hiddenTraitorMissingLabelRejected = /hidden_traitor_labels_required/.test(err.message);
+    }
+    await client.query('ROLLBACK TO sp_hidden_traitor_1');
+    if (!hiddenTraitorMissingLabelRejected) {
+      throw new Error('Expected the hidden_traitor labels CHECK constraint to reject a hidden_traitor game missing neither_label, but it did not.');
+    }
+    console.log('CHECK constraint correctly rejected a hidden_traitor game missing a required label.');
+
+    await client.query('SAVEPOINT sp_hidden_traitor_2');
+    let nonHiddenTraitorLabelRejected = false;
+    try {
+      await client.query(
+        `INSERT INTO games (name, win_condition, role_one_label)
+         VALUES ('Bad Cooperative Game', 'cooperative', 'Heroes')`
+      );
+    } catch (err) {
+      nonHiddenTraitorLabelRejected = /hidden_traitor_labels_required/.test(err.message);
+    }
+    await client.query('ROLLBACK TO sp_hidden_traitor_2');
+    if (!nonHiddenTraitorLabelRejected) {
+      throw new Error('Expected the hidden_traitor labels CHECK constraint to reject a non-hidden_traitor game with a role label set, but it did not.');
+    }
+    console.log('CHECK constraint correctly rejected a non-hidden_traitor game with a stray role label set.');
   } finally {
     // Roll back so this script never leaves data behind, matching the wiped state it found.
     await client.query('ROLLBACK');
