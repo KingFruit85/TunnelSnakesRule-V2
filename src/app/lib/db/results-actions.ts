@@ -164,9 +164,8 @@ export async function recordPlayResults(formData: FormData) {
 
   await writeResultRows(play.id, rules, checkedPlayers, formData);
 
-  revalidatePath("/sessions");
-  revalidatePath("/players");
-  redirect(`/sessions?clubId=${clubId}`);
+  revalidatePath(`/clubs/${clubId}/sessions/${sessionId}`);
+  redirect(`/clubs/${clubId}/sessions/${sessionId}`);
 }
 
 // Replaces an existing play's game/notes/results in place, for the design
@@ -214,7 +213,6 @@ export async function updatePlayResults(playId: string, formData: FormData) {
   const checkedPlayers = parseCheckedPlayers(formData);
   await writeResultRows(playId, rules, checkedPlayers, formData);
 
-  revalidatePath("/sessions");
-  revalidatePath("/players");
-  redirect(`/sessions?clubId=${clubId}`);
+  revalidatePath(`/clubs/${clubId}/sessions/${play.sessionId}`);
+  redirect(`/clubs/${clubId}/sessions/${play.sessionId}`);
 }
