@@ -1,4 +1,4 @@
-import { currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
@@ -7,13 +7,14 @@ import { getAllInactiveSessions } from "@/app/lib/db/sessions";
 import { checkIfPlayerIsClubMember } from "@/app/lib/db/players";
 import AppShell from "@/app/ui/ds/AppShell";
 import BackHeader from "@/app/ui/ds/BackHeader";
+import { ROW_TINT_CLASS } from "@/app/ui/ds/tint";
 
 export default async function PreviousSessionsPage({ params }: { params: Promise<{ clubId: string }> }) {
   const { clubId } = await params;
-  const user = await currentUser();
-  if (!user) redirect("/");
+  const { userId } = await auth();
+  if (!userId) redirect("/");
 
-  const isMember = await checkIfPlayerIsClubMember(user.id, clubId);
+  const isMember = await checkIfPlayerIsClubMember(userId, clubId);
   if (!isMember) redirect("/clubs");
 
   const [club, sessions] = await Promise.all([
@@ -30,7 +31,7 @@ export default async function PreviousSessionsPage({ params }: { params: Promise
           <Link
             key={session.id}
             href={`/clubs/${clubId}/sessions/${session.id}`}
-            className="flex items-center gap-3 border-b border-divider px-5 py-[15px]"
+            className={`flex items-center gap-3 border-b border-divider px-5 py-[15px] ${ROW_TINT_CLASS}`}
           >
             <div className="flex-1">
               <p className="text-[15.5px] font-semibold text-text">{session.name}</p>

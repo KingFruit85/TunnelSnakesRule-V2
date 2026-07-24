@@ -1,4 +1,4 @@
-import { currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { getUsersClubs } from "@/app/lib/db/clubs";
 import { getAllPlayersInClub } from "@/app/lib/db/sessions";
@@ -9,10 +9,10 @@ import Tag from "@/app/ui/ds/Tag";
 import EmptyState from "@/app/ui/ds/EmptyState";
 
 export default async function PlayersTabPage() {
-  const user = await currentUser();
-  if (!user) redirect("/");
+  const { userId } = await auth();
+  if (!userId) redirect("/");
 
-  const clubs = await getUsersClubs(user.id);
+  const clubs = await getUsersClubs(userId);
   const perClub = await Promise.all(
     clubs.map(async (club) => {
       const members = await getAllPlayersInClub(club.id);

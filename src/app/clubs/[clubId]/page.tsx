@@ -1,4 +1,4 @@
-import { currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ChevronRight, BarChart, History } from "lucide-react";
@@ -13,13 +13,14 @@ import InitialSquare from "@/app/ui/ds/InitialSquare";
 import Tag from "@/app/ui/ds/Tag";
 import LinkButton from "@/app/ui/ds/LinkButton";
 import JoinRequestRow from "@/app/ui/clubs/JoinRequestRow";
+import { ROW_TINT_CLASS } from "@/app/ui/ds/tint";
 
 export default async function ClubDetailPage({ params }: { params: Promise<{ clubId: string }> }) {
   const { clubId } = await params;
-  const user = await currentUser();
-  if (!user) redirect("/");
+  const { userId } = await auth();
+  if (!userId) redirect("/");
 
-  const isMember = await checkIfPlayerIsClubMember(user.id, clubId);
+  const isMember = await checkIfPlayerIsClubMember(userId, clubId);
   if (!isMember) redirect("/clubs");
 
   const [club, members, games, activeSessions, previousSessions, requests] = await Promise.all([
@@ -72,7 +73,7 @@ export default async function ClubDetailPage({ params }: { params: Promise<{ clu
             <Link
               key={session.id}
               href={`/clubs/${clubId}/sessions/${session.id}`}
-              className="flex items-center gap-3 border-b border-divider px-5 py-3"
+              className={`flex items-center gap-3 border-b border-divider px-5 py-3 ${ROW_TINT_CLASS}`}
             >
               <div className="flex-1">
                 <p className="text-[15.5px] font-semibold text-text">{session.name}</p>
@@ -90,7 +91,7 @@ export default async function ClubDetailPage({ params }: { params: Promise<{ clu
       {previousSessions.length > 0 && (
         <Link
           href={`/clubs/${clubId}/sessions/previous`}
-          className="flex items-center gap-3 px-5 py-3"
+          className={`flex items-center gap-3 px-5 py-3 ${ROW_TINT_CLASS}`}
         >
           <History size={16} strokeWidth={2} className="text-text opacity-60" />
           <span className="flex-1 text-[14px] text-text">Previous sessions ({previousSessions.length})</span>

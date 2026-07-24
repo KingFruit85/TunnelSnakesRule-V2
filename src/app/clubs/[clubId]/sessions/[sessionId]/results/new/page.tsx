@@ -1,5 +1,5 @@
 // src/app/clubs/[clubId]/sessions/[sessionId]/results/new/page.tsx
-import { currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { getClubDetails } from "@/app/lib/db/clubs";
 import { checkIfPlayerIsClubMember } from "@/app/lib/db/players";
@@ -15,10 +15,10 @@ export default async function NewResultPage({
   params: Promise<{ clubId: string; sessionId: string }>;
 }) {
   const { clubId, sessionId } = await params;
-  const user = await currentUser();
-  if (!user) redirect("/");
+  const { userId } = await auth();
+  if (!userId) redirect("/");
 
-  const isMember = await checkIfPlayerIsClubMember(user.id, clubId);
+  const isMember = await checkIfPlayerIsClubMember(userId, clubId);
   if (!isMember) redirect("/clubs");
 
   const [club, members, games] = await Promise.all([

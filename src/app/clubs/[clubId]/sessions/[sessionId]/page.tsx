@@ -1,5 +1,5 @@
 // src/app/clubs/[clubId]/sessions/[sessionId]/page.tsx
-import { currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Trophy, Pencil } from "lucide-react";
@@ -13,7 +13,7 @@ import BackHeader from "@/app/ui/ds/BackHeader";
 import Tag from "@/app/ui/ds/Tag";
 import SectionHeader from "@/app/ui/ds/SectionHeader";
 import LinkButton from "@/app/ui/ds/LinkButton";
-import { HOVER_TINT_CLASS } from "@/app/ui/ds/tint";
+import { PRESS_SCALE_CLASS } from "@/app/ui/ds/tint";
 import SessionNotesEditor from "@/app/ui/clubs/SessionNotesEditor";
 import PhotoGrid from "@/app/ui/clubs/PhotoGrid";
 import FinishReopenButton from "@/app/ui/clubs/FinishReopenButton";
@@ -24,10 +24,10 @@ export default async function SessionDetailPage({
   params: Promise<{ clubId: string; sessionId: string }>;
 }) {
   const { clubId, sessionId } = await params;
-  const user = await currentUser();
-  if (!user) redirect("/");
+  const { userId } = await auth();
+  if (!userId) redirect("/");
 
-  const isMember = await checkIfPlayerIsClubMember(user.id, clubId);
+  const isMember = await checkIfPlayerIsClubMember(userId, clubId);
   if (!isMember) redirect("/clubs");
 
   const [club, sessionRows, games, plays] = await Promise.all([
@@ -105,7 +105,7 @@ export default async function SessionDetailPage({
                 <Link
                   href={`/clubs/${clubId}/sessions/${sessionId}/results/${play.playId}/edit`}
                   aria-label="Edit result"
-                  className={`flex h-11 w-11 shrink-0 items-center justify-center self-start p-2 text-text transition-colors ${HOVER_TINT_CLASS} focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2`}
+                  className={`flex h-11 w-11 shrink-0 items-center justify-center self-start rounded-full p-2 text-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 ${PRESS_SCALE_CLASS}`}
                 >
                   <Pencil size={16} strokeWidth={2} className="opacity-55" />
                 </Link>

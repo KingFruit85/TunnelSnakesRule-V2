@@ -1,4 +1,4 @@
-import { currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
@@ -8,12 +8,13 @@ import AppShell from "@/app/ui/ds/AppShell";
 import BottomNav from "@/app/ui/ds/BottomNav";
 import Tag from "@/app/ui/ds/Tag";
 import EmptyState from "@/app/ui/ds/EmptyState";
+import { ROW_TINT_CLASS } from "@/app/ui/ds/tint";
 
 export default async function SessionsTabPage() {
-  const user = await currentUser();
-  if (!user) redirect("/");
+  const { userId } = await auth();
+  if (!userId) redirect("/");
 
-  const clubs = await getUsersClubs(user.id);
+  const clubs = await getUsersClubs(userId);
   const perClub = await Promise.all(
     clubs.map(async (club) => {
       const [active, previous] = await Promise.all([
@@ -41,7 +42,7 @@ export default async function SessionsTabPage() {
               <Link
                 key={session.id}
                 href={`/clubs/${club.id}/sessions/${session.id}`}
-                className="flex items-center gap-3 border-b border-divider px-5 py-[15px]"
+                className={`flex items-center gap-3 border-b border-divider px-5 py-[15px] ${ROW_TINT_CLASS}`}
               >
                 <div className="flex-1">
                   <p className="text-[15.5px] font-semibold text-text">{session.name}</p>

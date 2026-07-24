@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { House, Dices, Users } from "lucide-react";
+import { PRESS_SCALE_CLASS } from "./tint";
 
 const TABS = [
   { href: "/clubs", label: "Home", Icon: House },
@@ -21,7 +22,7 @@ export default function BottomNav() {
             key={href}
             href={href}
             aria-current={active ? "page" : undefined}
-            className={`flex flex-col items-center gap-[3px] py-2.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 ${
+            className={`flex flex-col items-center gap-[3px] py-2.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 ${PRESS_SCALE_CLASS} ${
               active ? "text-accent" : "text-text opacity-55"
             }`}
           >

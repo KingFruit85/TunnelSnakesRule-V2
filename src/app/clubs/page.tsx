@@ -1,4 +1,4 @@
-import { currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { LogOut, ChevronRight } from "lucide-react";
@@ -13,12 +13,13 @@ import IconButton from "@/app/ui/ds/IconButton";
 import LinkButton from "@/app/ui/ds/LinkButton";
 import InitialSquare from "@/app/ui/ds/InitialSquare";
 import EmptyState from "@/app/ui/ds/EmptyState";
+import { ROW_TINT_CLASS } from "@/app/ui/ds/tint";
 
 export default async function ClubsPage() {
-  const user = await currentUser();
-  if (!user) redirect("/");
+  const { userId } = await auth();
+  if (!userId) redirect("/");
 
-  const clubs = await getUsersClubs(user.id);
+  const clubs = await getUsersClubs(userId);
   const rows = await Promise.all(
     clubs.map(async (club) => {
       const [members, games] = await Promise.all([
@@ -71,7 +72,7 @@ export default async function ClubsPage() {
               <Link
                 key={club.id}
                 href={`/clubs/${club.id}`}
-                className="flex items-center gap-3 border-b border-divider px-5 py-[18px]"
+                className={`flex items-center gap-3 border-b border-divider px-5 py-[18px] ${ROW_TINT_CLASS}`}
               >
                 <InitialSquare label={club.name} size={44} />
                 <div className="flex-1">

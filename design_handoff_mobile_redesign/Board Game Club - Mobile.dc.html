@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-4674a468-aa5b-4bde-83e4-0859268e5161/styles.css">
+<script src="_ds/modernist-4674a468-aa5b-4bde-83e4-0859268e5161/_ds_bundle.js"></script>
+<script src="./image-slot.js"></script>
+<style>
+html,body{margin:0;padding:0;background:var(--color-neutral-200)}
+html[data-theme="dark"]{
+  --color-bg:#1b1918; --color-surface:#242120; --color-text:#f0eeec;
+  --color-divider:color-mix(in srgb,#f0eeec 40%,transparent);
+  --color-neutral-100:#2a2726; --color-neutral-200:#343130; --color-neutral-300:#454140;
+  --color-neutral-400:#5d5958; --color-neutral-600:#bab6b6; --color-neutral-700:#d7d3d3;
+  --color-neutral-800:#eae7e7; --color-neutral-900:#f8f4f4;
+  --color-accent-100:#4d170e; --color-accent-200:#7c1405; --color-accent-300:#ae1800;
+  --color-accent-600:#ff7a61; --color-accent-700:#ffc4b8; --color-accent-800:#ffe0d9;
+}
+html[data-theme="dark"] body{background:#141211}
+a{color:var(--color-accent-700);text-decoration:none}a:hover{color:var(--color-accent)}
+input[type="number"]::-webkit-outer-spin-button,input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+</style>
+</helmet>
+<div style="max-width:430px;margin:0 auto;min-height:100dvh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);display:flex;flex-direction:column;border-left:1px solid var(--color-neutral-300);border-right:1px solid var(--color-neutral-300)">
+<div style="flex:1;display:flex;flex-direction:column;overflow-y:auto">
+
+<!-- ============ LOGIN ============ -->
+<sc-if value="{{ isLogin }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;flex:1;padding:0 24px">
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:28px">
+      <div style="width:96px;height:96px;border:2px solid var(--color-divider);display:flex;align-items:center;justify-content:center;color:var(--color-accent)" aria-label="Logo placeholder">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="12" height="12" x="2" y="10" rx="0"></rect><path d="m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6"></path><path d="M6 18h.01"></path><path d="M10 14h.01"></path><path d="M15 6h.01"></path><path d="M18 9h.01"></path></svg>
+      </div>
+      <div>
+        <h1 style="font-family:var(--font-heading);font-size:34px;font-weight:700;margin:0;line-height:1.05">Tunnel Snakes<br>Rule!</h1>
+        <div style="font-size:14px;opacity:0.65;margin-top:12px;line-height:1.5;max-width:32ch">Log your club's sessions and keep a history of winners and losers.</div>
+      </div>
+    </div>
+    <div style="padding-bottom:48px;border-top:2px solid var(--color-divider);padding-top:24px">
+      <button class="btn btn-primary btn-block" onClick="{{ logIn }}">Log in</button>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ============ HOME: CLUBS ============ -->
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+  <div style="display:flex;flex-direction:column;flex:1">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;padding:28px 20px 16px;border-bottom:2px solid var(--color-divider)">
+      <div>
+        <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;opacity:0.55;margin-bottom:4px">Board game clubs</div>
+        <h1 style="font-family:var(--font-heading);font-size:30px;font-weight:700;margin:0;line-height:1">Clubs</h1>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+      <button class="btn btn-ghost btn-icon" onClick="{{ logOut }}" aria-label="Log out">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="m16 17 5-5-5-5"></path><path d="M21 12H9"></path></svg>
+      </button>
+      <button class="btn btn-ghost btn-icon" onClick="{{ toggleTheme }}" aria-label="Toggle dark mode">
+        <sc-if value="{{ isDarkTheme }}" hint-placeholder-val="{{ false }}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg></sc-if>
+        <sc-if value="{{ isLightTheme }}" hint-placeholder-val="{{ true }}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg></sc-if>
+      </button>
+      <button class="btn btn-primary" onClick="{{ goNewClub }}" style="display:flex;align-items:center;gap:8px;white-space:nowrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>New club
+      </button>
+      </div>
+    </div>
+    <sc-if value="{{ hasClubs }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;flex-direction:column">
+        <sc-for list="{{ clubList }}" as="c" hint-placeholder-count="2">
+          <button onClick="{{ c.open }}" style="display:flex;align-items:center;gap:14px;text-align:left;background:none;border:none;border-bottom:1px solid var(--color-neutral-300);padding:18px 20px;cursor:pointer;font-family:var(--font-body);color:var(--color-text)" style-hover="background:var(--color-neutral-200)">
+            <div style="width:44px;height:44px;background:var(--color-accent);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-weight:700;font-size:18px;flex:none">{{ c.initial }}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-family:var(--font-heading);font-weight:600;font-size:17px">{{ c.name }}</div>
+              <div style="font-size:12.5px;opacity:0.6;margin-top:2px">{{ c.meta }}</div>
+            </div>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.4;flex:none"><path d="m9 18 6-6-6-6"></path></svg>
+          </button>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ noClubs }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:48px 20px;display:flex;flex-direction:column;gap:16px;align-items:flex-start">
+        <div style="font-family:var(--font-heading);font-size:20px;font-weight:600">No clubs yet</div>
+        <div style="font-size:14px;opacity:0.65;line-height:1.5">Create a club to start logging games, sessions and results with your group.</div>
+        <button class="btn btn-primary" onClick="{{ goNewClub }}">Create a club</button>
+      </div>
+    </sc-if>
+  </div>
+</sc-if>
+
+<!-- ============ SESSIONS TAB ============ -->
+<sc-if value="{{ isSessionsTab }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;flex:1">
+    <div style="padding:28px 20px 16px;border-bottom:2px solid var(--color-divider)">
+      <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;opacity:0.55;margin-bottom:4px">All clubs</div>
+      <h1 style="font-family:var(--font-heading);font-size:30px;font-weight:700;margin:0;line-height:1">Sessions</h1>
+    </div>
+    <sc-for list="{{ allSessions }}" as="s" hint-placeholder-count="2">
+      <button onClick="{{ s.open }}" style="display:flex;align-items:center;gap:14px;text-align:left;background:none;border:none;border-bottom:1px solid var(--color-neutral-300);padding:16px 20px;cursor:pointer;font-family:var(--font-body);color:var(--color-text)" style-hover="background:var(--color-neutral-200)">
+        <div style="flex:1;min-width:0">
+          <div style="font-family:var(--font-heading);font-weight:600;font-size:16px">{{ s.name }}</div>
+          <div style="font-size:12.5px;opacity:0.6;margin-top:2px">{{ s.meta }}</div>
+        </div>
+        <sc-if value="{{ s.active }}" hint-placeholder-val="{{ false }}"><span class="tag tag-accent">Active</span></sc-if>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.4;flex:none"><path d="m9 18 6-6-6-6"></path></svg>
+      </button>
+    </sc-for>
+    <sc-if value="{{ noSessions }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:40px 20px;font-size:14px;opacity:0.65">No sessions yet. Open a club and create one.</div>
+    </sc-if>
+  </div>
+</sc-if>
+
+<!-- ============ PLAYERS TAB ============ -->
+<sc-if value="{{ isPlayersTab }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;flex:1">
+    <div style="padding:28px 20px 16px;border-bottom:2px solid var(--color-divider)">
+      <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;opacity:0.55;margin-bottom:4px">All clubs</div>
+      <h1 style="font-family:var(--font-heading);font-size:30px;font-weight:700;margin:0;line-height:1">Players</h1>
+    </div>
+    <sc-for list="{{ allPlayers }}" as="p" hint-placeholder-count="3">
+      <div style="display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--color-neutral-300);padding:14px 20px">
+        <div style="width:38px;height:38px;background:var(--color-accent-200);color:var(--color-accent-800);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-weight:700;font-size:15px;flex:none">{{ p.initial }}</div>
+        <div style="flex:1"><div style="font-weight:500;font-size:15px">{{ p.name }}</div></div>
+        <span class="tag tag-neutral">{{ p.club }}</span>
+      </div>
+    </sc-for>
+  </div>
+</sc-if>
+
+<!-- ============ NEW CLUB ============ -->
+<sc-if value="{{ isNewClub }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;flex:1">
+    <div style="display:flex;align-items:center;gap:6px;padding:16px 12px;border-bottom:2px solid var(--color-divider)">
+      <button class="btn btn-ghost btn-icon" onClick="{{ goHome }}" aria-label="Back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></button>
+      <div style="font-family:var(--font-heading);font-size:19px;font-weight:700">New club</div>
+    </div>
+    <div style="padding:24px 20px;display:flex;flex-direction:column;gap:20px">
+      <div class="field">
+        <label for="clubName">Club name</label>
+        <input class="input" id="clubName" type="text" placeholder="e.g. Thursday Night Games" value="{{ fClub }}" onChange="{{ onClubName }}">
+      </div>
+      <div style="font-size:13px;opacity:0.6;line-height:1.5">You'll be the owner. Players request to join, and you approve them from the club page.</div>
+      <button class="btn btn-primary btn-block" onClick="{{ createClub }}" disabled="{{ clubNameEmpty }}">Create club</button>
+      <button class="btn btn-ghost btn-block" onClick="{{ goHome }}">Cancel</button>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ============ CLUB DETAIL ============ -->
+<sc-if value="{{ isClub }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;flex:1">
+    <div style="display:flex;align-items:center;gap:6px;padding:12px 12px 0">
+      <button class="btn btn-ghost btn-icon" onClick="{{ goHome }}" aria-label="Back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></button>
+    </div>
+    <div style="padding:8px 20px 18px;border-bottom:2px solid var(--color-divider);display:flex;align-items:center;gap:14px">
+      <div class="grayscale" style="width:56px;height:56px;flex:none">
+        <image-slot id="{{ clubSlotId }}" shape="rect" style="width:56px;height:56px" placeholder=""></image-slot>
+      </div>
+      <div style="min-width:0;flex:1">
+        <h1 style="font-family:var(--font-heading);font-size:26px;font-weight:700;margin:0;line-height:1.1">{{ clubName }}</h1>
+        <div style="font-size:12.5px;opacity:0.6;margin-top:6px">{{ clubMeta }}</div>
+      </div>
+      <button class="btn btn-secondary" onClick="{{ goStats }}" style="padding:6px 12px;font-size:12.5px;white-space:nowrap;flex:none;display:flex;align-items:center;gap:6px">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>Stats
+      </button>
+    </div>
+
+    <div style="padding:20px 20px 8px;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-accent-700)">Sessions</div>
+      <button class="btn btn-secondary" onClick="{{ goNewSession }}" style="padding:6px 12px;font-size:12.5px;white-space:nowrap">New session</button>
+    </div>
+    <sc-for list="{{ clubSessions }}" as="s" hint-placeholder-count="1">
+      <button onClick="{{ s.open }}" style="display:flex;align-items:center;gap:12px;text-align:left;background:none;border:none;border-bottom:1px solid var(--color-neutral-300);padding:14px 20px;cursor:pointer;font-family:var(--font-body);color:var(--color-text)" style-hover="background:var(--color-neutral-200)">
+        <div style="flex:1;min-width:0">
+          <div style="font-family:var(--font-heading);font-weight:600;font-size:15.5px">{{ s.name }}</div>
+          <div style="font-size:12px;opacity:0.6;margin-top:2px">{{ s.meta }}</div>
+        </div>
+        <sc-if value="{{ s.active }}" hint-placeholder-val="{{ false }}"><span class="tag tag-accent">Active</span></sc-if>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.4;flex:none"><path d="m9 18 6-6-6-6"></path></svg>
+      </button>
+    </sc-for>
+    <sc-if value="{{ clubNoSessions }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:6px 20px 14px;font-size:13px;opacity:0.6">No active sessions.</div>
+    </sc-if>
+    <sc-if value="{{ hasPrevSessions }}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{ goPrevSessions }}" style="display:flex;align-items:center;gap:12px;text-align:left;background:none;border:none;border-bottom:1px solid var(--color-neutral-300);padding:14px 20px;cursor:pointer;font-family:var(--font-body);color:var(--color-text);width:100%" style-hover="background:var(--color-neutral-200)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.5;flex:none"><path d="M3 3v5h5"></path><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"></path><path d="M12 7v5l4 2"></path></svg>
+        <span style="flex:1;font-weight:500;font-size:14.5px">Previous sessions ({{ prevCount }})</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.4;flex:none"><path d="m9 18 6-6-6-6"></path></svg>
+      </button>
+    </sc-if>
+
+    <div style="padding:20px 20px 8px;display:flex;align-items:center;justify-content:space-between;border-top:2px solid var(--color-divider);margin-top:12px">
+      <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-accent-700)">Games ({{ clubGameCount }})</div>
+      <button class="btn btn-secondary" onClick="{{ goNewGame }}" style="padding:6px 12px;font-size:12.5px;white-space:nowrap">Add game</button>
+    </div>
+    <sc-if value="{{ clubNoGames }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:6px 20px 14px;font-size:13px;opacity:0.6">No games yet — add one before recording results.</div>
+    </sc-if>
+
+    <div style="padding:20px 20px 8px;border-top:2px solid var(--color-divider);margin-top:12px">
+      <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-accent-700)">Members</div>
+    </div>
+    <sc-for list="{{ clubMembers }}" as="m" hint-placeholder-count="2">
+      <div style="display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--color-neutral-300);padding:11px 20px">
+        <div style="width:34px;height:34px;background:var(--color-accent-200);color:var(--color-accent-800);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-weight:700;font-size:14px;flex:none">{{ m.initial }}</div>
+        <div style="flex:1;font-size:14.5px;font-weight:500">{{ m.name }}</div>
+        <sc-if value="{{ m.owner }}" hint-placeholder-val="{{ false }}"><span class="tag tag-neutral">Owner</span></sc-if>
+      </div>
+    </sc-for>
+    <div style="padding-bottom:28px">
+      <div style="padding:20px 20px 8px;border-top:2px solid var(--color-divider);margin-top:12px;display:flex;align-items:center;gap:8px">
+        <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-accent-700)">Join requests</div>
+        <sc-if value="{{ hasRequests }}" hint-placeholder-val="{{ false }}"><span class="tag tag-accent">{{ requestCount }}</span></sc-if>
+      </div>
+      <sc-for list="{{ clubRequests }}" as="q" hint-placeholder-count="1">
+        <div style="display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--color-neutral-300);padding:11px 20px">
+          <div style="width:34px;height:34px;background:var(--color-neutral-300);color:var(--color-text);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-weight:700;font-size:14px;flex:none">{{ q.initial }}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:14.5px;font-weight:500">{{ q.name }}</div>
+            <div style="font-size:12px;opacity:0.55">{{ q.meta }}</div>
+          </div>
+          <button class="btn btn-secondary" onClick="{{ q.decline }}" style="padding:6px 12px;font-size:12.5px">Decline</button>
+          <button class="btn btn-primary" onClick="{{ q.approve }}" style="padding:6px 12px;font-size:12.5px">Approve</button>
+        </div>
+      </sc-for>
+      <sc-if value="{{ noRequests }}" hint-placeholder-val="{{ true }}">
+        <div style="padding:6px 20px 0;font-size:13px;opacity:0.6">No pending requests.</div>
+      </sc-if>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ============ NEW GAME ============ -->
+<sc-if value="{{ isNewGame }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;flex:1">
+    <div style="display:flex;align-items:center;gap:6px;padding:16px 12px;border-bottom:2px solid var(--color-divider)">
+      <button class="btn btn-ghost btn-icon" onClick="{{ goClub }}" aria-label="Back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></button>
+      <div style="font-family:var(--font-heading);font-size:19px;font-weight:700">Add game</div>
+    </div>
+    <div style="padding:24px 20px;display:flex;flex-direction:column;gap:22px">
+      <div class="field">
+        <label for="gameName">Game name</label>
+        <input class="input" id="gameName" type="text" placeholder="e.g. Catan" value="{{ fGameName }}" onChange="{{ onGameName }}">
+      </div>
+      <div class="field">
+        <label id="wc-label">How is it won?</label>
+        <div style="display:grid;gap:6px" role="radiogroup" aria-labelledby="wc-label">
+          <sc-for list="{{ winOptions }}" as="w" hint-placeholder-count="5">
+            <button onClick="{{ w.pick }}" style="display:flex;align-items:center;gap:12px;text-align:left;background:none;border:1px solid var(--color-neutral-300);padding:12px 14px;cursor:pointer;font-family:var(--font-body);color:var(--color-text)" style-hover="border-color:var(--color-text)">
+              <span style="width:16px;height:16px;border:2px solid currentColor;flex:none;display:flex;align-items:center;justify-content:center;border-radius:0"><sc-if value="{{ w.checked }}" hint-placeholder-val="{{ false }}"><span style="width:8px;height:8px;background:var(--color-accent);display:block"></span></sc-if></span>
+              <span style="flex:1"><span style="font-weight:600;font-size:14.5px;display:block">{{ w.label }}</span><span style="font-size:12px;opacity:0.6;display:block">{{ w.hint }}</span></span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+      <sc-if value="{{ gameIsLeaderboard }}" hint-placeholder-val="{{ false }}">
+        <div class="field">
+          <label id="dir-label">Scoring direction</label>
+          <div class="seg" role="radiogroup" aria-labelledby="dir-label">
+            <label class="seg-opt"><input type="radio" name="dir" checked="{{ dirHigh }}" onChange="{{ setDirHigh }}">High score wins</label>
+            <label class="seg-opt"><input type="radio" name="dir" checked="{{ dirLow }}" onChange="{{ setDirLow }}">Low score wins</label>
+          </div>
+        </div>
+      </sc-if>
+      <button class="btn btn-primary btn-block" onClick="{{ createGame }}" disabled="{{ gameInvalid }}">Add game</button>
+      <button class="btn btn-ghost btn-block" onClick="{{ goClub }}">Cancel</button>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ============ NEW SESSION ============ -->
+<sc-if value="{{ isNewSession }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;flex:1">
+    <div style="display:flex;align-items:center;gap:6px;padding:16px 12px;border-bottom:2px solid var(--color-divider)">
+      <button class="btn btn-ghost btn-icon" onClick="{{ goClub }}" aria-label="Back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></button>
+      <div style="font-family:var(--font-heading);font-size:19px;font-weight:700">New session</div>
+    </div>
+    <div style="padding:24px 20px;display:flex;flex-direction:column;gap:20px">
+      <div class="field">
+        <label for="sessionName">Session name</label>
+        <input class="input" id="sessionName" type="text" maxLength="25" placeholder="e.g. Game night #4" value="{{ fSession }}" onChange="{{ onSessionName }}">
+        <div style="font-size:12px;text-align:right;color:var(--color-accent-700);margin-top:4px">{{ sessionCharsLeft }} / 25</div>
+      </div>
+      <div style="font-size:13px;opacity:0.6">Dated today — {{ todayLabel }}. The session stays active until you close it.</div>
+      <button class="btn btn-primary btn-block" onClick="{{ createSession }}" disabled="{{ sessionNameEmpty }}">Create session</button>
+      <button class="btn btn-ghost btn-block" onClick="{{ goClub }}">Cancel</button>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ============ SESSION DETAIL ============ -->
+<sc-if value="{{ isSession }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;flex:1">
+    <div style="display:flex;align-items:center;gap:6px;padding:12px 12px 0">
+      <button class="btn btn-ghost btn-icon" onClick="{{ goClub }}" aria-label="Back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></button>
+      <div style="font-size:12.5px;opacity:0.6">{{ clubName }}</div>
+    </div>
+    <div style="padding:8px 20px 18px;border-bottom:2px solid var(--color-divider);display:flex;align-items:flex-end;justify-content:space-between;gap:12px">
+      <div>
+        <h1 style="font-family:var(--font-heading);font-size:26px;font-weight:700;margin:0;line-height:1.1">{{ sessionName }}</h1>
+        <div style="font-size:12.5px;opacity:0.6;margin-top:6px">{{ sessionDate }}</div>
+      </div>
+      <sc-if value="{{ sessionActive }}" hint-placeholder-val="{{ false }}"><span class="tag tag-accent">Active</span></sc-if>
+      <sc-if value="{{ sessionFinished }}" hint-placeholder-val="{{ false }}"><span class="tag tag-neutral">Finished</span></sc-if>
+    </div>
+    <div style="display:flex;gap:8px;padding:14px 20px 0;flex-wrap:wrap">
+      <button class="btn btn-secondary" onClick="{{ toggleSessionNotes }}" style="padding:6px 12px;font-size:12.5px;white-space:nowrap">Notes</button>
+      <button class="btn btn-secondary" onClick="{{ toggleSessionPhotos }}" style="padding:6px 12px;font-size:12.5px;white-space:nowrap">Photos</button>
+      <button class="btn btn-ghost" onClick="{{ toggleSessionActive }}" style="padding:6px 12px;font-size:12.5px;white-space:nowrap;margin-left:auto">{{ finishLabel }}</button>
+    </div>
+    <sc-if value="{{ sessionNotesOpen }}" hint-placeholder-val="{{ false }}">
+      <div class="field" style="padding:14px 20px 0">
+        <label for="sNotes">Session notes</label>
+        <textarea class="input" id="sNotes" rows="3" placeholder="How did the night go?" value="{{ sessionNotes }}" onChange="{{ onSessionNotes }}"></textarea>
+      </div>
+    </sc-if>
+    <sc-if value="{{ sessionNotesPreview }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:12px 20px 0;font-size:13.5px;line-height:1.5;opacity:0.75">{{ sessionNotesPreview }}</div>
+    </sc-if>
+    <sc-if value="{{ sessionPhotosOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 20px 0">
+        <div class="grayscale" style="height:110px"><image-slot id="{{ sessionSlot1 }}" shape="rect" style="width:100%;height:110px" placeholder="Drop a photo"></image-slot></div>
+        <div class="grayscale" style="height:110px"><image-slot id="{{ sessionSlot2 }}" shape="rect" style="width:100%;height:110px" placeholder="Drop a photo"></image-slot></div>
+      </div>
+    </sc-if>
+    <div style="padding:20px 20px 8px;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-accent-700)">Results</div>
+      <sc-if value="{{ clubHasGames }}" hint-placeholder-val="{{ true }}">
+        <button class="btn btn-primary" onClick="{{ goAddResult }}" style="padding:6px 12px;font-size:12.5px;white-space:nowrap">Add result</button>
+      </sc-if>
+    </div>
+    <sc-for list="{{ sessionPlays }}" as="pl" hint-placeholder-count="1">
+      <div style="border-bottom:1px solid var(--color-neutral-300);padding:14px 20px;display:flex;gap:12px;align-items:flex-start">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-top:2px"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>
+        <div style="flex:1;min-width:0">
+          <div style="font-family:var(--font-heading);font-weight:600;font-size:15.5px">{{ pl.game }}</div>
+          <div style="font-size:13px;margin-top:2px">{{ pl.summary }}</div>
+          <div style="font-size:12px;opacity:0.55;margin-top:2px">{{ pl.detail }}</div>
+          <sc-if value="{{ pl.notes }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:12.5px;opacity:0.7;margin-top:4px;line-height:1.45;border-left:2px solid var(--color-accent);padding-left:8px">{{ pl.notes }}</div>
+          </sc-if>
+        </div>
+        <div class="grayscale" style="width:56px;height:56px;flex:none"><image-slot id="{{ pl.slotId }}" shape="rect" style="width:56px;height:56px" placeholder=""></image-slot></div>
+        <button class="btn btn-ghost btn-icon" onClick="{{ pl.edit }}" aria-label="Edit result" style="flex:none">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path></svg>
+        </button>
+      </div>
+    </sc-for>
+    <sc-if value="{{ sessionNoPlays }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:6px 20px 14px;font-size:13px;opacity:0.6">No results yet.</div>
+    </sc-if>
+    <sc-if value="{{ clubHasNoGames }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:16px 20px;display:flex;flex-direction:column;gap:12px;align-items:flex-start">
+        <div style="font-size:13.5px;opacity:0.7;line-height:1.5">Add a board game to the club before you can record a result.</div>
+        <button class="btn btn-secondary" onClick="{{ goNewGame }}">Add a game</button>
+      </div>
+    </sc-if>
+  </div>
+</sc-if>
+
+<!-- ============ ADD RESULT ============ -->
+<sc-if value="{{ isAddResult }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;flex:1">
+    <div style="display:flex;align-items:center;gap:6px;padding:16px 12px;border-bottom:2px solid var(--color-divider)">
+      <button class="btn btn-ghost btn-icon" onClick="{{ goSession }}" aria-label="Back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></button>
+      <div style="font-family:var(--font-heading);font-size:19px;font-weight:700">{{ resultScreenTitle }}</div>
+    </div>
+    <div style="padding:24px 20px 32px;display:flex;flex-direction:column;gap:22px">
+      <div class="field">
+        <label for="rGame">Game</label>
+        <select class="input" id="rGame" value="{{ rGameId }}" onChange="{{ onGamePick }}">
+          <sc-for list="{{ gameOptions }}" as="g" hint-placeholder-count="2">
+            <option value="{{ g.id }}">{{ g.name }}</option>
+          </sc-for>
+        </select>
+        <div style="margin-top:8px"><span class="tag tag-outline" style="white-space:nowrap">{{ rWinLabel }}</span></div>
+      </div>
+
+      <div class="field">
+        <label>Who played?</label>
+        <div style="display:grid;gap:6px">
+          <sc-for list="{{ rPlayers }}" as="p" hint-placeholder-count="3">
+            <button onClick="{{ p.toggle }}" style="display:flex;align-items:center;gap:12px;text-align:left;background:none;border:1px solid var(--color-neutral-300);padding:10px 14px;cursor:pointer;font-family:var(--font-body);color:var(--color-text)" style-hover="border-color:var(--color-text)">
+              <span style="width:18px;height:18px;border:2px solid currentColor;flex:none;display:flex;align-items:center;justify-content:center">
+                <sc-if value="{{ p.selected }}" hint-placeholder-val="{{ true }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></sc-if>
+              </span>
+              <span style="font-weight:500;font-size:14.5px">{{ p.name }}</span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+
+      <sc-if value="{{ rIsLeaderboard }}" hint-placeholder-val="{{ false }}">
+        <div class="field">
+          <label>Scores — {{ rDirNote }}</label>
+          <div style="display:grid;gap:6px">
+            <sc-for list="{{ rScorePlayers }}" as="p" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;gap:12px;border:1px solid var(--color-neutral-300);padding:8px 8px 8px 14px">
+                <span style="flex:1;font-weight:500;font-size:14.5px">{{ p.name }}</span>
+                <input class="input" type="number" inputMode="numeric" placeholder="0" value="{{ p.score }}" onChange="{{ p.setScore }}" style="width:80px;text-align:right">
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ rIsTeam }}" hint-placeholder-val="{{ false }}">
+        <div class="field">
+          <label>Teams</label>
+          <div style="display:grid;gap:6px">
+            <sc-for list="{{ rTeamPlayers }}" as="p" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;gap:12px;border:1px solid var(--color-neutral-300);padding:8px 8px 8px 14px">
+                <span style="flex:1;font-weight:500;font-size:14.5px">{{ p.name }}</span>
+                <div style="display:flex">
+                  <button onClick="{{ p.setTeamA }}" style="{{ p.teamAStyle }}">A</button>
+                  <button onClick="{{ p.setTeamB }}" style="{{ p.teamBStyle }}">B</button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div class="field">
+          <label id="wt-label">Winning team</label>
+          <div class="seg" role="radiogroup" aria-labelledby="wt-label">
+            <label class="seg-opt"><input type="radio" name="winteam" checked="{{ rWinTeamA }}" onChange="{{ setWinTeamA }}">Team A</label>
+            <label class="seg-opt"><input type="radio" name="winteam" checked="{{ rWinTeamB }}" onChange="{{ setWinTeamB }}">Team B</label>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ rIsCoop }}" hint-placeholder-val="{{ false }}">
+        <div class="field">
+          <label id="coop-label">Outcome</label>
+          <div class="seg" role="radiogroup" aria-labelledby="coop-label">
+            <label class="seg-opt"><input type="radio" name="coop" checked="{{ rCoopWon }}" onChange="{{ setCoopWon }}">Everyone won</label>
+            <label class="seg-opt"><input type="radio" name="coop" checked="{{ rCoopLost }}" onChange="{{ setCoopLost }}">The game won</label>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ rIsSingle }}" hint-placeholder-val="{{ false }}">
+        <div class="field">
+          <label>{{ rSingleLabel }}</label>
+          <div style="display:grid;gap:6px">
+            <sc-for list="{{ rPickPlayers }}" as="p" hint-placeholder-count="3">
+              <button onClick="{{ p.pick }}" style="{{ p.pickStyle }}">
+                <span style="width:16px;height:16px;border:2px solid currentColor;flex:none;display:flex;align-items:center;justify-content:center"><sc-if value="{{ p.picked }}" hint-placeholder-val="{{ false }}"><span style="width:8px;height:8px;background:var(--color-accent);display:block"></span></sc-if></span>
+                <span style="font-weight:500;font-size:14.5px">{{ p.name }}</span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <div class="field">
+        <label for="rNotes">Notes (optional)</label>
+        <textarea class="input" id="rNotes" rows="2" placeholder="House rules, memorable moments…" value="{{ rNotes }}" onChange="{{ onResultNotes }}"></textarea>
+      </div>
+      <sc-if value="{{ rInvalidMsg }}" hint-placeholder-val="{{ false }}">
+        <div style="font-size:13px;color:var(--color-accent-700)">{{ rInvalidMsg }}</div>
+      </sc-if>
+      <button class="btn btn-primary btn-block" onClick="{{ saveResult }}" disabled="{{ rInvalid }}">Save result</button>
+      <button class="btn btn-ghost btn-block" onClick="{{ goSession }}">Cancel</button>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ============ CLUB STATS ============ -->
+<sc-if value="{{ isStats }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;flex:1">
+    <div style="display:flex;align-items:center;gap:6px;padding:16px 12px;border-bottom:2px solid var(--color-divider)">
+      <button class="btn btn-ghost btn-icon" onClick="{{ goClub }}" aria-label="Back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></button>
+      <div style="min-width:0">
+        <div style="font-family:var(--font-heading);font-size:19px;font-weight:700">Club stats</div>
+        <div style="font-size:12px;opacity:0.6">{{ clubName }}</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:2px solid var(--color-divider)">
+      <div style="padding:16px 20px;border-right:1px solid var(--color-neutral-300)">
+        <div style="font-family:var(--font-heading);font-size:28px;font-weight:700;line-height:1">{{ statSessions }}</div>
+        <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;opacity:0.55;margin-top:6px">Sessions</div>
+      </div>
+      <div style="padding:16px 20px">
+        <div style="font-family:var(--font-heading);font-size:28px;font-weight:700;line-height:1">{{ statResults }}</div>
+        <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;opacity:0.55;margin-top:6px">Results logged</div>
+      </div>
+    </div>
+    <div style="padding:20px 20px 8px">
+      <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-accent-700)">Most wins</div>
+    </div>
+    <sc-for list="{{ statRows }}" as="s" hint-placeholder-count="3">
+      <div style="display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--color-neutral-300);padding:12px 20px">
+        <div style="width:22px;font-family:var(--font-heading);font-weight:700;font-size:14px;opacity:0.45;flex:none">{{ s.rank }}</div>
+        <div style="width:34px;height:34px;background:var(--color-accent-200);color:var(--color-accent-800);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-weight:700;font-size:14px;flex:none">{{ s.initial }}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14.5px;font-weight:500">{{ s.name }}</div>
+          <div style="font-size:12px;opacity:0.55">{{ s.playedLabel }}</div>
+        </div>
+        <div style="font-family:var(--font-heading);font-weight:700;font-size:17px;color:var(--color-accent-700)">{{ s.wins }}</div>
+      </div>
+    </sc-for>
+    <sc-if value="{{ noStats }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:6px 20px;font-size:13px;opacity:0.6">No results logged yet — stats will appear after the first game.</div>
+    </sc-if>
+  </div>
+</sc-if>
+
+<!-- ============ PREVIOUS SESSIONS ============ -->
+<sc-if value="{{ isPrevSessions }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;flex:1">
+    <div style="display:flex;align-items:center;gap:6px;padding:16px 12px;border-bottom:2px solid var(--color-divider)">
+      <button class="btn btn-ghost btn-icon" onClick="{{ goClub }}" aria-label="Back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></button>
+      <div style="min-width:0">
+        <div style="font-family:var(--font-heading);font-size:19px;font-weight:700">Previous sessions</div>
+        <div style="font-size:12px;opacity:0.6">{{ clubName }}</div>
+      </div>
+    </div>
+    <sc-for list="{{ prevSessions }}" as="s" hint-placeholder-count="2">
+      <button onClick="{{ s.open }}" style="display:flex;align-items:center;gap:12px;text-align:left;background:none;border:none;border-bottom:1px solid var(--color-neutral-300);padding:14px 20px;cursor:pointer;font-family:var(--font-body);color:var(--color-text)" style-hover="background:var(--color-neutral-200)">
+        <div style="flex:1;min-width:0">
+          <div style="font-family:var(--font-heading);font-weight:600;font-size:15.5px">{{ s.name }}</div>
+          <div style="font-size:12px;opacity:0.6;margin-top:2px">{{ s.meta }}</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.4;flex:none"><path d="m9 18 6-6-6-6"></path></svg>
+      </button>
+    </sc-for>
+  </div>
+</sc-if>
+</div>
+
+<!-- ============ BOTTOM NAV ============ -->
+<sc-if value="{{ showNav }}" hint-placeholder-val="{{ true }}">
+  <div style="position:sticky;bottom:0;background:var(--color-bg);border-top:2px solid var(--color-divider);display:grid;grid-template-columns:1fr 1fr 1fr">
+    <button onClick="{{ goHome }}" style="{{ navHomeStyle }}">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+      <sc-if value="{{ navLabels }}" hint-placeholder-val="{{ true }}"><span style="font-size:10.5px;font-weight:600;letter-spacing:0.04em">Clubs</span></sc-if>
+    </button>
+    <button onClick="{{ goSessionsTab }}" style="{{ navSessionsStyle }}">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="0"></rect><path d="M8 8h.01"></path><path d="M16 8h.01"></path><path d="M8 16h.01"></path><path d="M16 16h.01"></path><path d="M12 12h.01"></path></svg>
+      <sc-if value="{{ navLabels }}" hint-placeholder-val="{{ true }}"><span style="font-size:10.5px;font-weight:600;letter-spacing:0.04em">Sessions</span></sc-if>
+    </button>
+    <button onClick="{{ goPlayersTab }}" style="{{ navPlayersStyle }}">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+      <sc-if value="{{ navLabels }}" hint-placeholder-val="{{ true }}"><span style="font-size:10.5px;font-weight:600;letter-spacing:0.04em">Players</span></sc-if>
+    </button>
+  </div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844},&quot;darkMode&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Theme&quot;},&quot;navLabels&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Navigation&quot;},&quot;emptyStart&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Data&quot;}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      screen: "login",
+      clubs: [{
+        id: "c1", seed: true, name: "Thursday Night Games",
+        members: [
+          { id: "p1", name: "You", owner: true },
+          { id: "p2", name: "Dan" }, { id: "p3", name: "Holly" }, { id: "p4", name: "Mark" }
+        ],
+        games: [
+          { id: "g1", name: "Catan", win: "leaderboard", dir: "high" },
+          { id: "g2", name: "Pandemic", win: "cooperative" }
+        ],
+        sessions: [{
+          id: "s1", name: "Week 12", date: "Jul 16", active: false,
+          plays: [{ id: "x1", gameId: "g1", game: "Catan", summary: "Holly won \u00b7 11 pts", detail: "Holly 11 \u00b7 Dan 9 \u00b7 You 8", notes: "", raw: { gameId: "g1", selected: { p1: true, p2: true, p3: true }, scores: { p1: 8, p2: 9, p3: 11 }, teams: {}, winTeam: "A", coopWon: true, pickedId: null, notes: "" } }]
+        }],
+        requests: [{ id: "q1", name: "Priya", when: "2 days ago" }]
+      }],
+      activeClubId: null, activeSessionId: null,
+      fClub: "", fGameName: "", fGameWin: "", fGameDir: "high", fSession: "", fMember: "",
+      sessionNotesOpen: false, sessionPhotosOpen: false, darkOverride: null,
+      r: null
+    };
+  }
+  uid() { return "id" + Math.random().toString(36).slice(2, 9); }
+  isDark() { return this.state.darkOverride ?? (this.props.darkMode ?? false); }
+  applyTheme() { document.documentElement.setAttribute("data-theme", this.isDark() ? "dark" : "light"); }
+  componentDidMount() { this.applyTheme(); }
+  componentDidUpdate() { this.applyTheme(); }
+  club() { return this.state.clubs.find(c => c.id === this.state.activeClubId); }
+  session() { const c = this.club(); return c && c.sessions.find(s => s.id === this.state.activeSessionId); }
+  updateClub(id, fn) {
+    this.setState(st => ({ clubs: st.clubs.map(c => c.id === id ? fn(c) : c) }));
+  }
+  winLabel(w) {
+    return { leaderboard: "Leaderboard", team_based: "Team based", cooperative: "Co-operative", single_winner: "Single winner", single_loser: "Single loser" }[w] || w;
+  }
+  today() { return new Date().toLocaleDateString(undefined, { month: "short", day: "numeric" }); }
+
+  startResult(game) {
+    const c = this.club();
+    const sel = {}; c.members.forEach(m => { sel[m.id] = true; });
+    return { gameId: game.id, selected: sel, scores: {}, teams: {}, winTeam: "A", coopWon: true, pickedId: null, notes: "", editPlayId: null };
+  }
+
+  computePlay(c, game, r) {
+    const selMembers = c.members.filter(m => r.selected[m.id]);
+    const names = id => (c.members.find(m => m.id === id) || {}).name || "?";
+    if (game.win === "leaderboard") {
+      const rows = selMembers.map(m => ({ name: m.name, score: parseInt(r.scores[m.id], 10) }));
+      rows.sort((a, b) => game.dir === "low" ? a.score - b.score : b.score - a.score);
+      return {
+        summary: rows[0].name + " won \u00b7 " + rows[0].score + " pts",
+        detail: rows.map(x => x.name + " " + x.score).join(" \u00b7 ")
+      };
+    }
+    if (game.win === "team_based") {
+      const winners = selMembers.filter(m => (r.teams[m.id] || "A") === r.winTeam).map(m => m.name);
+      const losers = selMembers.filter(m => (r.teams[m.id] || "A") !== r.winTeam).map(m => m.name);
+      return { summary: "Team " + r.winTeam + " won", detail: winners.join(", ") + " beat " + (losers.join(", ") || "no one") };
+    }
+    if (game.win === "cooperative") {
+      return { summary: r.coopWon ? "Everyone won" : "The game won", detail: selMembers.map(m => m.name).join(", ") };
+    }
+    const picked = names(r.pickedId);
+    if (game.win === "single_winner") {
+      return { summary: picked + " won", detail: "Played: " + selMembers.map(m => m.name).join(", ") };
+    }
+    return { summary: picked + " lost", detail: "Played: " + selMembers.map(m => m.name).join(", ") };
+  }
+
+  validateResult(c, game, r) {
+    const sel = c.members.filter(m => r.selected[m.id]);
+    if (sel.length === 0) return "Select at least one player.";
+    if (game.win === "leaderboard") {
+      const missing = sel.some(m => r.scores[m.id] === undefined || r.scores[m.id] === "" || isNaN(parseInt(r.scores[m.id], 10)));
+      if (missing) return "Enter a score for every player.";
+    }
+    if ((game.win === "single_winner" || game.win === "single_loser")) {
+      if (!r.pickedId || !r.selected[r.pickedId]) return game.win === "single_winner" ? "Pick the winner." : "Pick the loser.";
+    }
+    return "";
+  }
+
+  renderVals() {
+    const st = this.state;
+    const navLabels = this.props.navLabels ?? true;
+    const emptyStart = this.props.emptyStart ?? false;
+    const clubs = emptyStart ? st.clubs.filter(c => !c.seed) : st.clubs;
+    const go = s => () => this.setState({ screen: s });
+    const c = this.club();
+    const sess = this.session();
+
+    const navBase = "display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 0 12px;background:none;border:none;cursor:pointer;font-family:inherit;";
+    const navStyle = on => navBase + (on ? "color:var(--color-accent);" : "color:var(--color-text);opacity:0.55;");
+
+    const vals = {
+      navLabels,
+      isHome: st.screen === "home", isSessionsTab: st.screen === "sessionsTab", isPlayersTab: st.screen === "playersTab",
+      isNewClub: st.screen === "newClub", isClub: st.screen === "club", isNewGame: st.screen === "newGame",
+      isNewSession: st.screen === "newSession", isSession: st.screen === "session", isAddResult: st.screen === "addResult",
+      isStats: st.screen === "stats", isPrevSessions: st.screen === "prevSessions",
+      isLogin: st.screen === "login", logIn: go("home"), logOut: go("login"),
+      goStats: go("stats"), goPrevSessions: go("prevSessions"),
+      showNav: ["home", "sessionsTab", "playersTab"].includes(st.screen),
+      navHomeStyle: navStyle(st.screen === "home"),
+      navSessionsStyle: navStyle(st.screen === "sessionsTab"),
+      navPlayersStyle: navStyle(st.screen === "playersTab"),
+      goHome: go("home"), goSessionsTab: go("sessionsTab"), goPlayersTab: go("playersTab"),
+      goNewClub: () => this.setState({ screen: "newClub", fClub: "" }),
+      goClub: go("club"), goSession: go("session"),
+      goNewGame: () => this.setState({ screen: "newGame", fGameName: "", fGameWin: "", fGameDir: "high" }),
+      goNewSession: () => this.setState({ screen: "newSession", fSession: new Date().toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }).slice(0, 25) }),
+      todayLabel: this.today(),
+      isDarkTheme: this.isDark(), isLightTheme: !this.isDark(),
+      toggleTheme: () => this.setState({ darkOverride: !this.isDark() })
+    };
+
+    vals.hasClubs = clubs.length > 0; vals.noClubs = clubs.length === 0;
+    vals.clubList = clubs.map(cl => ({
+      name: cl.name, initial: cl.name.trim().charAt(0).toUpperCase(),
+      meta: cl.members.length + (cl.members.length === 1 ? " member" : " members") + " \u00b7 " + cl.games.length + (cl.games.length === 1 ? " game" : " games"),
+      open: () => this.setState({ screen: "club", activeClubId: cl.id })
+    }));
+
+    const allSessions = [];
+    clubs.forEach(cl => cl.sessions.forEach(s => allSessions.push({
+      name: s.name, meta: cl.name + " \u00b7 " + s.date + " \u00b7 " + s.plays.length + (s.plays.length === 1 ? " result" : " results"),
+      active: s.active,
+      open: () => this.setState({ screen: "session", activeClubId: cl.id, activeSessionId: s.id })
+    })));
+    vals.allSessions = allSessions; vals.noSessions = allSessions.length === 0;
+
+    const allPlayers = [];
+    clubs.forEach(cl => cl.members.forEach(m => allPlayers.push({
+      name: m.name, initial: m.name.trim().charAt(0).toUpperCase(), club: cl.name
+    })));
+    vals.allPlayers = allPlayers;
+
+    vals.fClub = st.fClub;
+    vals.onClubName = e => this.setState({ fClub: e.target.value });
+    vals.clubNameEmpty = st.fClub.trim().length === 0;
+    vals.createClub = () => {
+      const name = st.fClub.trim(); if (!name) return;
+      const nc = { id: this.uid(), name, members: [{ id: this.uid(), name: "You", owner: true }], games: [], sessions: [], requests: [{ id: this.uid(), name: "Priya", when: "just now" }, { id: this.uid(), name: "Sam", when: "just now" }] };
+      this.setState(s => ({ clubs: [...s.clubs, nc], screen: "club", activeClubId: nc.id, fClub: "" }));
+    };
+
+    if (c) {
+      vals.clubName = c.name;
+      vals.clubMeta = c.members.length + (c.members.length === 1 ? " member" : " members") + " \u00b7 " + c.games.length + (c.games.length === 1 ? " game" : " games") + " \u00b7 " + c.sessions.length + (c.sessions.length === 1 ? " session" : " sessions");
+      const sessRow = s => ({
+        name: s.name, meta: s.date + " \u00b7 " + s.plays.length + (s.plays.length === 1 ? " result" : " results"), active: s.active,
+        open: () => this.setState({ screen: "session", activeSessionId: s.id, sessionNotesOpen: false, sessionPhotosOpen: false })
+      });
+      vals.clubSessions = c.sessions.filter(s => s.active).map(sessRow);
+      vals.prevSessions = c.sessions.filter(s => !s.active).map(sessRow);
+      vals.prevCount = vals.prevSessions.length;
+      vals.hasPrevSessions = vals.prevCount > 0;
+      vals.clubNoSessions = vals.clubSessions.length === 0;
+      vals.statSessions = c.sessions.length;
+      vals.statResults = c.sessions.reduce((n, s) => n + s.plays.length, 0);
+      const tally = {};
+      c.members.forEach(m => { tally[m.id] = { name: m.name, wins: 0, played: 0 }; });
+      c.sessions.forEach(s => s.plays.forEach(pl => {
+        const raw = pl.raw; if (!raw) return;
+        const game = c.games.find(g => g.id === (pl.gameId || raw.gameId));
+        const sel = Object.keys(raw.selected || {}).filter(id => raw.selected[id] && tally[id]);
+        sel.forEach(id => { tally[id].played += 1; });
+        let winners = [];
+        const win = game ? game.win : "leaderboard";
+        if (win === "leaderboard" && sel.length) {
+          const dir = game && game.dir === "low" ? "low" : "high";
+          const scored = sel.map(id => ({ id, sc: parseInt(raw.scores[id], 10) })).filter(x => !isNaN(x.sc));
+          if (scored.length) {
+            scored.sort((a, b) => dir === "low" ? a.sc - b.sc : b.sc - a.sc);
+            winners = [scored[0].id];
+          }
+        } else if (win === "team_based") {
+          winners = sel.filter(id => (raw.teams[id] || "A") === raw.winTeam);
+        } else if (win === "cooperative") {
+          winners = raw.coopWon ? sel : [];
+        } else if (win === "single_winner") {
+          winners = raw.pickedId && tally[raw.pickedId] ? [raw.pickedId] : [];
+        } else if (win === "single_loser") {
+          winners = sel.filter(id => id !== raw.pickedId);
+        }
+        winners.forEach(id => { if (tally[id]) tally[id].wins += 1; });
+      }));
+      const rows = Object.values(tally).filter(t => t.played > 0).sort((a, b) => b.wins - a.wins || b.played - a.played);
+      vals.statRows = rows.map((t, i) => ({
+        rank: i + 1, name: t.name, initial: t.name.trim().charAt(0).toUpperCase(),
+        wins: t.wins, playedLabel: t.played + (t.played === 1 ? " game played" : " games played")
+      }));
+      vals.noStats = rows.length === 0;
+      vals.clubGames = c.games.map(g => ({ name: g.name, winLabel: this.winLabel(g.win) + (g.win === "leaderboard" ? (g.dir === "low" ? " \u00b7 low" : " \u00b7 high") : "") }));
+      vals.clubNoGames = c.games.length === 0;
+      vals.clubMembers = c.members.map(m => ({ name: m.name, initial: m.name.trim().charAt(0).toUpperCase(), owner: !!m.owner }));
+      vals.clubGameCount = c.games.length;
+      vals.clubSlotId = "club-photo-" + c.id;
+      const reqs = c.requests || [];
+      vals.requestCount = reqs.length;
+      vals.hasRequests = reqs.length > 0;
+      vals.noRequests = reqs.length === 0;
+      vals.clubRequests = reqs.map(q => ({
+        name: q.name, initial: q.name.trim().charAt(0).toUpperCase(),
+        meta: "Requested " + (q.when || "recently"),
+        approve: () => this.updateClub(c.id, cl => ({
+          ...cl,
+          members: [...cl.members, { id: this.uid(), name: q.name }],
+          requests: (cl.requests || []).filter(x => x.id !== q.id)
+        })),
+        decline: () => this.updateClub(c.id, cl => ({
+          ...cl,
+          requests: (cl.requests || []).filter(x => x.id !== q.id)
+        }))
+      }));
+    }
+
+    vals.fGameName = st.fGameName;
+    vals.onGameName = e => this.setState({ fGameName: e.target.value });
+    const winDefs = [
+      { value: "leaderboard", label: "Leaderboard", hint: "Everyone scores points" },
+      { value: "team_based", label: "Team based", hint: "Teams compete, one team wins" },
+      { value: "cooperative", label: "Co-operative", hint: "Everyone wins or loses together" },
+      { value: "single_winner", label: "Single winner", hint: "One player wins" },
+      { value: "single_loser", label: "Single loser", hint: "One player loses" }
+    ];
+    vals.winOptions = winDefs.map(w => ({ ...w, checked: st.fGameWin === w.value, pick: () => this.setState({ fGameWin: w.value }) }));
+    vals.gameIsLeaderboard = st.fGameWin === "leaderboard";
+    vals.dirHigh = st.fGameDir === "high"; vals.dirLow = st.fGameDir === "low";
+    vals.setDirHigh = () => this.setState({ fGameDir: "high" });
+    vals.setDirLow = () => this.setState({ fGameDir: "low" });
+    vals.gameInvalid = st.fGameName.trim().length === 0 || !st.fGameWin;
+    vals.createGame = () => {
+      if (vals.gameInvalid || !c) return;
+      const g = { id: this.uid(), name: st.fGameName.trim(), win: st.fGameWin };
+      if (g.win === "leaderboard") g.dir = st.fGameDir;
+      this.updateClub(c.id, cl => ({ ...cl, games: [...cl.games, g] }));
+      this.setState({ screen: "club" });
+    };
+
+    vals.fSession = st.fSession;
+    vals.onSessionName = e => this.setState({ fSession: e.target.value.slice(0, 25) });
+    vals.sessionCharsLeft = 25 - st.fSession.length;
+    vals.sessionNameEmpty = st.fSession.trim().length === 0;
+    vals.createSession = () => {
+      const name = st.fSession.trim(); if (!name || !c) return;
+      const ns = { id: this.uid(), name, date: this.today(), active: true, plays: [] };
+      this.updateClub(c.id, cl => ({ ...cl, sessions: [...cl.sessions, ns] }));
+      this.setState({ screen: "session", activeSessionId: ns.id, fSession: "" });
+    };
+
+    if (sess && c) {
+      vals.sessionName = sess.name; vals.sessionDate = sess.date; vals.sessionActive = sess.active;
+      vals.sessionFinished = !sess.active;
+      vals.finishLabel = sess.active ? "Finish session" : "Reopen session";
+      vals.toggleSessionActive = () => this.updateClub(c.id, cl => ({
+        ...cl, sessions: cl.sessions.map(s => s.id === sess.id ? { ...s, active: !s.active } : s)
+      }));
+      vals.sessionNotesOpen = st.sessionNotesOpen;
+      vals.sessionPhotosOpen = st.sessionPhotosOpen;
+      vals.toggleSessionNotes = () => this.setState(s => ({ sessionNotesOpen: !s.sessionNotesOpen }));
+      vals.toggleSessionPhotos = () => this.setState(s => ({ sessionPhotosOpen: !s.sessionPhotosOpen }));
+      vals.sessionNotes = sess.notes || "";
+      vals.onSessionNotes = e => this.updateClub(c.id, cl => ({
+        ...cl, sessions: cl.sessions.map(s => s.id === sess.id ? { ...s, notes: e.target.value } : s)
+      }));
+      vals.sessionNotesPreview = (!st.sessionNotesOpen && sess.notes) ? sess.notes : "";
+      vals.sessionSlot1 = "session-" + sess.id + "-1";
+      vals.sessionSlot2 = "session-" + sess.id + "-2";
+      vals.sessionPlays = sess.plays.map(pl => ({
+        ...pl,
+        slotId: "play-" + pl.id,
+        edit: () => this.setState({
+          screen: "addResult",
+          r: { ...(pl.raw || this.startResult(c.games.find(g => g.id === pl.gameId) || c.games[0])), editPlayId: pl.id }
+        })
+      }));
+      vals.sessionNoPlays = sess.plays.length === 0 && c.games.length > 0;
+      vals.clubHasGames = c.games.length > 0;
+      vals.clubHasNoGames = c.games.length === 0;
+      vals.goAddResult = () => {
+        this.setState({ screen: "addResult", r: this.startResult(c.games[0]) });
+      };
+    }
+
+    const r = st.r;
+    if (r && c && sess && st.screen === "addResult") {
+      const game = c.games.find(g => g.id === r.gameId) || c.games[0];
+      const setR = patch => this.setState(s => ({ r: { ...s.r, ...patch } }));
+      vals.rGameId = game.id;
+      vals.gameOptions = c.games.map(g => ({ id: g.id, name: g.name }));
+      vals.onGamePick = e => this.setState(s => ({ r: { ...this.startResult(c.games.find(g => g.id === e.target.value) || game), selected: s.r.selected, notes: s.r.notes, editPlayId: s.r.editPlayId } }));
+      vals.rWinLabel = this.winLabel(game.win) + (game.win === "leaderboard" ? (game.dir === "low" ? " \u00b7 low wins" : " \u00b7 high wins") : "");
+      vals.rPlayers = c.members.map(m => ({
+        name: m.name, selected: !!r.selected[m.id],
+        toggle: () => setR({ selected: { ...r.selected, [m.id]: !r.selected[m.id] } })
+      }));
+      const sel = c.members.filter(m => r.selected[m.id]);
+      vals.rIsLeaderboard = game.win === "leaderboard";
+      vals.rIsTeam = game.win === "team_based";
+      vals.rIsCoop = game.win === "cooperative";
+      vals.rIsSingle = game.win === "single_winner" || game.win === "single_loser";
+      vals.rDirNote = game.dir === "low" ? "lowest score wins" : "highest score wins";
+      vals.rScorePlayers = sel.map(m => ({
+        name: m.name, score: r.scores[m.id] ?? "",
+        setScore: e => setR({ scores: { ...r.scores, [m.id]: e.target.value } })
+      }));
+      const tBase = "padding:7px 16px;border:1px solid var(--color-neutral-300);background:none;cursor:pointer;font-family:var(--font-heading);font-weight:700;font-size:13px;color:var(--color-text);";
+      const tOn = "padding:7px 16px;border:1px solid var(--color-accent);background:var(--color-accent);color:#fff;cursor:pointer;font-family:var(--font-heading);font-weight:700;font-size:13px;";
+      vals.rTeamPlayers = sel.map(m => {
+        const t = r.teams[m.id] || "A";
+        return {
+          name: m.name,
+          teamAStyle: t === "A" ? tOn : tBase + "border-right:none;",
+          teamBStyle: t === "B" ? tOn : tBase,
+          setTeamA: () => setR({ teams: { ...r.teams, [m.id]: "A" } }),
+          setTeamB: () => setR({ teams: { ...r.teams, [m.id]: "B" } })
+        };
+      });
+      vals.rWinTeamA = r.winTeam === "A"; vals.rWinTeamB = r.winTeam === "B";
+      vals.setWinTeamA = () => setR({ winTeam: "A" }); vals.setWinTeamB = () => setR({ winTeam: "B" });
+      vals.rCoopWon = r.coopWon; vals.rCoopLost = !r.coopWon;
+      vals.setCoopWon = () => setR({ coopWon: true }); vals.setCoopLost = () => setR({ coopWon: false });
+      vals.rSingleLabel = game.win === "single_loser" ? "Who lost?" : "Who won?";
+      const pickBase = "display:flex;align-items:center;gap:12px;text-align:left;background:none;border:1px solid var(--color-neutral-300);padding:10px 14px;cursor:pointer;font-family:var(--font-body);color:var(--color-text);";
+      vals.rPickPlayers = sel.map(m => ({
+        name: m.name, picked: r.pickedId === m.id,
+        pickStyle: pickBase + (r.pickedId === m.id ? "border-color:var(--color-accent);" : ""),
+        pick: () => setR({ pickedId: m.id })
+      }));
+      vals.resultScreenTitle = r.editPlayId ? "Edit result" : "Add result";
+      vals.rNotes = r.notes || "";
+      vals.onResultNotes = e => setR({ notes: e.target.value });
+      const msg = this.validateResult(c, game, r);
+      vals.rInvalid = !!msg;
+      vals.rInvalidMsg = msg;
+      vals.saveResult = () => {
+        if (this.validateResult(c, game, r)) return;
+        const play = {
+          id: r.editPlayId || this.uid(), gameId: game.id, game: game.name,
+          notes: (r.notes || "").trim(), raw: { ...r, editPlayId: null },
+          ...this.computePlay(c, game, r)
+        };
+        this.updateClub(c.id, cl => ({
+          ...cl,
+          sessions: cl.sessions.map(s => s.id === sess.id ? {
+            ...s,
+            plays: r.editPlayId ? s.plays.map(p => p.id === r.editPlayId ? play : p) : [...s.plays, play]
+          } : s)
+        }));
+        this.setState({ screen: "session", r: null });
+      };
+    }
+    return vals;
+  }
+}
+</script>
+</body>
+</html>
