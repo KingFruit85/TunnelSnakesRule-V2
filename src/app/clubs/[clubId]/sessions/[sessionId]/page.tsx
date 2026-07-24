@@ -1,7 +1,8 @@
 // src/app/clubs/[clubId]/sessions/[sessionId]/page.tsx
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { Trophy } from "lucide-react";
+import Link from "next/link";
+import { Trophy, Pencil } from "lucide-react";
 import { getClubDetails } from "@/app/lib/db/clubs";
 import { checkIfPlayerIsClubMember } from "@/app/lib/db/players";
 import { getSessionDetails } from "@/app/lib/db/sessions";
@@ -12,6 +13,7 @@ import BackHeader from "@/app/ui/ds/BackHeader";
 import Tag from "@/app/ui/ds/Tag";
 import SectionHeader from "@/app/ui/ds/SectionHeader";
 import LinkButton from "@/app/ui/ds/LinkButton";
+import { HOVER_TINT_CLASS } from "@/app/ui/ds/tint";
 import SessionNotesEditor from "@/app/ui/clubs/SessionNotesEditor";
 import PhotoGrid from "@/app/ui/clubs/PhotoGrid";
 import FinishReopenButton from "@/app/ui/clubs/FinishReopenButton";
@@ -68,7 +70,7 @@ export default async function SessionDetailPage({
           label="Results"
           action={
             games.length > 0 ? (
-              <LinkButton href={`/add/result?sessionId=${sessionId}&clubId=${clubId}`} variant="primary" compact>
+              <LinkButton href={`/clubs/${clubId}/sessions/${sessionId}/results/new`} variant="primary" compact>
                 Add result
               </LinkButton>
             ) : undefined
@@ -100,6 +102,13 @@ export default async function SessionDetailPage({
                     </p>
                   )}
                 </div>
+                <Link
+                  href={`/clubs/${clubId}/sessions/${sessionId}/results/${play.playId}/edit`}
+                  aria-label="Edit result"
+                  className={`flex h-11 w-11 shrink-0 items-center justify-center self-start p-2 text-text transition-colors ${HOVER_TINT_CLASS} focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2`}
+                >
+                  <Pencil size={16} strokeWidth={2} className="opacity-55" />
+                </Link>
               </div>
             ))}
           </div>
