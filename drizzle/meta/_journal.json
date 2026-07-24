@@ -15,6 +15,13 @@
       "when": 1784803452207,
       "tag": "0001_happy_reaper",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1784928031590,
+      "tag": "0002_new_lucky_pierre",
+      "breakpoints": true
     }
   ]
 }
