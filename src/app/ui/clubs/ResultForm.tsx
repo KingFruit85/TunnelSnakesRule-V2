@@ -144,8 +144,11 @@ export default function ResultForm({
                 key={m.id}
                 className="-mt-px flex items-center justify-between border border-divider px-3 py-2 first:mt-0"
               >
-                <span className="text-[14px] text-text">{m.name}</span>
+                <label htmlFor={`score-${m.id}`} className="text-[14px] text-text">
+                  {m.name}
+                </label>
                 <input
+                  id={`score-${m.id}`}
                   type="number"
                   value={scores[m.id] ?? ""}
                   onChange={(e) => setScores((prev) => ({ ...prev, [m.id]: e.target.value }))}
@@ -169,6 +172,8 @@ export default function ResultForm({
                     <button
                       key={label}
                       type="button"
+                      aria-pressed={teams[m.id] === label}
+                      aria-label={`Assign ${m.name} to Team ${label}`}
                       onClick={() => setTeams((prev) => ({ ...prev, [m.id]: label }))}
                       className={`px-3 py-1 text-[13px] font-semibold ${
                         teams[m.id] === label ? "bg-accent text-white" : "bg-canvas text-text"
