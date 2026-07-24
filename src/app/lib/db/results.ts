@@ -95,7 +95,18 @@ export async function getEventWinner(playId: string): Promise<GameAndWinner> {
 
   if (teamRows.length > 0) {
     const winningRow = teamRows.find((row) => row.won);
-    return { id: playId as any, winner: winningRow ? winningRow.team : "Tied" };
+    if (winningRow) {
+      return { id: playId as any, winner: winningRow.team };
+    }
+    // No team_results row has won: true. team_based calls this "Tied"; a
+    // hidden_traitor play instead uses the game's configured neitherLabel
+    // ("The house wins" etc), resolved through the same club-variant-aware
+    // path every other read site uses.
+    const [session] = await db.select().from(sessions).where(eq(sessions.id, play.sessionId));
+    const rules = session ? await resolveEffectiveRules(session.clubId, play.gameId) : null;
+    const noWinnerLabel =
+      rules?.winCondition === "hidden_traitor" && rules.neitherLabel ? rules.neitherLabel : "Tied";
+    return { id: playId as any, winner: noWinnerLabel };
   }
 
   if (outcomeRows.length > 0) {
@@ -264,7 +275,13 @@ export async function getSessionPlaySummaries(clubId: string, sessionId: string)
       const winners = teamRows.filter((r) => r.won).map((r) => nameFor(r.playerId));
       const losers = teamRows.filter((r) => !r.won).map((r) => nameFor(r.playerId));
       const winningTeam = teamRows.find((r) => r.won)?.team;
-      summary = winningTeam ? `Team ${winningTeam} won` : "Tied";
+      const isHiddenTraitor = rules.winCondition === "hidden_traitor";
+      const noWinnerLabel = isHiddenTraitor && rules.neitherLabel ? rules.neitherLabel : "Tied";
+      // hidden_traitor's stored `team` value is already the club's real role
+      // label (e.g. "Traitor") - team_based's generic "Team A" prefix reads
+      // oddly ("Team Traitor won") applied to a role name, so it's dropped
+      // for hidden_traitor.
+      summary = winningTeam ? (isHiddenTraitor ? `${winningTeam} won` : `Team ${winningTeam} won`) : noWinnerLabel;
       detail = `${winners.join(", ") || "No one"} beat ${losers.join(", ") || "no one"}`;
     } else if (rules.winCondition === "cooperative") {
       const anyWon = outcomeRows.some((r) => r.won);
@@ -348,7 +365,7 @@ export async function getPlayForEdit(clubId: string, playId: string): Promise<Pl
     };
   }
 
-  if (rules.winCondition === "team_based") {
+  if (rules.winCondition === "team_based" || rules.winCondition === "hidden_traitor") {
     const rows = await db.select().from(teamResults).where(eq(teamResults.playId, playId));
     const winningRow = rows.find((r) => r.won);
     return {
