@@ -646,6 +646,89 @@ async function main() {
     const missingEdit = await results.getPlayForEdit(club.id, '00000000-0000-0000-0000-000000000000');
     assertEqual(missingEdit, null, 'getPlayForEdit should return null for a play id that does not exist');
     console.log('results.ts getPlayForEdit OK (leaderboard rehydration, team rehydration, missing play)');
+
+    // ------------------------------------------------------------------
+    // 9. rules.ts / results.ts / games.ts - hidden_traitor: label
+    //    resolution, a role-win play, and a "neither role won" play. New
+    //    session so this section's plays don't affect section 6's
+    //    already-asserted getClubStats counts.
+    // ------------------------------------------------------------------
+    const [gameHiddenTraitor] = await db
+      .insert(schema.games)
+      .values({
+        name: `${MARKER}-Hidden Traitor Game`,
+        winCondition: 'hidden_traitor',
+        scoringDirection: null,
+        roleOneLabel: 'Heroes',
+        roleTwoLabel: 'Traitor',
+        neitherLabel: 'The house wins',
+      })
+      .returning();
+    fixtures.gameIds.push(gameHiddenTraitor.id);
+
+    const hiddenTraitorRules = await rules.resolveEffectiveRules(club.id, gameHiddenTraitor.id);
+    assertEqual(hiddenTraitorRules.winCondition, 'hidden_traitor', 'resolveEffectiveRules should resolve hidden_traitor');
+    assertEqual(hiddenTraitorRules.roleOneLabel, 'Heroes', 'resolveEffectiveRules roleOneLabel mismatch');
+    assertEqual(hiddenTraitorRules.roleTwoLabel, 'Traitor', 'resolveEffectiveRules roleTwoLabel mismatch');
+    assertEqual(hiddenTraitorRules.neitherLabel, 'The house wins', 'resolveEffectiveRules neitherLabel mismatch');
+
+    const hiddenTraitorBoardgame = await games.getBoardgameById(gameHiddenTraitor.id);
+    assertEqual(hiddenTraitorBoardgame.roleOneLabel, 'Heroes', 'getBoardgameById should expose roleOneLabel');
+    assertEqual(hiddenTraitorBoardgame.roleTwoLabel, 'Traitor', 'getBoardgameById should expose roleTwoLabel');
+    assertEqual(hiddenTraitorBoardgame.neitherLabel, 'The house wins', 'getBoardgameById should expose neitherLabel');
+
+    const [hiddenTraitorSession] = await db
+      .insert(schema.sessions)
+      .values({ clubId: club.id, name: `${MARKER}-Hidden Traitor Session`, date: new Date(), active: true })
+      .returning();
+    fixtures.sessionIds.push(hiddenTraitorSession.id);
+
+    // Play A: Heroes (ownerPlayer) beat the Traitor (memberPlayer).
+    const [playHeroesWon] = await db
+      .insert(schema.plays)
+      .values({ sessionId: hiddenTraitorSession.id, gameId: gameHiddenTraitor.id })
+      .returning();
+    fixtures.playIds.push(playHeroesWon.id);
+    await db.insert(schema.teamResults).values([
+      { playId: playHeroesWon.id, playerId: ownerPlayer.id, team: 'Heroes', won: true },
+      { playId: playHeroesWon.id, playerId: memberPlayer.id, team: 'Traitor', won: false },
+    ]);
+
+    const heroesWinner = await results.getEventWinner(playHeroesWon.id);
+    assertEqual(heroesWinner.winner, 'Heroes', 'getEventWinner should name the winning role for a hidden_traitor play');
+
+    const heroesSummaries = await results.getSessionPlaySummaries(club.id, hiddenTraitorSession.id);
+    const heroesSummary = heroesSummaries.find((s) => s.playId === playHeroesWon.id);
+    assert(heroesSummary, 'missing hidden_traitor role-win play summary');
+    assertEqual(heroesSummary.summary, 'Heroes won', 'hidden_traitor summary should read "<role> won", not "Team <role> won"');
+
+    // Play B: nobody wins - the house wins.
+    const [playHouseWon] = await db
+      .insert(schema.plays)
+      .values({ sessionId: hiddenTraitorSession.id, gameId: gameHiddenTraitor.id })
+      .returning();
+    fixtures.playIds.push(playHouseWon.id);
+    await db.insert(schema.teamResults).values([
+      { playId: playHouseWon.id, playerId: ownerPlayer.id, team: 'Heroes', won: false },
+      { playId: playHouseWon.id, playerId: memberPlayer.id, team: 'Traitor', won: false },
+    ]);
+
+    const houseWinner = await results.getEventWinner(playHouseWon.id);
+    assertEqual(houseWinner.winner, 'The house wins', "getEventWinner should return the game's neitherLabel, not 'Tied', when no hidden_traitor role won");
+
+    const houseSummaries = await results.getSessionPlaySummaries(club.id, hiddenTraitorSession.id);
+    const houseSummary = houseSummaries.find((s) => s.playId === playHouseWon.id);
+    assert(houseSummary, 'missing hidden_traitor no-winner play summary');
+    assertEqual(houseSummary.summary, 'The house wins', "hidden_traitor no-winner summary should use the game's neitherLabel");
+
+    const hiddenTraitorEdit = await results.getPlayForEdit(club.id, playHeroesWon.id);
+    assert(hiddenTraitorEdit, 'getPlayForEdit should find the hidden_traitor play');
+    assertEqual(hiddenTraitorEdit.winCondition, 'hidden_traitor', 'hidden_traitor edit data should resolve effective win condition');
+    assertEqual(hiddenTraitorEdit.teamByPlayerId[ownerPlayer.id], 'Heroes', 'hidden_traitor edit data should carry owner role assignment');
+    assertEqual(hiddenTraitorEdit.teamByPlayerId[memberPlayer.id], 'Traitor', 'hidden_traitor edit data should carry member role assignment');
+    assertEqual(hiddenTraitorEdit.winningTeam, 'Heroes', 'hidden_traitor edit data should identify the winning role from the won:true row');
+
+    console.log('rules.ts / results.ts / games.ts hidden_traitor OK (label resolution, role-win summary/winner, no-winner summary/winner using neitherLabel, edit rehydration)');
   } finally {
     // Explicit cleanup, not a transaction rollback - see header comment:
     // every db/lib call in this script shares the module-level `db`
