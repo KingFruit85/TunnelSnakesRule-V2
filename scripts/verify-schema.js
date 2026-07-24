@@ -1,4 +1,4 @@
-const { db } = require('@vercel/postgres');
+const { Client } = require('@neondatabase/serverless');
 
 const LEGACY_TABLES = [
   'players_clubs',
@@ -117,7 +117,8 @@ async function checkRoundTripAndConstraints(client) {
 }
 
 async function main() {
-  const client = await db.connect();
+  const client = new Client(process.env.STORAGE_DATABASE_URL_UNPOOLED);
+  await client.connect();
   try {
     await checkTables(client);
     await checkRoundTripAndConstraints(client);

@@ -1,4 +1,4 @@
-const { db } = require('@vercel/postgres');
+const { Client } = require('@neondatabase/serverless');
 const fs = require('fs');
 const path = require('path');
 
@@ -13,7 +13,8 @@ async function main() {
   const sqlText = fs.readFileSync(sqlPath, 'utf8');
 
   console.log(`Running migration: ${sqlPath}`);
-  const client = await db.connect();
+  const client = new Client(process.env.STORAGE_DATABASE_URL_UNPOOLED);
+  await client.connect();
   try {
     await client.query(sqlText);
     console.log('Migration applied successfully.');

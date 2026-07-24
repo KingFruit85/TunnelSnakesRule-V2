@@ -1,8 +1,9 @@
-const { db } = require('@vercel/postgres');
+const { Client } = require('@neondatabase/serverless');
 const { v4: uuidv4 } = require('uuid');
 
 async function main() {
-  const client = await db.connect();
+  const client = new Client(process.env.STORAGE_DATABASE_URL_UNPOOLED);
+  await client.connect();
   try {
     const playerId = uuidv4();
     await client.query(
