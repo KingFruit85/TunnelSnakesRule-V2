@@ -25,6 +25,7 @@ import {
 } from "@/db/schema";
 import { resolveEffectiveRules, type EffectiveRules } from "./rules";
 import { checkIfPlayerIsClubMember } from "./players";
+import { NO_WINNER_SENTINEL } from "@/app/lib/definitions";
 
 type CheckedPlayerEntry = {
   playerId: string;
@@ -75,6 +76,19 @@ async function writeResultRows(
           playerId: entry.playerId,
           team: entry.team,
           won: winningTeam !== "Tie" && entry.team === winningTeam,
+        });
+      }
+      break;
+    }
+
+    case "hidden_traitor": {
+      const winningRole = formData.get("winner")?.toString();
+      for (const entry of checkedPlayers) {
+        await db.insert(teamResults).values({
+          playId,
+          playerId: entry.playerId,
+          team: entry.team,
+          won: winningRole !== NO_WINNER_SENTINEL && entry.team === winningRole,
         });
       }
       break;
