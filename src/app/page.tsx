@@ -1,7 +1,7 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { SignInButton } from "@clerk/nextjs";
-import { Dices } from "lucide-react";
+import Image from "next/image";
 import { checkIfUserHasPlayerProfile, createNewPlayerRecord } from "./lib/db/players";
 import AppShell from "./ui/ds/AppShell";
 import { buttonClasses } from "./ui/ds/buttonStyles";
@@ -20,8 +20,8 @@ export default async function LoginPage() {
   return (
     <AppShell>
       <div className="flex flex-1 flex-col justify-center px-6">
-        <div className="flex h-24 w-24 items-center justify-center border-2 border-divider">
-          <Dices size={40} strokeWidth={2} className="text-accent" />
+        <div className="relative h-24 w-24 overflow-hidden border-2 border-divider">
+          <Image src="/TS.jpg" alt="Tunnel Snakes Rule" fill className="object-cover" priority />
         </div>
         <h1 className="mt-6 text-[34px] font-bold leading-[1.05] text-text">Tunnel Snakes Rule!</h1>
         <p className="mt-3 text-[14px] text-text opacity-65">
