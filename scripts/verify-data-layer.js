@@ -518,6 +518,19 @@ async function main() {
       { playId: playTeam.id, playerId: memberPlayer.id, team: 'B', won: false },
     ]);
 
+    // A team_based TIE (no won:true row) - same code path hidden_traitor's
+    // no-winner case uses below, added here to close the same regression
+    // gap for team_based itself, not just hidden_traitor.
+    const [playTeamTieSummary] = await db
+      .insert(schema.plays)
+      .values({ sessionId: summarySession.id, gameId: gameTeamBased.id })
+      .returning();
+    fixtures.playIds.push(playTeamTieSummary.id);
+    await db.insert(schema.teamResults).values([
+      { playId: playTeamTieSummary.id, playerId: ownerPlayer.id, team: 'A', won: false },
+      { playId: playTeamTieSummary.id, playerId: memberPlayer.id, team: 'B', won: false },
+    ]);
+
     const [playCoop] = await db
       .insert(schema.plays)
       .values({ sessionId: summarySession.id, gameId: gameCooperative.id })
@@ -549,7 +562,7 @@ async function main() {
     ]);
 
     const summaries = await results.getSessionPlaySummaries(club.id, summarySession.id);
-    assertEqual(summaries.length, 5, 'getSessionPlaySummaries should return one entry per play in this session');
+    assertEqual(summaries.length, 6, 'getSessionPlaySummaries should return one entry per play in this session');
 
     const leaderboardSummary = summaries.find((s) => s.playId === playLowScoreLeaderboard.id);
     assert(leaderboardSummary, 'missing leaderboard play summary');
@@ -562,6 +575,24 @@ async function main() {
     assert(teamSummary, 'missing team play summary');
     assertEqual(teamSummary.summary, 'Team A won', 'team summary should name the winning team');
     assertEqual(teamSummary.detail, `${ownerPlayer.name} beat ${memberPlayer.name}`, 'team detail should read "winners beat losers"');
+
+    const teamTieSummary = summaries.find((s) => s.playId === playTeamTieSummary.id);
+    assert(teamTieSummary, 'missing team_based tie play summary');
+    assertEqual(teamTieSummary.summary, 'Tied', 'team_based tie summary should say Tied');
+    // Regression guard: detail used to unconditionally read "<winners> beat
+    // <losers>", which degraded to "No one beat <player>" whenever nobody
+    // won - nonsensical for a tie. Falls back to the same "Played: ..."
+    // phrasing the outcome-based branches already use.
+    assert(
+      !teamTieSummary.detail.includes('beat'),
+      `team_based tie detail should not use "beat" phrasing when nobody won (got ${JSON.stringify(teamTieSummary.detail)})`
+    );
+    assert(
+      teamTieSummary.detail.startsWith('Played: ') &&
+        teamTieSummary.detail.includes(ownerPlayer.name) &&
+        teamTieSummary.detail.includes(memberPlayer.name),
+      `team_based tie detail should list both participants as "Played: ..." (got ${JSON.stringify(teamTieSummary.detail)})`
+    );
 
     const coopSummary = summaries.find((s) => s.playId === playCoop.id);
     assert(coopSummary, 'missing cooperative play summary');
@@ -701,6 +732,7 @@ async function main() {
     const heroesSummary = heroesSummaries.find((s) => s.playId === playHeroesWon.id);
     assert(heroesSummary, 'missing hidden_traitor role-win play summary');
     assertEqual(heroesSummary.summary, 'Heroes won', 'hidden_traitor summary should read "<role> won", not "Team <role> won"');
+    assertEqual(heroesSummary.detail, `${ownerPlayer.name} beat ${memberPlayer.name}`, 'hidden_traitor role-win detail should read "winners beat losers"');
 
     // Play B: nobody wins - the house wins.
     const [playHouseWon] = await db
@@ -720,6 +752,21 @@ async function main() {
     const houseSummary = houseSummaries.find((s) => s.playId === playHouseWon.id);
     assert(houseSummary, 'missing hidden_traitor no-winner play summary');
     assertEqual(houseSummary.summary, 'The house wins', "hidden_traitor no-winner summary should use the game's neitherLabel");
+    // Regression guard: detail used to unconditionally read "<winners> beat
+    // <losers>", which degraded to "No one beat <player>" whenever nobody
+    // won (winners is always empty in that case) - nonsensical for a house
+    // win. It should fall back to the same "Played: ..." phrasing the
+    // outcome-based branches already use instead.
+    assert(
+      !houseSummary.detail.includes('beat'),
+      `hidden_traitor no-winner detail should not use "beat" phrasing when nobody won (got ${JSON.stringify(houseSummary.detail)})`
+    );
+    assert(
+      houseSummary.detail.startsWith('Played: ') &&
+        houseSummary.detail.includes(ownerPlayer.name) &&
+        houseSummary.detail.includes(memberPlayer.name),
+      `hidden_traitor no-winner detail should list both participants as "Played: ..." (got ${JSON.stringify(houseSummary.detail)})`
+    );
 
     const hiddenTraitorEdit = await results.getPlayForEdit(club.id, playHeroesWon.id);
     assert(hiddenTraitorEdit, 'getPlayForEdit should find the hidden_traitor play');

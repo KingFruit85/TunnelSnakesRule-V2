@@ -282,7 +282,12 @@ export async function getSessionPlaySummaries(clubId: string, sessionId: string)
       // oddly ("Team Traitor won") applied to a role name, so it's dropped
       // for hidden_traitor.
       summary = winningTeam ? (isHiddenTraitor ? `${winningTeam} won` : `Team ${winningTeam} won`) : noWinnerLabel;
-      detail = `${winners.join(", ") || "No one"} beat ${losers.join(", ") || "no one"}`;
+      // When nobody won, winners is always empty (winningTeam is derived
+      // from the same won:true rows) - "No one beat Christopher" reads as
+      // nonsense for that case, so it falls back to the same "Played: ..."
+      // phrasing the outcome-based branches below already use instead of
+      // implying a beat relationship that didn't happen.
+      detail = winningTeam ? `${winners.join(", ")} beat ${losers.join(", ") || "no one"}` : `Played: ${losers.join(", ")}`;
     } else if (rules.winCondition === "cooperative") {
       const anyWon = outcomeRows.some((r) => r.won);
       summary = anyWon ? "Everyone won" : "The game won";
