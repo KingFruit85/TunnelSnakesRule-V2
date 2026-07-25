@@ -85,6 +85,20 @@ export default function ResultForm({
     if (winCode === "5" && selectedMembers.some((m) => teams[m.id] !== roleOneLabel && teams[m.id] !== roleTwoLabel)) {
       return "Assign every player to a role.";
     }
+    if (
+      winCode === "5" &&
+      winningTeam !== NO_WINNER_SENTINEL &&
+      winningTeam !== roleOneLabel &&
+      winningTeam !== roleTwoLabel
+    ) {
+      // winningTeam is seeded once at mount and not reset on a later game
+      // switch (same staleness class as the teams check above) - without
+      // this, switching from a different win condition/game after mount
+      // could leave a stale value here that matches neither role nor the
+      // sentinel, silently writing won: false for every player with no
+      // error shown.
+      return "Pick who won.";
+    }
     return null;
   })();
 
