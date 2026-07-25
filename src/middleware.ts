@@ -14,6 +14,7 @@ const isPublicRoute = createRouteMatcher([
   '/',
   '/signin(.*)',
   '/signup(.*)',
+  '/privacy',
   '/api/session/upload',
   '/api/avatar/upload',
 ]);
