@@ -1,45 +1,36 @@
 "use client";
 
+import { useState, useTransition } from "react";
 import { requestAccessToClub } from "@/app/lib/db/players-actions";
-import { ClubAndRequestStatus } from "@/app/lib/definitions";
-import { UUID } from "crypto";
-import { useState } from "react";
+import Button from "@/app/ui/ds/Button";
 
 export interface JoinClubButtonProps {
-  club: ClubAndRequestStatus;
+  clubId: string;
+  requestPending: boolean;
 }
 
-export default function JoinClubButton({ club }: JoinClubButtonProps) {
-  const requestStatus = club.accessRequestPending
-    ? "Requested Access"
-    : club.club.name;
-  const [buttonText, setButtonText] = useState(requestStatus);
+export default function JoinClubButton({ clubId, requestPending }: JoinClubButtonProps) {
+  const [isPending, startTransition] = useTransition();
+  const [requested, setRequested] = useState(requestPending);
+  const [error, setError] = useState<string | null>(null);
 
-  const buttonHandler = () => {
-    if (club.accessRequestPending) return;
-    requestAccessToClub(club.club.id as UUID);
-    setButtonText("Requested Access");
-  };
+  const handleRequest = () =>
+    startTransition(async () => {
+      setError(null);
+      try {
+        await requestAccessToClub(clubId);
+        setRequested(true);
+      } catch {
+        setError("Couldn't send request. Try again.");
+      }
+    });
 
   return (
-    <button
-      type="button"
-      disabled={club.accessRequestPending}
-      onClick={buttonHandler}
-      className="
-            flex 
-            gap-2 
-            text-tunnel-snake-white 
-            border-tunnel-snake-white 
-            px-4 
-            py-2 
-            bg-tunnel-snake-black 
-            rounded-sm 
-            border 
-            hover:bg-tunnel-snake-orange 
-            hover:text-tunnel-snake-black"
-    >
-      {buttonText}
-    </button>
+    <div className="flex flex-col items-end gap-1">
+      <Button variant="secondary" compact disabled={requested || isPending} onClick={handleRequest}>
+        {requested ? "Requested" : "Request"}
+      </Button>
+      {error && <p className="text-[12px] text-accent-700">{error}</p>}
+    </div>
   );
 }

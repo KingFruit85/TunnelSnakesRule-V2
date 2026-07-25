@@ -89,11 +89,3 @@ export type Club = {
   avatar: string;
 };
 
-export type ClubAndRequestStatus = {
-  club: Club;
-  accessRequestPending: boolean;
-};
-
-export type ClubAccessRequest = {
-  requestorName: string;
-};

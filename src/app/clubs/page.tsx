@@ -49,9 +49,12 @@ export default async function ClubsPage() {
         </div>
       </div>
 
-      <div className="px-5 pt-4">
+      <div className="flex gap-2 px-5 pt-4">
         <LinkButton href="/clubs/new" block>
           + New club
+        </LinkButton>
+        <LinkButton href="/join/club" variant="secondary" block>
+          Join a club
         </LinkButton>
       </div>
 

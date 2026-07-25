@@ -61,6 +61,29 @@ export async function createNewPlayerRecord(user: User) {
   });
 }
 
+// Provisioning a player's own row only ever happened as a side effect of
+// rendering "/" (see page.tsx). That breaks for anyone Clerk signs in via a
+// deep link instead - auth.protect()'s redirectToSignIn() sends them back to
+// the page they originally requested, not to "/", so page.tsx's
+// check-then-create never runs and every Server Action that assumes the
+// caller already has a players row (requestAccessToClub, addNewClub) 500s.
+// Call this at those entry points instead of assuming the row exists.
+export async function ensurePlayerProfile(user: User): Promise<Player> {
+  const existing = await findPlayerByExternalId(user.id);
+  if (existing) {
+    return toPlayer(existing);
+  }
+  const [inserted] = await db
+    .insert(players)
+    .values({
+      externalId: user.id,
+      name: user.firstName ?? "",
+      avatar: user.imageUrl,
+    })
+    .returning();
+  return toPlayer(inserted);
+}
+
 export async function addImageToPlayer(blobUri: string, playerId: string) {
   await db.update(players).set({ avatar: blobUri }).where(eq(players.id, playerId));
   revalidatePath("/players");
@@ -90,23 +113,20 @@ export async function checkIfPlayerIsClubMember(playerExternalId: string, clubId
   return Boolean(row);
 }
 
-// Called from AvailableClubs.tsx with the Clerk external id (see Task 8) -
-// same resolve-internally rule as the rest of this file's membership checks.
-export async function checkAccessRequestStatus(playerExternalId: string, clubId: string) {
+// Called from AvailableClubs.tsx with the Clerk external id - one query for
+// every pending request the player has across all clubs, so the caller can
+// check membership in the returned Set instead of querying per-club (which
+// is what this replaced: a checkAccessRequestStatus-per-club N+1 loop).
+export async function getPendingJoinRequestClubIds(playerExternalId: string): Promise<Set<string>> {
   const player = await findPlayerByExternalId(playerExternalId);
   if (!player) {
-    return false;
+    return new Set();
   }
-  const [row] = await db
-    .select()
+  const rows = await db
+    .select({ clubId: joinRequests.clubId })
     .from(joinRequests)
-    .where(and(eq(joinRequests.playerId, player.id), eq(joinRequests.clubId, clubId)));
-  return Boolean(row);
-}
-
-export async function checkForOutstandingClubAccessRequests(clubId: string) {
-  const rows = await db.select().from(joinRequests).where(eq(joinRequests.clubId, clubId));
-  return rows.length > 0;
+    .where(eq(joinRequests.playerId, player.id));
+  return new Set(rows.map((row) => row.clubId));
 }
 
 export type AccessRequest = {

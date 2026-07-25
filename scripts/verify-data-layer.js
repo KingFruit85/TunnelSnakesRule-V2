@@ -253,6 +253,31 @@ async function main() {
     console.log('clubs.ts reads OK');
 
     // ------------------------------------------------------------------
+    // 2b. players.ts - getPendingJoinRequestClubIds. A second club so this
+    //    can prove the result is scoped per-club (otherPlayer has a
+    //    pending request against secondClub but not against `club`,
+    //    despite not being a member of either).
+    // ------------------------------------------------------------------
+    const [secondClub] = await db
+      .insert(schema.clubs)
+      .values({ name: `${MARKER}-Second Club`, ownerId: ownerPlayer.id })
+      .returning();
+    fixtures.clubIds.push(secondClub.id);
+
+    await db.insert(schema.joinRequests).values({ playerId: otherPlayer.id, clubId: secondClub.id });
+
+    const otherPending = await players.getPendingJoinRequestClubIds(otherPlayer.externalId);
+    assert(otherPending.has(secondClub.id), 'getPendingJoinRequestClubIds should include a club the player has requested to join');
+    assert(!otherPending.has(club.id), 'getPendingJoinRequestClubIds should exclude a club the player has not requested to join');
+
+    const memberPending = await players.getPendingJoinRequestClubIds(memberPlayer.externalId);
+    assertEqual(memberPending.size, 0, 'getPendingJoinRequestClubIds should return an empty set for a player with no pending requests');
+
+    const unknownPending = await players.getPendingJoinRequestClubIds(`${MARKER}-unknown-external-id`);
+    assertEqual(unknownPending.size, 0, 'getPendingJoinRequestClubIds should return an empty set for an unrecognized external id');
+    console.log('players.ts getPendingJoinRequestClubIds OK (batched, per-club scoping)');
+
+    // ------------------------------------------------------------------
     // 3. games.ts / rules.ts - resolveEffectiveRules's variant-vs-default
     //    resolution, plus getAllBoardgames/getBoardgameById.
     // ------------------------------------------------------------------
@@ -793,6 +818,7 @@ async function main() {
       await db.delete(schema.sessions).where(inArray(schema.sessions.id, fixtures.sessionIds));
     }
     if (fixtures.clubIds.length > 0) {
+      await db.delete(schema.joinRequests).where(inArray(schema.joinRequests.clubId, fixtures.clubIds));
       await db.delete(schema.clubGameVariants).where(inArray(schema.clubGameVariants.clubId, fixtures.clubIds));
     }
     if (fixtures.gameIds.length > 0) {

@@ -5,15 +5,15 @@
 // header comment in players.ts for why. Must NOT `import "server-only"`.
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { auth } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs/server";
 import { db } from "@/db/client";
 import { clubs } from "@/db/schema";
-import { resolvePlayerIdByExternalId } from "./clubs";
+import { ensurePlayerProfile } from "./players";
 import { addPlayerToClub } from "./players-actions";
 
 export async function addNewClub(formData: FormData) {
-  const { userId } = await auth();
-  if (!userId) {
+  const user = await currentUser();
+  if (!user) {
     throw new Error("Unauthorized");
   }
 
@@ -22,17 +22,16 @@ export async function addNewClub(formData: FormData) {
     throw new Error("Missing required fields");
   }
 
-  const ownerId = await resolvePlayerIdByExternalId(userId);
-  if (!ownerId) {
-    throw new Error("Player does not exist");
-  }
+  // Own profile, not someone else's - self-heal rather than throw, since
+  // the caller may never have rendered "/" (see ensurePlayerProfile).
+  const owner = await ensurePlayerProfile(user);
 
   const [insertedClub] = await db
     .insert(clubs)
-    .values({ name, ownerId })
+    .values({ name, ownerId: owner.id })
     .returning();
 
-  await addPlayerToClub(userId, insertedClub.id);
+  await addPlayerToClub(user.id, insertedClub.id);
 
   revalidatePath("/join/club");
   revalidatePath("/clubs");

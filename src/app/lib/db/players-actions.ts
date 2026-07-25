@@ -12,10 +12,10 @@
 import { and, eq } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { revalidatePath } from "next/cache";
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { db } from "@/db/client";
 import { players, clubMembers, joinRequests, clubs } from "@/db/schema";
-import { findPlayerByExternalId } from "./players";
+import { findPlayerByExternalId, ensurePlayerProfile } from "./players";
 
 export async function addNewPlayer(formData: FormData) {
   const { userId } = await auth();
@@ -95,10 +95,12 @@ export async function declineAccessRequest(playerExternalId: string, clubId: str
 }
 
 export async function requestAccessToClub(clubId: string) {
-  const { userId } = await auth();
-  if (!userId) {
+  const user = await currentUser();
+  if (!user) {
     throw new Error("Unauthorized");
   }
-  const player = await resolvePlayerByExternalId(userId);
+  // Own profile, not someone else's - self-heal rather than throw, since
+  // the caller may never have rendered "/" (see ensurePlayerProfile).
+  const player = await ensurePlayerProfile(user);
   await db.insert(joinRequests).values({ id: uuidv4(), playerId: player.id, clubId });
 }
