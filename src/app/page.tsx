@@ -19,19 +19,21 @@ export default async function LoginPage() {
 
   return (
     <AppShell>
-      <div className="flex flex-1 flex-col justify-center px-6">
-        <div className="relative h-24 w-24 overflow-hidden border-2 border-divider">
+      <div className="flex flex-1 flex-col justify-center">
+        <div className="relative h-40 w-full overflow-hidden border-b-2 border-divider">
           <Image src="/TS.jpg" alt="Tunnel Snakes Rule" fill className="object-cover" priority />
         </div>
-        <h1 className="mt-6 text-[34px] font-bold leading-[1.05] text-text">Tunnel Snakes Rule!</h1>
-        <p className="mt-3 text-[14px] text-text opacity-65">
-          Log your club&apos;s sessions and keep a history of winners and losers.
-        </p>
-      </div>
-      <div className="border-t-2 border-divider px-6 pb-12 pt-5">
-        <SignInButton mode="modal">
-          <button className={buttonClasses({ block: true })}>Log in</button>
-        </SignInButton>
+        <div className="flex flex-col px-6 pt-6">
+          <h1 className="text-[34px] font-bold leading-[1.05] text-text">Tunnel Snakes Rule!</h1>
+          <p className="mt-3 text-[14px] text-text opacity-65">
+            Log your club&apos;s sessions and keep a history of winners and losers.
+          </p>
+          <div className="mt-7 border-t-2 border-divider pt-5">
+            <SignInButton mode="modal">
+              <button className={buttonClasses({ block: true })}>Log in</button>
+            </SignInButton>
+          </div>
+        </div>
       </div>
     </AppShell>
   );
