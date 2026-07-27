@@ -5,6 +5,7 @@ import { BoardGame, Player, NO_WINNER_SENTINEL } from "@/app/lib/definitions";
 import type { PlayEditData } from "@/app/lib/db/results";
 import SubmitButton from "@/app/ui/ds/SubmitButton";
 import LinkButton from "@/app/ui/ds/LinkButton";
+import Combobox from "@/app/ui/ds/Combobox";
 
 // BoardGame.winCondition is the UI-coded string ("0".."5") already produced
 // by getAllBoardgames via WIN_CONDITION_DB_TO_UI - matching the same codes
@@ -142,18 +143,15 @@ export default function ResultForm({
       <label className="text-[14px] font-medium text-text" htmlFor="game">
         Game
       </label>
-      <select
-        id="game"
-        value={gameId}
-        onChange={(e) => setGameId(e.target.value)}
-        className="mt-2 border border-divider bg-surface px-3 py-2.5 text-[14px] text-text"
-      >
-        {games.map((g) => (
-          <option key={g.id} value={g.id}>
-            {g.name}
-          </option>
-        ))}
-      </select>
+      <div className="mt-2">
+        <Combobox
+          id="game"
+          value={gameId}
+          onChange={setGameId}
+          options={games.map((g) => ({ id: g.id, label: g.name }))}
+          placeholder="Search games…"
+        />
+      </div>
       {selectedGame && (
         <p className="mt-2 inline-block w-fit border border-accent-700 px-2 py-0.5 text-[12px] font-semibold text-accent-700">
           {WIN_LABELS[winCode]}
