@@ -370,13 +370,20 @@ export async function getPlayForEdit(clubId: string, playId: string): Promise<Pl
     };
   }
 
-  if (rules.winCondition === "team_based" || rules.winCondition === "hidden_traitor") {
+  if (
+    rules.winCondition === "team_based" ||
+    rules.winCondition === "hidden_traitor" ||
+    rules.winCondition === "team_scored"
+  ) {
     const rows = await db.select().from(teamResults).where(eq(teamResults.playId, playId));
     const winningRow = rows.find((r) => r.won);
     return {
       ...base,
       participantIds: rows.map((r) => r.playerId),
-      scoresByPlayerId: {},
+      scoresByPlayerId:
+        rules.winCondition === "team_scored"
+          ? Object.fromEntries(rows.map((r) => [r.playerId, r.score ?? 0]))
+          : {},
       teamByPlayerId: Object.fromEntries(rows.map((r) => [r.playerId, r.team])),
       winningTeam: winningRow?.team ?? null,
       cooperativeWon: null,

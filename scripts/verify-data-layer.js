@@ -801,6 +801,66 @@ async function main() {
     assertEqual(hiddenTraitorEdit.winningTeam, 'Heroes', 'hidden_traitor edit data should identify the winning role from the won:true row');
 
     console.log('rules.ts / results.ts / games.ts hidden_traitor OK (label resolution, role-win summary/winner, no-winner summary/winner using neitherLabel, edit rehydration)');
+
+    // ------------------------------------------------------------------
+    // 10. team_scored: teamResults' new nullable `score` column, plus
+    //     rules.ts/results.ts read paths. writeResultRows' team_scored
+    //     branch (summing scores per team and deriving `won` from
+    //     scoringDirection) is inside recordPlayResults, which is
+    //     auth-gated like the other seven functions listed in the header
+    //     comment - so, same as elsewhere in this script, the fixture rows
+    //     here are inserted pre-computed as writeResultRows would have
+    //     left them (team Red's 30 > team Blue's 20, high wins), and only
+    //     the read side is exercised directly. The write-side sum/tie
+    //     computation itself gets manual browser verification, same as
+    //     recordPlayResults' other branches.
+    // ------------------------------------------------------------------
+    const [gameTeamScored] = await db
+      .insert(schema.games)
+      .values({ name: `${MARKER}-Team Scored Game`, winCondition: 'team_scored', scoringDirection: 'high' })
+      .returning();
+    fixtures.gameIds.push(gameTeamScored.id);
+
+    const teamScoredRules = await rules.resolveEffectiveRules(club.id, gameTeamScored.id);
+    assertEqual(teamScoredRules.winCondition, 'team_scored', 'resolveEffectiveRules should resolve team_scored');
+    assertEqual(teamScoredRules.scoringDirection, 'high', 'resolveEffectiveRules team_scored scoringDirection mismatch');
+
+    const [teamScoredSession] = await db
+      .insert(schema.sessions)
+      .values({ clubId: club.id, name: `${MARKER}-Team Scored Session`, date: new Date(), active: true })
+      .returning();
+    fixtures.sessionIds.push(teamScoredSession.id);
+
+    const [playTeamScored] = await db
+      .insert(schema.plays)
+      .values({ sessionId: teamScoredSession.id, gameId: gameTeamScored.id })
+      .returning();
+    fixtures.playIds.push(playTeamScored.id);
+    await db.insert(schema.teamResults).values([
+      { playId: playTeamScored.id, playerId: ownerPlayer.id, team: 'Red', score: 20, won: true },
+      { playId: playTeamScored.id, playerId: memberPlayer.id, team: 'Red', score: 10, won: true },
+      { playId: playTeamScored.id, playerId: otherPlayer.id, team: 'Blue', score: 20, won: false },
+    ]);
+
+    const teamScoredWinner = await results.getEventWinner(playTeamScored.id);
+    assertEqual(teamScoredWinner.winner, 'Red', 'getEventWinner should name the winning team for team_scored, same as team_based');
+
+    const teamScoredSummaries = await results.getSessionPlaySummaries(club.id, teamScoredSession.id);
+    const teamScoredSummary = teamScoredSummaries.find((s) => s.playId === playTeamScored.id);
+    assert(teamScoredSummary, 'missing team_scored play summary');
+    assertEqual(teamScoredSummary.summary, 'Team Red won', 'team_scored summary should reuse the team_based "Team <x> won" phrasing');
+
+    const teamScoredEdit = await results.getPlayForEdit(club.id, playTeamScored.id);
+    assert(teamScoredEdit, 'getPlayForEdit should find the team_scored play');
+    assertEqual(teamScoredEdit.winCondition, 'team_scored', 'team_scored edit data should resolve effective win condition');
+    assertEqual(teamScoredEdit.teamByPlayerId[ownerPlayer.id], 'Red', 'team_scored edit data should carry owner team assignment');
+    assertEqual(teamScoredEdit.teamByPlayerId[otherPlayer.id], 'Blue', 'team_scored edit data should carry other-player team assignment');
+    assertEqual(teamScoredEdit.winningTeam, 'Red', 'team_scored edit data should identify the winning team from the won:true rows');
+    assertEqual(teamScoredEdit.scoresByPlayerId[ownerPlayer.id], 20, 'team_scored edit data should carry owner score from the new score column');
+    assertEqual(teamScoredEdit.scoresByPlayerId[memberPlayer.id], 10, 'team_scored edit data should carry member score from the new score column');
+    assertEqual(teamScoredEdit.scoresByPlayerId[otherPlayer.id], 20, 'team_scored edit data should carry losing-team score from the new score column');
+
+    console.log('rules.ts / results.ts / schema.ts team_scored OK (scoringDirection resolution, teamResults.score column round-trip, winner/summary/edit rehydration)');
   } finally {
     // Explicit cleanup, not a transaction rollback - see header comment:
     // every db/lib call in this script shares the module-level `db`

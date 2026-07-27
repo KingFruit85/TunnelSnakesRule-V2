@@ -47,7 +47,7 @@ function parseCheckedPlayers(formData: FormData): CheckedPlayerEntry[] {
 }
 
 // Shared by recordPlayResults (new play) and updatePlayResults (replace an
-// existing play) so the five-way win-condition branching lives in exactly
+// existing play) so the six-way win-condition branching lives in exactly
 // one place. Both callers have already inserted/kept the `plays` row by
 // the time this runs - this only writes the *result* rows.
 async function writeResultRows(
@@ -76,6 +76,32 @@ async function writeResultRows(
           playerId: entry.playerId,
           team: entry.team,
           won: winningTeam !== "Tie" && entry.team === winningTeam,
+        });
+      }
+      break;
+    }
+
+    // Unlike team_based, the winning team isn't submitted by the client -
+    // it's derived here from each team's summed player scores, the same
+    // trust boundary reasoning single_winner/single_loser already apply to
+    // their participant check (never take the client's word for who won).
+    case "team_scored": {
+      const totals = new Map<string, number>();
+      for (const entry of checkedPlayers) {
+        totals.set(entry.team, (totals.get(entry.team) ?? 0) + (Number(entry.score) || 0));
+      }
+      const ranked = [...totals.entries()].sort(([, a], [, b]) =>
+        rules.scoringDirection === "low" ? a - b : b - a
+      );
+      const isTie = ranked.length > 1 && ranked[0][1] === ranked[1][1];
+      const winningTeam = isTie ? null : ranked[0]?.[0];
+      for (const entry of checkedPlayers) {
+        await db.insert(teamResults).values({
+          playId,
+          playerId: entry.playerId,
+          team: entry.team,
+          score: Number(entry.score) || 0,
+          won: !isTie && entry.team === winningTeam,
         });
       }
       break;

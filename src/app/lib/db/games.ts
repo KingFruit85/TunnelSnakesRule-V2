@@ -18,6 +18,7 @@ export const WIN_CONDITION_DB_TO_UI: Record<DbWinCondition, string> = {
   single_winner: "3",
   single_loser: "4",
   hidden_traitor: "5",
+  team_scored: "6",
 };
 
 export const WIN_CONDITION_UI_TO_DB: Record<string, DbWinCondition> = {
@@ -27,6 +28,7 @@ export const WIN_CONDITION_UI_TO_DB: Record<string, DbWinCondition> = {
   "3": "single_winner",
   "4": "single_loser",
   "5": "hidden_traitor",
+  "6": "team_scored",
 };
 
 export const SCORING_DIRECTION_DB_TO_UI: Record<DbScoringDirection, string> = {

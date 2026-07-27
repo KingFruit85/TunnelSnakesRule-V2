@@ -17,6 +17,7 @@ const WIN_LABELS: Record<string, string> = {
   "3": "Single winner",
   "4": "Single loser",
   "5": "Hidden traitor",
+  "6": "Team scored",
 };
 
 export interface ResultFormProps {
@@ -73,7 +74,10 @@ export default function ResultForm({
 
   const validationError = (() => {
     if (selectedMembers.length === 0) return "Select at least one player.";
-    if (winCode === "0" && selectedMembers.some((m) => scores[m.id].trim() === "" || Number.isNaN(Number(scores[m.id])))) {
+    if (
+      (winCode === "0" || winCode === "6") &&
+      selectedMembers.some((m) => scores[m.id].trim() === "" || Number.isNaN(Number(scores[m.id])))
+    ) {
       return "Enter a score for every player.";
     }
     if (winCode === "3" && (!pickedPlayerId || !checked[pickedPlayerId])) {
@@ -116,10 +120,16 @@ export default function ResultForm({
       {winCode === "4" && <input type="hidden" name="loser" value={pickedPlayerId} />}
       {winCode === "5" && <input type="hidden" name="winner" value={winningTeam} />}
 
-      {(winCode === "0" || winCode === "1" || winCode === "2") &&
+      {(winCode === "0" || winCode === "1" || winCode === "2" || winCode === "6") &&
         selectedMembers.map((m) => {
           const csv =
-            winCode === "0" ? `true,${scores[m.id] || "0"},` : winCode === "1" ? `true,,${teams[m.id]}` : `true,,`;
+            winCode === "0"
+              ? `true,${scores[m.id] || "0"},`
+              : winCode === "1"
+                ? `true,,${teams[m.id]}`
+                : winCode === "6"
+                  ? `true,${scores[m.id] || "0"},${teams[m.id]}`
+                  : `true,,`;
           return <input key={m.id} type="hidden" name={`player_${m.id}`} value={csv} />;
         })}
       {winCode === "5" &&
@@ -166,10 +176,11 @@ export default function ResultForm({
         ))}
       </div>
 
-      {winCode === "0" && selectedMembers.length > 0 && (
+      {(winCode === "0" || winCode === "6") && selectedMembers.length > 0 && (
         <div className="mt-5">
           <p className="text-[14px] font-medium text-text">
-            Scores — {selectedGame?.scoringDirection === "Low" ? "lowest" : "highest"} score wins
+            Scores — {selectedGame?.scoringDirection === "Low" ? "lowest" : "highest"}{" "}
+            {winCode === "6" ? "team total" : "score"} wins
           </p>
           <div className="mt-2 flex flex-col">
             {selectedMembers.map((m) => (
@@ -193,7 +204,7 @@ export default function ResultForm({
         </div>
       )}
 
-      {winCode === "1" && selectedMembers.length > 0 && (
+      {(winCode === "1" || winCode === "6") && selectedMembers.length > 0 && (
         <div className="mt-5">
           <p className="text-[14px] font-medium text-text">Teams</p>
           <div className="mt-2 flex flex-col gap-2">
@@ -219,30 +230,34 @@ export default function ResultForm({
               </div>
             ))}
           </div>
-          <p className="mt-3 text-[14px] font-medium text-text">Winning team</p>
-          <div className="mt-2 flex border border-divider">
-            {teamLabels.map((label) => (
-              <button
-                key={label}
-                type="button"
-                onClick={() => setWinningTeam(label)}
-                className={`flex-1 py-2 text-[13px] font-semibold ${
-                  winningTeam === label ? "bg-accent text-white" : "bg-canvas text-text"
-                }`}
-              >
-                Team {label}
-              </button>
-            ))}
-            <button
-              type="button"
-              onClick={() => setWinningTeam("Tie")}
-              className={`flex-1 py-2 text-[13px] font-semibold ${
-                winningTeam === "Tie" ? "bg-accent text-white" : "bg-canvas text-text"
-              }`}
-            >
-              Tie
-            </button>
-          </div>
+          {winCode === "1" && (
+            <>
+              <p className="mt-3 text-[14px] font-medium text-text">Winning team</p>
+              <div className="mt-2 flex border border-divider">
+                {teamLabels.map((label) => (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => setWinningTeam(label)}
+                    className={`flex-1 py-2 text-[13px] font-semibold ${
+                      winningTeam === label ? "bg-accent text-white" : "bg-canvas text-text"
+                    }`}
+                  >
+                    Team {label}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setWinningTeam("Tie")}
+                  className={`flex-1 py-2 text-[13px] font-semibold ${
+                    winningTeam === "Tie" ? "bg-accent text-white" : "bg-canvas text-text"
+                  }`}
+                >
+                  Tie
+                </button>
+              </div>
+            </>
+          )}
         </div>
       )}
 

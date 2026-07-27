@@ -15,6 +15,11 @@ const CONDITIONS = [
     label: "Hidden traitor",
     helper: "One or more players may secretly work against the rest",
   },
+  {
+    value: "6",
+    label: "Team scored",
+    helper: "Teams compete, highest or lowest team score wins",
+  },
 ];
 
 export default function AddGameForm({ clubId }: { clubId: string }) {
@@ -26,6 +31,7 @@ export default function AddGameForm({ clubId }: { clubId: string }) {
   const [neitherLabel, setNeitherLabel] = useState("");
   const isLeaderboard = winCondition === "0";
   const isHiddenTraitor = winCondition === "5";
+  const needsDirection = winCondition === "0" || winCondition === "6";
   const hiddenTraitorLabels = [roleOneLabel.trim(), roleTwoLabel.trim(), neitherLabel.trim()];
   const hiddenTraitorLabelsValid =
     hiddenTraitorLabels.every((label) => label.length > 0) &&
@@ -36,7 +42,7 @@ export default function AddGameForm({ clubId }: { clubId: string }) {
   return (
     <form action={addNewBoardGame} className="flex flex-1 flex-col px-5 pt-5">
       <input type="hidden" name="clubId" value={clubId} />
-      {isLeaderboard && <input type="hidden" name="scoringDirection" value={direction} />}
+      {needsDirection && <input type="hidden" name="scoringDirection" value={direction} />}
       {isHiddenTraitor && (
         <>
           <input type="hidden" name="roleOneLabel" value={roleOneLabel} />
@@ -83,7 +89,7 @@ export default function AddGameForm({ clubId }: { clubId: string }) {
         ))}
       </div>
 
-      {isLeaderboard && (
+      {needsDirection && (
         <div className="mt-3 flex border border-divider">
           {(["High", "Low"] as const).map((dir) => (
             <button

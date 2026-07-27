@@ -19,6 +19,7 @@ export const winConditionEnum = pgEnum("win_condition", [
   "single_winner",
   "single_loser",
   "hidden_traitor",
+  "team_scored",
 ]);
 
 export const scoringDirectionEnum = pgEnum("scoring_direction", ["high", "low"]);
@@ -79,8 +80,8 @@ export const games = pgTable(
   (table) => [
     check(
       "games_scoring_direction_matches_win_condition",
-      sql`(${table.winCondition} = 'leaderboard' AND ${table.scoringDirection} IS NOT NULL)
-          OR (${table.winCondition} <> 'leaderboard' AND ${table.scoringDirection} IS NULL)`
+      sql`(${table.winCondition} IN ('leaderboard', 'team_scored') AND ${table.scoringDirection} IS NOT NULL)
+          OR (${table.winCondition} NOT IN ('leaderboard', 'team_scored') AND ${table.scoringDirection} IS NULL)`
     ),
     check(
       "games_hidden_traitor_labels_required",
@@ -115,8 +116,8 @@ export const clubGameVariants = pgTable(
     primaryKey({ columns: [table.clubId, table.gameId] }),
     check(
       "club_game_variants_scoring_direction_matches_win_condition",
-      sql`(${table.winCondition} = 'leaderboard' AND ${table.scoringDirection} IS NOT NULL)
-          OR (${table.winCondition} <> 'leaderboard' AND ${table.scoringDirection} IS NULL)`
+      sql`(${table.winCondition} IN ('leaderboard', 'team_scored') AND ${table.scoringDirection} IS NOT NULL)
+          OR (${table.winCondition} NOT IN ('leaderboard', 'team_scored') AND ${table.scoringDirection} IS NULL)`
     ),
     check(
       "club_game_variants_hidden_traitor_labels_required",
@@ -179,6 +180,7 @@ export const teamResults = pgTable(
       .notNull()
       .references(() => players.id),
     team: text("team").notNull(),
+    score: integer("score"),
     won: boolean("won").notNull(),
   },
   (table) => [primaryKey({ columns: [table.playId, table.playerId] })]

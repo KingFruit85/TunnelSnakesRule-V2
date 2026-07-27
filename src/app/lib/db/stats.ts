@@ -5,12 +5,13 @@
 //
 // Win attribution reuses the "won" boolean writeResultRows (in
 // results-actions.ts) already writes for every non-leaderboard condition -
-// team_based, cooperative, single_winner, and single_loser all store the
-// correct per-player winner as teamResults.won / outcomeResults.won at
-// write time. Only leaderboard_results has no "won" column, since the
-// winner there depends on the game's scoring direction, so that's the one
-// branch this function computes itself, via resolveEffectiveRules - the
-// same source of truth writeResultRows used when the play was recorded.
+// team_based, team_scored, hidden_traitor, cooperative, single_winner, and
+// single_loser all store the correct per-player winner as teamResults.won /
+// outcomeResults.won at write time. Only leaderboard_results has no "won"
+// column, since the winner there depends on the game's scoring direction,
+// so that's the one branch this function computes itself, via
+// resolveEffectiveRules - the same source of truth writeResultRows used
+// when the play was recorded.
 import "server-only";
 import { eq, inArray } from "drizzle-orm";
 import { db } from "@/db/client";
